@@ -18,12 +18,12 @@ const ExamenesPage = () => {
 
   return (
     <PageContainer
-      title="Registro de Exámenes"
+      title="Lista de exámenes"
       description="Registro y gestión de exámenes médicos"
     >
       <Box sx={{ p: 0 }}>
-        <Grid size={{ xs: 10, lg: 10 }} sx={{ pt: 0 }}>
-          <RegistroExamen />
+        <Grid size={{ xs: 12, lg: 12 }} sx={{ pt: 0 }}>
+          <ListaExamenes />
         </Grid>
       </Box>
     </PageContainer>

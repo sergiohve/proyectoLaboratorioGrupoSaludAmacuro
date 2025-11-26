@@ -22,14 +22,15 @@ const ClientesPage = () => {
     <PageContainer title="Gestión de Pacientes" description="Administración de clientes del sistema">
       <Box>
         <Grid container spacing={3}>
-         
-          
-          {/* Formulario para agregar cliente */}
-          <Grid size={{ xs: 12, lg: 12 }}>
-            <AgregarCliente />
+          {/* Estadísticas */}
+          <Grid size={{ xs: 12 }}>
+            <ClientesStats />
           </Grid>
           
-         
+          {/* Tabla de clientes */}
+          <Grid size={{ xs: 12, lg: 12 }}>
+            <ClientesTable />
+          </Grid>
         </Grid>
       </Box>
     </PageContainer>

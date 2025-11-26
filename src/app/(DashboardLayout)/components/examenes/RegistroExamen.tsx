@@ -25,6 +25,7 @@ import {
   Autocomplete,
 } from "@mui/material";
 import { Save, MedicalServices, Add, Delete } from "@mui/icons-material";
+import { useRouter } from "next/navigation";
 
 interface Cliente {
   _id: string;
@@ -317,7 +318,7 @@ const plantillasExamenes: {
 };
 const obtenerFechaVenezuela = () => {
   const ahora = new Date();
- 
+
   const offset = -4 * 60;
   const fechaVenezuela = new Date(ahora.getTime() + offset * 60 * 1000);
   return fechaVenezuela.toISOString().split("T")[0];
@@ -325,6 +326,7 @@ const obtenerFechaVenezuela = () => {
 const tiposExamen = Object.keys(plantillasExamenes);
 
 const RegistroExamen = () => {
+  const router = useRouter();
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [formData, setFormData] = useState<ExamenForm>({
     cliente: "",
@@ -344,7 +346,9 @@ const RegistroExamen = () => {
   useEffect(() => {
     const fetchClientes = async () => {
       try {
-        const response = await fetch("https://backinvent.onrender.com/api/clientes");
+        const response = await fetch(
+          "https://backinvent.onrender.com/api/clientes"
+        );
         if (response.ok) {
           const data = await response.json();
           setClientes(data);
@@ -356,9 +360,7 @@ const RegistroExamen = () => {
     fetchClientes();
   }, []);
 
-  const handleChange = (
-    e: any
-  ): any => {
+  const handleChange = (e: any): any => {
     const { name, value } = e.target;
     if (name) {
       if (name === "tipoExamen") {
@@ -367,7 +369,11 @@ const RegistroExamen = () => {
           ...prev,
           tipoExamen: value as string,
           area: plantilla?.area || "",
-          campos: plantilla ? [...plantilla.campos] : prev.campos.length > 0 ? prev.campos : [{ nombre: "", resultado: "", valorReferencia: "" }],
+          campos: plantilla
+            ? [...plantilla.campos]
+            : prev.campos.length > 0
+            ? prev.campos
+            : [{ nombre: "", resultado: "", valorReferencia: "" }],
         }));
       } else {
         setFormData((prev) => ({
@@ -404,7 +410,7 @@ const RegistroExamen = () => {
   const eliminarCampo = (index: number) => {
     // No permitir eliminar si solo queda un campo
     if (formData.campos.length <= 1) return;
-    
+
     setFormData((prev) => ({
       ...prev,
       campos: prev.campos.filter((_, i) => i !== index),
@@ -426,28 +432,31 @@ const RegistroExamen = () => {
     }
 
     try {
-      const response = await fetch("https://backinvent.onrender.com/api/examenes", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          cliente: formData.cliente,
-          tipoExamen: formData.tipoExamen,
-          area: formData.area,
-          observaciones: formData.observaciones,
-          fechaExamen: formData.fechaExamen,
-          resultados: formData.campos.reduce((acc, campo) => {
-            if (campo.nombre) {
-              acc[campo.nombre] = {
-                resultado: campo.resultado,
-                valorReferencia: campo.valorReferencia,
-              };
-            }
-            return acc;
-          }, {} as any),
-        }),
-      });
+      const response = await fetch(
+        "https://backinvent.onrender.com/api/examenes",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            cliente: formData.cliente,
+            tipoExamen: formData.tipoExamen,
+            area: formData.area,
+            observaciones: formData.observaciones,
+            fechaExamen: formData.fechaExamen,
+            resultados: formData.campos.reduce((acc, campo) => {
+              if (campo.nombre) {
+                acc[campo.nombre] = {
+                  resultado: campo.resultado,
+                  valorReferencia: campo.valorReferencia,
+                };
+              }
+              return acc;
+            }, {} as any),
+          }),
+        }
+      );
 
       const data = await response.json();
 
@@ -462,6 +471,10 @@ const RegistroExamen = () => {
           campos: [{ nombre: "", resultado: "", valorReferencia: "" }], // Resetear con un campo
         });
         window.dispatchEvent(new Event("examenAdded"));
+
+        setTimeout(() => {
+          router.push("/lista-examenes");
+        }, 1000);
       } else {
         setMessage({
           type: "error",
@@ -527,7 +540,11 @@ const RegistroExamen = () => {
                       ...prev,
                       tipoExamen: newValue,
                       area: plantilla?.area || "",
-                      campos: plantilla ? [...plantilla.campos] : prev.campos.length > 0 ? prev.campos : [{ nombre: "", resultado: "", valorReferencia: "" }],
+                      campos: plantilla
+                        ? [...plantilla.campos]
+                        : prev.campos.length > 0
+                        ? prev.campos
+                        : [{ nombre: "", resultado: "", valorReferencia: "" }],
                     }));
                   }
                 }}
@@ -539,7 +556,16 @@ const RegistroExamen = () => {
                       tipoExamen: newInputValue,
                       area: "",
                       // Mantener los campos existentes o al menos uno
-                      campos: prev.campos.length > 0 ? prev.campos : [{ nombre: "", resultado: "", valorReferencia: "" }],
+                      campos:
+                        prev.campos.length > 0
+                          ? prev.campos
+                          : [
+                              {
+                                nombre: "",
+                                resultado: "",
+                                valorReferencia: "",
+                              },
+                            ],
                     }));
                   }
                 }}
@@ -668,10 +694,10 @@ const RegistroExamen = () => {
                               }
                               placeholder="Nombre del parámetro"
                               sx={{
-                                '& .MuiInputBase-input': {
-                                  fontSize: '14px',
-                                  padding: '8px 12px',
-                                }
+                                "& .MuiInputBase-input": {
+                                  fontSize: "14px",
+                                  padding: "8px 12px",
+                                },
                               }}
                             />
                           </TableCell>
@@ -689,10 +715,10 @@ const RegistroExamen = () => {
                               }
                               placeholder="Resultado obtenido"
                               sx={{
-                                '& .MuiInputBase-input': {
-                                  fontSize: '14px',
-                                  padding: '8px 12px',
-                                }
+                                "& .MuiInputBase-input": {
+                                  fontSize: "14px",
+                                  padding: "8px 12px",
+                                },
                               }}
                             />
                           </TableCell>
@@ -710,10 +736,10 @@ const RegistroExamen = () => {
                               }
                               placeholder="Valor de referencia"
                               sx={{
-                                '& .MuiInputBase-input': {
-                                  fontSize: '14px',
-                                  padding: '8px 12px',
-                                }
+                                "& .MuiInputBase-input": {
+                                  fontSize: "14px",
+                                  padding: "8px 12px",
+                                },
                               }}
                             />
                           </TableCell>
@@ -748,9 +774,9 @@ const RegistroExamen = () => {
                 size="small"
                 placeholder="Observaciones adicionales, recomendaciones..."
                 sx={{
-                  '& .MuiInputBase-input': {
-                    fontSize: '14px',
-                  }
+                  "& .MuiInputBase-input": {
+                    fontSize: "14px",
+                  },
                 }}
               />
             </Grid>

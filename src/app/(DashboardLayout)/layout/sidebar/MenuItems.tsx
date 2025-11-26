@@ -26,19 +26,35 @@ const Menuitems = [
   },
   {
     navlabel: true,
-    subheader: "Datos",
+    subheader: "Pacientes",
   },
   {
     id: uniqueId(),
-    title: "Pacientes",
-    icon: IconUsers, // o IconUser para un solo usuario
+    title: "Registro pacientes",
+    icon: IconUsers, 
     href: "/clientes",
   },
   {
     id: uniqueId(),
-    title: "Reportes de exámenes",
-    icon: IconReportMedical, // o IconClipboardList
+    title: "Lista de pacientes",
+    icon: IconUsers, 
+    href: "/lista-clientes",
+  },
+  {
+    navlabel: true,
+    subheader: "Exámenes",
+  },
+  {
+    id: uniqueId(),
+    title: "Crear examén",
+    icon: IconReportMedical, 
     href: "/examenes",
+  },
+  {
+    id: uniqueId(),
+    title: "Lista de examenes",
+    icon: IconClipboardList, 
+    href: "/lista-examenes",
   },
 ];
 
