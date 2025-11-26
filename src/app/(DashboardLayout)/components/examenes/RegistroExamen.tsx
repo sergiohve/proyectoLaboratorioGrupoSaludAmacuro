@@ -614,6 +614,7 @@ const RegistroExamen = () => {
                             color: "white",
                             fontWeight: 600,
                             width: "35%",
+                            minWidth: "200px",
                           }}
                         >
                           PRUEBA
@@ -623,6 +624,7 @@ const RegistroExamen = () => {
                             color: "white",
                             fontWeight: 600,
                             width: "30%",
+                            minWidth: "150px",
                           }}
                         >
                           RESULTADO
@@ -632,6 +634,7 @@ const RegistroExamen = () => {
                             color: "white",
                             fontWeight: 600,
                             width: "30%",
+                            minWidth: "200px",
                           }}
                         >
                           VALOR DE REFERENCIA
@@ -641,6 +644,7 @@ const RegistroExamen = () => {
                             color: "white",
                             fontWeight: 600,
                             width: "5%",
+                            minWidth: "80px",
                           }}
                         >
                           Acción
@@ -663,6 +667,12 @@ const RegistroExamen = () => {
                                 )
                               }
                               placeholder="Nombre del parámetro"
+                              sx={{
+                                '& .MuiInputBase-input': {
+                                  fontSize: '14px',
+                                  padding: '8px 12px',
+                                }
+                              }}
                             />
                           </TableCell>
                           <TableCell>
@@ -678,6 +688,12 @@ const RegistroExamen = () => {
                                 )
                               }
                               placeholder="Resultado obtenido"
+                              sx={{
+                                '& .MuiInputBase-input': {
+                                  fontSize: '14px',
+                                  padding: '8px 12px',
+                                }
+                              }}
                             />
                           </TableCell>
                           <TableCell>
@@ -693,6 +709,12 @@ const RegistroExamen = () => {
                                 )
                               }
                               placeholder="Valor de referencia"
+                              sx={{
+                                '& .MuiInputBase-input': {
+                                  fontSize: '14px',
+                                  padding: '8px 12px',
+                                }
+                              }}
                             />
                           </TableCell>
                           <TableCell align="center">
@@ -725,6 +747,11 @@ const RegistroExamen = () => {
                 rows={3}
                 size="small"
                 placeholder="Observaciones adicionales, recomendaciones..."
+                sx={{
+                  '& .MuiInputBase-input': {
+                    fontSize: '14px',
+                  }
+                }}
               />
             </Grid>
 
