@@ -59,7 +59,7 @@ const ClientesTable = () => {
   const handleChangeFilasPorPagina = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    setFilasPorPagina(parseInt(event.target.value, 5));
+    setFilasPorPagina(parseInt(event.target.value, 10)); 
     setPagina(0);
   };
 
@@ -152,25 +152,18 @@ const ClientesTable = () => {
     }
   };
 
- const formatDate = (dateString: string) => {
-  // Si la fecha ya viene en formato UTC (con Z al final)
-  // simplemente créala y usa los métodos UTC
-  const date = new Date(dateString);
-  
-  console.log('Fecha original:', dateString);
-  console.log('Fecha interpretada:', date);
-  console.log('UTC Date:', date.getUTCDate());
-  console.log('Local Date:', date.getDate());
-  
-  // Forzar la interpretación como UTC
-  const utcDate = new Date(date.getTime() + date.getTimezoneOffset() * 60000);
-  
-  const day = utcDate.getUTCDate().toString().padStart(2, '0');
-  const month = (utcDate.getUTCMonth() + 1).toString().padStart(2, '0');
-  const year = utcDate.getUTCFullYear();
-  
-  return `${day}/${month}/${year}`;
-};
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    
+    // Forzar la interpretación como UTC
+    const utcDate = new Date(date.getTime() + date.getTimezoneOffset() * 60000);
+    
+    const day = utcDate.getUTCDate().toString().padStart(2, '0');
+    const month = (utcDate.getUTCMonth() + 1).toString().padStart(2, '0');
+    const year = utcDate.getUTCFullYear();
+    
+    return `${day}/${month}/${year}`;
+  };
 
   // Calcular clientes para la página actual
   const clientesPaginados = clientes.slice(
