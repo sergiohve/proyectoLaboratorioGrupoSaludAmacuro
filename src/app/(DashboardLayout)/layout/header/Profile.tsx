@@ -79,24 +79,7 @@ const Profile = () => {
           },
         }}
       >
-        <MenuItem onClick={handleClose2}>
-          <ListItemIcon>
-            <IconUser width={20} />
-          </ListItemIcon>
-          <ListItemText>My Profile</ListItemText>
-        </MenuItem>
-        <MenuItem onClick={handleClose2}>
-          <ListItemIcon>
-            <IconMail width={20} />
-          </ListItemIcon>
-          <ListItemText>My Account</ListItemText>
-        </MenuItem>
-        <MenuItem onClick={handleClose2}>
-          <ListItemIcon>
-            <IconListCheck width={20} />
-          </ListItemIcon>
-          <ListItemText>My Tasks</ListItemText>
-        </MenuItem>
+     
         <Box mt={1} py={1} px={2}>
           <Button
             variant="outlined"
