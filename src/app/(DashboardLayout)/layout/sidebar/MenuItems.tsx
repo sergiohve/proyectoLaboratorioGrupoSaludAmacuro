@@ -8,7 +8,8 @@ import {
   IconStethoscope,
   IconMicroscope,
   IconClipboardList,
-  IconUsers
+  IconUsers,
+  IconList // Si está disponible en tu versión
 } from "@tabler/icons-react";
 
 import { uniqueId } from "lodash";
@@ -37,7 +38,7 @@ const Menuitems = [
   {
     id: uniqueId(),
     title: "Lista de pacientes",
-    icon: IconUsers, 
+    icon: IconClipboardList, // Cambiado a un icono de lista
     href: "/lista-clientes",
   },
   {

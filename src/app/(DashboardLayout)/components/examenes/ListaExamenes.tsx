@@ -485,7 +485,7 @@ const ListaExamenes = () => {
             sx={{ whiteSpace: "nowrap" }}
           >
             <TableHead>
-              <TableRow sx={{ backgroundColor: 'grey.50' }}>
+              <TableRow>
                 <TableCell>
                   <Typography variant="subtitle2" fontWeight={600}>
                     Paciente
