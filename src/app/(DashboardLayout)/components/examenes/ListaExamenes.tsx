@@ -328,8 +328,17 @@ const ListaExamenes = () => {
     }
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("es-ES");
+ const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    
+    // Forzar la interpretación como UTC
+    const utcDate = new Date(date.getTime() + date.getTimezoneOffset() * 60000);
+    
+    const day = utcDate.getUTCDate().toString().padStart(2, '0');
+    const month = (utcDate.getUTCMonth() + 1).toString().padStart(2, '0');
+    const year = utcDate.getUTCFullYear();
+    
+    return `${day}/${month}/${year}`;
   };
 
   const formatDateForPDF = (dateString: string) => {
@@ -813,7 +822,7 @@ const ListaExamenes = () => {
                         FECHA MUESTRA:
                       </TableCell>
                       <TableCell sx={{ border: "none", p: 0 }}>
-                        {formatDateForPDF(examenSeleccionado.fechaExamen)}
+                        {formatDate(examenSeleccionado.fechaExamen)}
                       </TableCell>
                       <TableCell
                         sx={{ border: "none", p: 0, fontWeight: "bold" }}
@@ -821,7 +830,7 @@ const ListaExamenes = () => {
                         FECHA REPORTE:
                       </TableCell>
                       <TableCell sx={{ border: "none", p: 0 }}>
-                        {formatDateForPDF(new Date().toISOString())}
+                        {formatDate(new Date().toISOString())}
                       </TableCell>
                     </TableRow>
                     <TableRow>
