@@ -20,7 +20,7 @@ const Menuitems = [
   },
   {
     id: uniqueId(),
-    title: "Dashboard",
+    title: "Home",
     icon: IconLayoutDashboard,
     href: "/",
   },

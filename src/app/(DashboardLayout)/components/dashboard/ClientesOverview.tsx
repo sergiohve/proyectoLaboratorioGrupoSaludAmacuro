@@ -204,7 +204,7 @@ const ClientesOverview = () => {
             data: datos.registros,
         },
         {
-            name: 'Edad Promedio',
+            name: 'Edad Prom.',
             data: datos.promedioEdad,
         },
     ];
