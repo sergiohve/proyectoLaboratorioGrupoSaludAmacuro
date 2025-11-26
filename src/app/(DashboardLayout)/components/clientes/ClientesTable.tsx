@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   Typography,
   Box,
@@ -21,8 +21,9 @@ import {
   Grid,
   MenuItem,
   TablePagination,
+  InputAdornment,
 } from "@mui/material";
-import { Edit, Delete, Person, Save, Close } from "@mui/icons-material";
+import { Edit, Delete, Person, Save, Close, Search } from "@mui/icons-material";
 import DashboardCard from "@/app/(DashboardLayout)/components/shared/DashboardCard";
 import { useClientes } from "@/context/clientesContext";
 
@@ -51,6 +52,28 @@ const ClientesTable = () => {
   const [guardando, setGuardando] = useState(false);
   const [pagina, setPagina] = useState(0);
   const [filasPorPagina, setFilasPorPagina] = useState(5);
+  const [terminoBusqueda, setTerminoBusqueda] = useState("");
+
+  // Función para manejar la búsqueda
+  const handleBusquedaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setTerminoBusqueda(e.target.value);
+    setPagina(0); // Resetear a la primera página cuando se busca
+  };
+
+  // Filtrar clientes basado en el término de búsqueda
+  const clientesFiltrados = useMemo(() => {
+    if (!terminoBusqueda) return clientes;
+
+    const termino = terminoBusqueda.toLowerCase();
+    return clientes.filter(
+      (cliente) =>
+        cliente.nombre.toLowerCase().includes(termino) ||
+        cliente.cedula.toLowerCase().includes(termino) ||
+        cliente.sexo.toLowerCase().includes(termino) ||
+        cliente.edad.toString().includes(termino) ||
+        cliente._id.toLowerCase().includes(termino)
+    );
+  }, [clientes, terminoBusqueda]);
 
   const handleChangePagina = (event: unknown, nuevaPagina: number) => {
     setPagina(nuevaPagina);
@@ -165,8 +188,8 @@ const ClientesTable = () => {
     return `${day}/${month}/${year}`;
   };
 
-  // Calcular clientes para la página actual
-  const clientesPaginados = clientes.slice(
+  // Calcular clientes para la página actual (usando los datos filtrados)
+  const clientesPaginados = clientesFiltrados.slice(
     pagina * filasPorPagina,
     pagina * filasPorPagina + filasPorPagina
   );
@@ -191,9 +214,12 @@ const ClientesTable = () => {
       <DashboardCard
         title="Lista de Clientes"
         action={
-          <Typography variant="body2" color="textSecondary">
-            Total: {clientes.length}
-          </Typography>
+          <Box display="flex" alignItems="center" gap={2}>
+            <Typography variant="body2" color="textSecondary">
+              Total: {clientesFiltrados.length}
+              {terminoBusqueda && ` (filtrados)`}
+            </Typography>
+          </Box>
         }
       >
         {error && (
@@ -201,6 +227,25 @@ const ClientesTable = () => {
             {error}
           </Alert>
         )}
+
+        {/* Barra de búsqueda */}
+        <Box sx={{ mb: 3 }}>
+          <TextField
+            fullWidth
+            variant="outlined"
+            placeholder="Buscar por nombre, cédula, sexo, edad o ID..."
+            value={terminoBusqueda}
+            onChange={handleBusquedaChange}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Search color="action" />
+                </InputAdornment>
+              ),
+            }}
+            size="small"
+          />
+        </Box>
 
         <Box sx={{ overflow: "auto", width: { xs: "280px", sm: "auto" } }}>
           <Table
@@ -251,7 +296,9 @@ const ClientesTable = () => {
                 <TableRow>
                   <TableCell colSpan={7} align="center">
                     <Typography color="textSecondary">
-                      No hay pacientes registrados
+                      {terminoBusqueda
+                        ? "No se encontraron pacientes que coincidan con la búsqueda"
+                        : "No hay pacientes registrados"}
                     </Typography>
                   </TableCell>
                 </TableRow>
@@ -327,11 +374,11 @@ const ClientesTable = () => {
           </Table>
 
           {/* Paginación */}
-          {clientes.length > 0 && (
+          {clientesFiltrados.length > 0 && (
             <TablePagination
               rowsPerPageOptions={[5, 10, 25, 50]}
               component="div"
-              count={clientes.length}
+              count={clientesFiltrados.length}
               rowsPerPage={filasPorPagina}
               page={pagina}
               onPageChange={handleChangePagina}
