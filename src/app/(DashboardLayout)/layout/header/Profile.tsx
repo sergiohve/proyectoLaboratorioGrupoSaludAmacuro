@@ -89,7 +89,8 @@ const Profile = () => {
             startIcon={<IconLogout width={18} />}
             sx={{
               justifyContent: 'flex-start',
-              pl: 2
+              pl: 2,
+              fontSize: 10
             }}
           >
             Cerrar sesión
