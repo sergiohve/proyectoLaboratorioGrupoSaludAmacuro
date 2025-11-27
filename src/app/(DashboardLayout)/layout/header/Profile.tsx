@@ -92,7 +92,7 @@ const Profile = () => {
               pl: 2
             }}
           >
-            Logout
+            Cerrar sesión
           </Button>
         </Box>
       </Menu>
