@@ -198,7 +198,7 @@ const ClientesTable = () => {
 
   if (loading) {
     return (
-      <DashboardCard title="Lista de Clientes">
+      <DashboardCard title="Lista de Pacientes">
         <Box
           display="flex"
           justifyContent="center"
@@ -214,7 +214,7 @@ const ClientesTable = () => {
   return (
     <>
       <DashboardCard
-        title="Lista de Clientes"
+        title="Lista de Pacientes"
         action={
           <Box display="flex" alignItems="center" gap={2}>
             <Typography variant="body2" color="textSecondary">

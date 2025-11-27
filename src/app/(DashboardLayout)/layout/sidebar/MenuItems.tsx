@@ -37,8 +37,8 @@ const Menuitems = [
   },
   {
     id: uniqueId(),
-    title: "Lista de pacientes",
-    icon: IconClipboardList, // Cambiado a un icono de lista
+    title: "Lista de Pacientes",
+    icon: IconClipboardList, 
     href: "/lista-clientes",
   },
   {
