@@ -178,15 +178,17 @@ const ClientesTable = () => {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     
-    // Forzar la interpretación como UTC
-    const utcDate = new Date(date.getTime() + date.getTimezoneOffset() * 60000);
+    // Ajustar a hora de Venezuela (UTC-4)
+    // Venezuela está 4 horas detrás de UTC, así que RESTAMOS 4 horas
+    const venezuelaOffset = -4 * 60; // -4 horas en minutos
+    const venezuelaTime = new Date(date.getTime() + (date.getTimezoneOffset() - venezuelaOffset) * 60000);
     
-    const day = utcDate.getUTCDate().toString().padStart(2, '0');
-    const month = (utcDate.getUTCMonth() + 1).toString().padStart(2, '0');
-    const year = utcDate.getUTCFullYear();
+    const day = venezuelaTime.getUTCDate().toString().padStart(2, '0');
+    const month = (venezuelaTime.getUTCMonth() + 1).toString().padStart(2, '0');
+    const year = venezuelaTime.getUTCFullYear();
     
     return `${day}/${month}/${year}`;
-  };
+};
 
   // Calcular clientes para la página actual (usando los datos filtrados)
   const clientesPaginados = clientesFiltrados.slice(

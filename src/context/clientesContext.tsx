@@ -37,6 +37,35 @@ const ClientesContext = createContext<ClientesContextType | undefined>(
   undefined
 );
 
+// Función para convertir a hora de Venezuela (UTC-4)
+const toVenezuelaTime = (date: Date): Date => {
+  // Venezuela está en UTC-4, así que restamos 4 horas del offset
+  const venezuelaOffset = -4 * 60; // -4 horas en minutos
+  return new Date(date.getTime() + (date.getTimezoneOffset() - venezuelaOffset) * 60000);
+};
+
+// Función para obtener fecha actual en Venezuela (sin horas)
+const getTodayVenezuela = (): Date => {
+  const now = new Date();
+  const venezuelaTime = toVenezuelaTime(now);
+  venezuelaTime.setHours(0, 0, 0, 0);
+  return venezuelaTime;
+};
+
+// Función para obtener inicio del mes en Venezuela
+const getStartOfMonthVenezuela = (): Date => {
+  const today = getTodayVenezuela();
+  const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+  startOfMonth.setHours(0, 0, 0, 0);
+  return startOfMonth;
+};
+
+// Función para convertir fecha del cliente a hora de Venezuela
+const parseClienteDate = (dateString: string): Date => {
+  const date = new Date(dateString);
+  return toVenezuelaTime(date);
+};
+
 export const ClientesProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
@@ -52,7 +81,7 @@ export const ClientesProvider: React.FC<{ children: ReactNode }> = ({
       if (!response.ok) throw new Error("Error al cargar clientes");
       const data = await response.json();
       setClientes(data);
-      console.log(data);
+      console.log("Clientes cargados:", data);
     } catch (err) {
       setError("Error al cargar los clientes");
       console.error("Error fetching clientes:", err);
@@ -116,54 +145,47 @@ export const ClientesProvider: React.FC<{ children: ReactNode }> = ({
     }
   };
 
-  // Calcular estadísticas basadas en los clientes
+  // Calcular estadísticas basadas en hora de Venezuela
   const calcularStats = () => {
-    // Obtener fecha actual en hora local (sin horas, minutos, segundos)
-    const hoy = new Date();
-    hoy.setHours(0, 0, 0, 0); // Reset a las 00:00:00.000
-
-    // Inicio del mes en hora local
-    const inicioDelMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
-    inicioDelMes.setHours(0, 0, 0, 0);
+    const hoyVenezuela = getTodayVenezuela();
+    const inicioDelMesVenezuela = getStartOfMonthVenezuela();
 
     const totalClientes = clientes.length;
 
     const nuevosHoy = clientes.filter((cliente) => {
-        // Convertir fecha del cliente a fecha local (sin horas)
-        const fechaCliente = new Date(cliente.fecha);
-        fechaCliente.setHours(0, 0, 0, 0);
-        
-        console.log('Fecha cliente:', fechaCliente);
-        console.log('Hoy:', hoy);
-        console.log('¿Son iguales?', fechaCliente.getTime() === hoy.getTime());
-        
-        return fechaCliente.getTime() === hoy.getTime();
+      const fechaCliente = parseClienteDate(cliente.fecha);
+      fechaCliente.setHours(0, 0, 0, 0);
+      
+      console.log('Fecha cliente (Venezuela):', fechaCliente);
+      console.log('Hoy (Venezuela):', hoyVenezuela);
+      console.log('¿Son iguales?', fechaCliente.getTime() === hoyVenezuela.getTime());
+      
+      return fechaCliente.getTime() === hoyVenezuela.getTime();
     }).length;
 
     const registrosMes = clientes.filter((cliente) => {
-        // Convertir fecha del cliente a fecha local (sin horas)
-        const fechaCliente = new Date(cliente.fecha);
-        fechaCliente.setHours(0, 0, 0, 0);
-        
-        return fechaCliente >= inicioDelMes;
+      const fechaCliente = parseClienteDate(cliente.fecha);
+      fechaCliente.setHours(0, 0, 0, 0);
+      
+      return fechaCliente >= inicioDelMesVenezuela;
     }).length;
 
-    console.log('--- ESTADÍSTICAS ---');
-    console.log('Hoy:', hoy.toISOString());
-    console.log('Inicio del mes:', inicioDelMes.toISOString());
+    console.log('--- ESTADÍSTICAS (HORA VENEZUELA) ---');
+    console.log('Hoy Venezuela:', hoyVenezuela.toISOString());
+    console.log('Inicio del mes Venezuela:', inicioDelMesVenezuela.toISOString());
     console.log('Nuevos hoy:', nuevosHoy);
     console.log('Registros mes:', registrosMes);
 
     return {
-        totalClientes,
-        nuevosHoy,
-        clientesActivos: totalClientes,
-        registrosMes,
+      totalClientes,
+      nuevosHoy,
+      clientesActivos: totalClientes,
+      registrosMes,
     };
-};
+  };
 
   const stats = calcularStats();
-console.log(stats)
+
   useEffect(() => {
     fetchClientes();
   }, []);
@@ -192,4 +214,16 @@ export const useClientes = () => {
     throw new Error("useClientes debe ser usado dentro de un ClientesProvider");
   }
   return context;
+};
+
+// Función auxiliar para formatear fechas en hora de Venezuela
+export const formatVenezuelaDate = (dateString: string): string => {
+  const date = parseClienteDate(dateString);
+  const day = date.getDate().toString().padStart(2, '0');
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const year = date.getFullYear();
+  const hours = date.getHours().toString().padStart(2, '0');
+  const minutes = date.getMinutes().toString().padStart(2, '0');
+  
+  return `${day}/${month}/${year} ${hours}:${minutes}`;
 };

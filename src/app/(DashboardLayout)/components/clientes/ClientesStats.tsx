@@ -22,18 +22,6 @@ console.log(stats)
       color: "primary" as const,
     },
     {
-      title: "Nuevos Hoy",
-      value: stats.nuevosHoy.toString(),
-      icon: <PersonAdd sx={{ fontSize: 40, color: "success.main" }} />,
-      color: "success" as const,
-    },
-    {
-      title: "Pacientes Activos",
-      value: stats.clientesActivos.toString(),
-      icon: <Badge sx={{ fontSize: 40, color: "secondary.main" }} />,
-      color: "secondary" as const,
-    },
-    {
       title: "Registros Mes",
       value: stats.registrosMes.toString(),
       icon: <CalendarToday sx={{ fontSize: 40, color: "warning.main" }} />,
@@ -44,7 +32,7 @@ console.log(stats)
   return (
     <Grid container spacing={3}>
       {statsData.map((stat, index) => (
-        <Grid key={index} size={{ xs: 12, sm: 6, lg: 3 }}>
+        <Grid key={index} size={{ xs: 12, sm: 6, lg: 6 }}>
           <Card
             sx={{
               position: "relative",

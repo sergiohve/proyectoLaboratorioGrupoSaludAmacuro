@@ -23,7 +23,7 @@ const DashboardCard = ({
   headtitle,
   headsubtitle,
   middlecontent,
-}: Props) => {
+}: any) => {
   return (
     <Card sx={{ padding: 0 }} elevation={9} variant={undefined}>
       {cardheading ? (
