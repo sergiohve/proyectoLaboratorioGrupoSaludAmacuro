@@ -23,8 +23,12 @@ import {
   TableHead,
   TableRow,
   Autocomplete,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from "@mui/material";
-import { Save, MedicalServices, Add, Delete } from "@mui/icons-material";
+import { Save, MedicalServices, Add, Delete, Calculate } from "@mui/icons-material";
 import { useRouter } from "next/navigation";
 
 interface Cliente {
@@ -316,14 +320,22 @@ const plantillasExamenes: {
     ],
   },
 };
+
 const obtenerFechaVenezuela = () => {
   const ahora = new Date();
-
   const offset = -4 * 60;
   const fechaVenezuela = new Date(ahora.getTime() + offset * 60 * 1000);
   return fechaVenezuela.toISOString().split("T")[0];
 };
+
 const tiposExamen = Object.keys(plantillasExamenes);
+
+// Interfaz para el modal de cálculo
+interface CalculoModalData {
+  trigliceridos: string;
+  colesterol: string;
+  hdl: string;
+}
 
 const RegistroExamen = () => {
   const router = useRouter();
@@ -334,13 +346,21 @@ const RegistroExamen = () => {
     area: "",
     observaciones: "",
     fechaExamen: obtenerFechaVenezuela(),
-    campos: [{ nombre: "", resultado: "", valorReferencia: "" }], // Siempre al menos un campo
+    campos: [{ nombre: "", resultado: "", valorReferencia: "" }],
   });
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{
     type: "success" | "error";
     text: string;
   } | null>(null);
+  
+  // Estado para el modal de cálculo
+  const [modalOpen, setModalOpen] = useState(false);
+  const [calculoData, setCalculoData] = useState<CalculoModalData>({
+    trigliceridos: "",
+    colesterol: "",
+    hdl: ""
+  });
 
   // Cargar clientes al montar el componente
   useEffect(() => {
@@ -359,6 +379,76 @@ const RegistroExamen = () => {
     };
     fetchClientes();
   }, []);
+
+  // Verificar si es un examen que requiere cálculos
+  const esExamenConCalculos = () => {
+    return formData.tipoExamen.includes("LIPIDICO") || 
+           formData.tipoExamen.includes("QUIMICA SANGUINEA COMPLETA") ||
+           formData.area === "QUIMICA SANGUINEA";
+  };
+
+  // Abrir modal de cálculo
+  const abrirModalCalculo = () => {
+    // Buscar los valores actuales en los campos
+    const trigliceridos = formData.campos.find(campo => 
+      campo.nombre.toLowerCase().includes("triglicéridos") || 
+      campo.nombre.toLowerCase().includes("trigliceridos")
+    )?.resultado || "";
+
+    const colesterol = formData.campos.find(campo => 
+      campo.nombre.toLowerCase().includes("colesterol") && 
+      !campo.nombre.toLowerCase().includes("hdl") &&
+      !campo.nombre.toLowerCase().includes("relacion")
+    )?.resultado || "";
+
+    const hdl = formData.campos.find(campo => 
+      campo.nombre.toLowerCase().includes("h.d.l.") || 
+      campo.nombre.toLowerCase().includes("hdl")
+    )?.resultado || "";
+
+    setCalculoData({
+      trigliceridos,
+      colesterol,
+      hdl
+    });
+    setModalOpen(true);
+  };
+
+  // Calcular valores
+  const calcularValores = () => {
+    const trig = parseFloat(calculoData.trigliceridos) || 0;
+    const col = parseFloat(calculoData.colesterol) || 0;
+    const hdlVal = parseFloat(calculoData.hdl) || 0;
+
+    const vldl = trig / 5;
+    const ldl = col - hdlVal - vldl;
+    const colHdl = hdlVal > 0 ? col / hdlVal : 0;
+    const ldlHdl = hdlVal > 0 ? ldl / hdlVal : 0;
+
+    // Actualizar los campos en el formData
+    const nuevosCampos = formData.campos.map(campo => {
+      if (campo.nombre.toLowerCase().includes("v.l.d.l.") || campo.nombre.toLowerCase().includes("vldl")) {
+        return { ...campo, resultado: vldl.toFixed(2) };
+      }
+      if (campo.nombre.toLowerCase().includes("l.d.l.") || campo.nombre.toLowerCase().includes("ldl")) {
+        return { ...campo, resultado: ldl.toFixed(2) };
+      }
+      if (campo.nombre.toLowerCase().includes("relacion colesterol /hdl") || campo.nombre.toLowerCase().includes("colest/hdl")) {
+        return { ...campo, resultado: colHdl.toFixed(2) };
+      }
+      if (campo.nombre.toLowerCase().includes("relacion ldl /hdl") || campo.nombre.toLowerCase().includes("ldl/hdl")) {
+        return { ...campo, resultado: ldlHdl.toFixed(2) };
+      }
+      return campo;
+    });
+
+    setFormData(prev => ({
+      ...prev,
+      campos: nuevosCampos
+    }));
+
+    setModalOpen(false);
+  };
 
   const handleChange = (e: any): any => {
     const { name, value } = e.target;
@@ -408,9 +498,7 @@ const RegistroExamen = () => {
   };
 
   const eliminarCampo = (index: number) => {
-    // No permitir eliminar si solo queda un campo
     if (formData.campos.length <= 1) return;
-
     setFormData((prev) => ({
       ...prev,
       campos: prev.campos.filter((_, i) => i !== index),
@@ -468,7 +556,7 @@ const RegistroExamen = () => {
           area: "",
           observaciones: "",
           fechaExamen: new Date().toISOString().split("T")[0],
-          campos: [{ nombre: "", resultado: "", valorReferencia: "" }], // Resetear con un campo
+          campos: [{ nombre: "", resultado: "", valorReferencia: "" }],
         });
         window.dispatchEvent(new Event("examenAdded"));
 
@@ -549,13 +637,11 @@ const RegistroExamen = () => {
                   }
                 }}
                 onInputChange={(event: any, newInputValue: any) => {
-                  // Si el usuario está escribiendo y no selecciona una opción
                   if (newInputValue && !tiposExamen.includes(newInputValue)) {
                     setFormData((prev) => ({
                       ...prev,
                       tipoExamen: newInputValue,
                       area: "",
-                      // Mantener los campos existentes o al menos uno
                       campos:
                         prev.campos.length > 0
                           ? prev.campos
@@ -606,6 +692,22 @@ const RegistroExamen = () => {
                     ÁREA DE: {formData.area}
                   </Typography>
                 </Paper>
+              </Grid>
+            )}
+
+            {/* Botón de cálculo para perfiles lipídicos */}
+            {esExamenConCalculos() && (
+              <Grid size={12}>
+                <Button
+                  startIcon={<Calculate />}
+                  onClick={abrirModalCalculo}
+                  variant="outlined"
+                  color="secondary"
+                  fullWidth
+                  sx={{ mb: 2 }}
+                >
+                  Calcular Valores de Perfil Lipídico
+                </Button>
               </Grid>
             )}
 
@@ -748,7 +850,7 @@ const RegistroExamen = () => {
                               size="small"
                               color="error"
                               onClick={() => eliminarCampo(index)}
-                              disabled={formData.campos.length <= 1} // Deshabilitar si solo hay un campo
+                              disabled={formData.campos.length <= 1}
                             >
                               <Delete fontSize="small" />
                             </IconButton>
@@ -797,6 +899,87 @@ const RegistroExamen = () => {
             </Grid>
           </Grid>
         </form>
+
+        {/* Modal de Cálculo */}
+        <Dialog open={modalOpen} onClose={() => setModalOpen(false)} maxWidth="sm" fullWidth>
+          <DialogTitle>
+            <Box display="flex" alignItems="center">
+              <Calculate sx={{ mr: 1 }} />
+              Calcular Perfil Lipídico
+            </Box>
+          </DialogTitle>
+          <DialogContent>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+              Ingrese los valores base para calcular automáticamente los demás parámetros:
+            </Typography>
+            
+            <Grid container spacing={2}>
+              <Grid size={12}>
+                <TextField
+                  fullWidth
+                  label="Triglicéridos (mg/dL)"
+                  value={calculoData.trigliceridos}
+                  onChange={(e) => setCalculoData(prev => ({
+                    ...prev,
+                    trigliceridos: e.target.value
+                  }))}
+                  type="number"
+                  size="small"
+                />
+              </Grid>
+              <Grid size={12}>
+                <TextField
+                  fullWidth
+                  label="Colesterol Total (mg/dL)"
+                  value={calculoData.colesterol}
+                  onChange={(e) => setCalculoData(prev => ({
+                    ...prev,
+                    colesterol: e.target.value
+                  }))}
+                  type="number"
+                  size="small"
+                />
+              </Grid>
+              <Grid size={12}>
+                <TextField
+                  fullWidth
+                  label="HDL (mg/dL)"
+                  value={calculoData.hdl}
+                  onChange={(e) => setCalculoData(prev => ({
+                    ...prev,
+                    hdl: e.target.value
+                  }))}
+                  type="number"
+                  size="small"
+                />
+              </Grid>
+            </Grid>
+
+            <Box sx={{ mt: 2, p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
+              <Typography variant="subtitle2" gutterBottom>
+                Fórmulas aplicadas:
+              </Typography>
+              <Typography variant="body2">
+                • VLDL = Triglicéridos / 5<br/>
+                • LDL = Colesterol - HDL - VLDL<br/>
+                • Colesterol/HDL = Colesterol / HDL<br/>
+                • LDL/HDL = LDL / HDL
+              </Typography>
+            </Box>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setModalOpen(false)}>
+              Cancelar
+            </Button>
+            <Button 
+              onClick={calcularValores} 
+              variant="contained"
+              disabled={!calculoData.trigliceridos || !calculoData.colesterol || !calculoData.hdl}
+            >
+              Calcular y Aplicar
+            </Button>
+          </DialogActions>
+        </Dialog>
       </CardContent>
     </Card>
   );
