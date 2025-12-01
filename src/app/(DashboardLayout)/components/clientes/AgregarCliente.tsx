@@ -20,15 +20,17 @@ interface ClienteForm {
   cedula: string;
   edad: string;
   sexo: string;
+  direccion: string;
   fecha: string;
 }
+
 const obtenerFechaVenezuela = () => {
   const ahora = new Date();
-
   const offset = -4 * 60;
   const fechaVenezuela = new Date(ahora.getTime() + offset * 60 * 1000);
   return fechaVenezuela.toISOString().split("T")[0];
 };
+
 const AgregarCliente = () => {
   const router = useRouter();
   const { refreshClientes } = useClientes();
@@ -36,7 +38,8 @@ const AgregarCliente = () => {
     nombre: "",
     cedula: "",
     edad: "",
-    sexo: "Masculino", // Valor por defecto
+    sexo: "Masculino",
+    direccion: "",
     fecha: obtenerFechaVenezuela(),
   });
   const [loading, setLoading] = useState(false);
@@ -62,7 +65,8 @@ const AgregarCliente = () => {
       !formData.nombre ||
       !formData.cedula ||
       !formData.edad ||
-      !formData.sexo
+      !formData.sexo ||
+      !formData.direccion
     ) {
       setMessage({ type: "error", text: "Todos los campos son requeridos" });
       setLoading(false);
@@ -105,7 +109,8 @@ const AgregarCliente = () => {
           cedula: "",
           edad: "",
           sexo: "Masculino",
-          fecha: new Date().toISOString().split("T")[0],
+          direccion: "",
+          fecha: obtenerFechaVenezuela(),
         });
         await refreshClientes();
 
@@ -157,6 +162,7 @@ const AgregarCliente = () => {
                 placeholder="Ej: Juan Pérez García"
               />
             </Grid>
+            
             <Grid size={12}>
               <TextField
                 fullWidth
@@ -169,6 +175,7 @@ const AgregarCliente = () => {
                 placeholder="Ej: 123456789"
               />
             </Grid>
+            
             <Grid size={6}>
               <TextField
                 fullWidth
@@ -182,6 +189,7 @@ const AgregarCliente = () => {
                 inputProps={{ min: 1, max: 120 }}
               />
             </Grid>
+            
             <Grid size={6}>
               <TextField
                 fullWidth
@@ -198,6 +206,22 @@ const AgregarCliente = () => {
                 <MenuItem value="Otro">Otro</MenuItem>
               </TextField>
             </Grid>
+            
+            <Grid size={12}>
+              <TextField
+                fullWidth
+                label="Dirección"
+                name="direccion"
+                value={formData.direccion}
+                onChange={handleChange}
+                required
+                size="small"
+                multiline
+                rows={2}
+                placeholder="Ej: Av. Principal, Edificio Los Robles, Piso 3, Apt 3-A, Caracas"
+              />
+            </Grid>
+            
             <Grid size={12}>
               <TextField
                 fullWidth
@@ -210,6 +234,7 @@ const AgregarCliente = () => {
                 size="small"
               />
             </Grid>
+            
             <Grid size={12}>
               <Button
                 type="submit"

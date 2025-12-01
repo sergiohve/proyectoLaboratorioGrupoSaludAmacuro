@@ -27,6 +27,7 @@ import {
   TableContainer,
   InputAdornment,
   TablePagination,
+  Tooltip,
 } from "@mui/material";
 import {
   Edit,
@@ -39,29 +40,12 @@ import {
   Search,
   Warning,
   CheckCircle,
+  LocationOn,
 } from "@mui/icons-material";
 import DashboardCard from "@/app/(DashboardLayout)/components/shared/DashboardCard";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import Image from "next/image";
-
-interface Examen {
-  _id: string;
-  cliente: {
-    _id: string;
-    nombre: string;
-    cedula: string;
-    edad: number;
-    sexo: string;
-  };
-  tipoExamen: string;
-  area: string;
-  resultados: { [key: string]: { resultado: string; valorReferencia: string } };
-  observaciones: string;
-  fechaExamen: string;
-  estado: string;
-  createdAt: string;
-}
 
 interface Cliente {
   _id: string;
@@ -69,6 +53,19 @@ interface Cliente {
   cedula: string;
   edad: number;
   sexo: string;
+  direccion: string;
+}
+
+interface Examen {
+  _id: string;
+  cliente: Cliente;
+  tipoExamen: string;
+  area: string;
+  resultados: { [key: string]: { resultado: string; valorReferencia: string } };
+  observaciones: string;
+  fechaExamen: string;
+  estado: string;
+  createdAt: string;
 }
 
 const ListaExamenes = () => {
@@ -81,7 +78,7 @@ const ListaExamenes = () => {
   const [modalEditarAbierto, setModalEditarAbierto] = useState(false);
   const [modalConfirmacionAbierto, setModalConfirmacionAbierto] = useState(false);
   const [modalExitoAbierto, setModalExitoAbierto] = useState(false);
-  const [examenSeleccionado, setExamenSeleccionado] = useState<Examen | null>(null);
+  const [examenSeleccionado, setExamenSeleccionado] = useState<any>(null);
   const [examenAEliminar, setExamenAEliminar] = useState<string | null>(null);
   const [editando, setEditando] = useState(false);
   const [generandoPDF, setGenerandoPDF] = useState(false);
@@ -144,6 +141,7 @@ const ListaExamenes = () => {
         (examen) =>
           examen.cliente.nombre.toLowerCase().includes(termino) ||
           examen.cliente.cedula.toLowerCase().includes(termino) ||
+          examen.cliente.direccion.toLowerCase().includes(termino) ||
           examen.tipoExamen.toLowerCase().includes(termino) ||
           examen.area.toLowerCase().includes(termino)
       );
@@ -152,7 +150,7 @@ const ListaExamenes = () => {
     setPagina(0);
   }, [terminoBusqueda, examenes]);
 
-  const handleChangePagina = (event: unknown, nuevaPagina: number) => {
+  const handleChangePagina = (_event: unknown, nuevaPagina: number) => {
     setPagina(nuevaPagina);
   };
 
@@ -328,7 +326,7 @@ const ListaExamenes = () => {
     }
   };
 
- const formatDate = (dateString: string) => {
+  const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     
     // Forzar la interpretación como UTC
@@ -449,7 +447,7 @@ const ListaExamenes = () => {
         <Box sx={{ mb: 2 }}>
           <TextField
             fullWidth
-            placeholder="Buscar por cédula, nombre del paciente, tipo de examen o área..."
+            placeholder="Buscar por cédula, nombre, dirección, tipo de examen o área..."
             value={terminoBusqueda}
             onChange={handleBusquedaChange}
             InputProps={{
@@ -486,27 +484,32 @@ const ListaExamenes = () => {
           >
             <TableHead>
               <TableRow>
-                <TableCell>
+                <TableCell sx={{ minWidth: "200px" }}>
                   <Typography variant="subtitle2" fontWeight={600}>
                     Paciente
                   </Typography>
                 </TableCell>
-                <TableCell>
+                <TableCell sx={{ minWidth: "150px" }}>
+                  <Typography variant="subtitle2" fontWeight={600}>
+                    Dirección
+                  </Typography>
+                </TableCell>
+                <TableCell sx={{ minWidth: "150px" }}>
                   <Typography variant="subtitle2" fontWeight={600}>
                     Examen
                   </Typography>
                 </TableCell>
-                <TableCell>
+                <TableCell sx={{ minWidth: "100px" }}>
                   <Typography variant="subtitle2" fontWeight={600}>
                     Fecha
                   </Typography>
                 </TableCell>
-                <TableCell>
+                <TableCell sx={{ minWidth: "180px" }}>
                   <Typography variant="subtitle2" fontWeight={600}>
                     Estado
                   </Typography>
                 </TableCell>
-                <TableCell align="center">
+                <TableCell align="center" sx={{ minWidth: "120px" }}>
                   <Typography variant="subtitle2" fontWeight={600}>
                     Acciones
                   </Typography>
@@ -516,7 +519,7 @@ const ListaExamenes = () => {
             <TableBody>
               {examenesPaginados.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} align="center" sx={{ py: 4 }}>
+                  <TableCell colSpan={6} align="center" sx={{ py: 4 }}>
                     <Typography color="textSecondary">
                       {terminoBusqueda
                         ? "No se encontraron exámenes que coincidan con la búsqueda"
@@ -534,31 +537,62 @@ const ListaExamenes = () => {
                         />
                         <Box>
                           <Typography variant="subtitle2" fontWeight={600}>
-                            {examen?.cliente?.nombre}
+                            {examen.cliente.nombre}
                           </Typography>
                           <Typography color="textSecondary" fontSize="13px">
-                            CI: {examen?.cliente?.cedula}
+                            CI: {examen.cliente.cedula} | {examen.cliente.edad} años
                           </Typography>
                         </Box>
                       </Box>
                     </TableCell>
                     <TableCell>
+                      <Tooltip 
+                        title={examen.cliente.direccion} 
+                        arrow 
+                        placement="top"
+                      >
+                        <Box display="flex" alignItems="flex-start">
+                          <LocationOn 
+                            sx={{ 
+                              mr: 0.5, 
+                              color: "text.secondary",
+                              fontSize: "16px",
+                              mt: 0.25
+                            }} 
+                          />
+                          <Typography 
+                            variant="subtitle2" 
+                            fontWeight={400}
+                            sx={{
+                              maxWidth: "150px",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                              whiteSpace: "nowrap",
+                              lineHeight: 1.2
+                            }}
+                          >
+                            {examen.cliente.direccion}
+                          </Typography>
+                        </Box>
+                      </Tooltip>
+                    </TableCell>
+                    <TableCell>
                       <Typography variant="subtitle2" fontWeight={400}>
-                        {examen?.tipoExamen}
+                        {examen.tipoExamen}
                       </Typography>
                       <Typography color="textSecondary" fontSize="12px">
-                        {examen?.area}
+                        {examen.area}
                       </Typography>
                     </TableCell>
                     <TableCell>
                       <Typography variant="subtitle2" fontWeight={400}>
-                        {formatDate(examen?.fechaExamen)}
+                        {formatDate(examen.fechaExamen)}
                       </Typography>
                     </TableCell>
                     <TableCell>
                       <FormControl size="small" sx={{ minWidth: 180 }}>
                         <Select
-                          value={examen?.estado}
+                          value={examen.estado}
                           onChange={(e) =>
                             handleEstadoChange(examen._id, e.target.value)
                           }
@@ -614,7 +648,7 @@ const ListaExamenes = () => {
           </Table>
 
           {/* Paginación */}
-          {examenesFiltrados?.length > 0 && (
+          {examenesFiltrados.length > 0 && (
             <TablePagination
               rowsPerPageOptions={[5, 10, 25, 50]}
               component="div"
@@ -760,26 +794,26 @@ const ListaExamenes = () => {
                         sx={{
                           border: "none",
                           p: 0,
-                          width: "20%",
+                          width: "15%",
                           fontWeight: "bold",
                         }}
                       >
                         PACIENTE:
                       </TableCell>
-                      <TableCell sx={{ border: "none", p: 0, width: "30%" }}>
+                      <TableCell sx={{ border: "none", p: 0, width: "35%" }}>
                         {examenSeleccionado.cliente.nombre.toUpperCase()}
                       </TableCell>
                       <TableCell
                         sx={{
                           border: "none",
                           p: 0,
-                          width: "15%",
+                          width: "10%",
                           fontWeight: "bold",
                         }}
                       >
                         C.I.:
                       </TableCell>
-                      <TableCell sx={{ border: "none", p: 0, width: "35%" }}>
+                      <TableCell sx={{ border: "none", p: 0, width: "40%" }}>
                         {examenSeleccionado.cliente.cedula}
                       </TableCell>
                     </TableRow>
@@ -808,11 +842,19 @@ const ListaExamenes = () => {
                         GÉNERO:
                       </TableCell>
                       <TableCell sx={{ border: "none", p: 0 }}>
-                        {examenSeleccionado.cliente.sexo === "M"
+                        {examenSeleccionado.cliente.sexo === "Masculino"
                           ? "MASCULINO"
-                          : examenSeleccionado.cliente.sexo === "F"
+                          : examenSeleccionado.cliente.sexo === "Femenino"
                           ? "FEMENINO"
                           : examenSeleccionado.cliente.sexo.toUpperCase()}
+                      </TableCell>
+                      <TableCell
+                        sx={{ border: "none", p: 0, fontWeight: "bold" }}
+                      >
+                        DIRECCIÓN:
+                      </TableCell>
+                      <TableCell sx={{ border: "none", p: 0 }}>
+                        {examenSeleccionado.cliente.direccion}
                       </TableCell>
                     </TableRow>
                     <TableRow>
@@ -840,7 +882,7 @@ const ListaExamenes = () => {
                         N° ORDEN:
                       </TableCell>
                       <TableCell sx={{ border: "none", p: 0 }}>
-                        {examenesFiltrados?.length + 1}
+                        {examenesFiltrados.length + 1}
                       </TableCell>
                       <TableCell sx={{ border: "none", p: 0 }}></TableCell>
                       <TableCell sx={{ border: "none", p: 0 }}></TableCell>
@@ -918,7 +960,7 @@ const ListaExamenes = () => {
                   </TableHead>
                   <TableBody>
                     {Object.entries(examenSeleccionado.resultados).map(
-                      ([prueba, datos], index) => (
+                      ([prueba, datos]: any, index: any) => (
                         <TableRow key={prueba}>
                           <TableCell sx={{ border: "1px solid #000", pl: 1 }}>
                             <Typography variant="body2" fontWeight="bold">
@@ -980,16 +1022,6 @@ const ListaExamenes = () => {
                 <Typography variant="body2">
                   Teléfonos: +58 424-9016271
                 </Typography>
-                {/* <Typography variant="body2">
-                  Correo: laboratorio.citologicoguzmanhmv@gmail.com
-                </Typography>
-                <Typography
-                  variant="caption"
-                  sx={{ mt: 1, display: "block", fontStyle: "italic" }}
-                >
-                  Ingreso por el Sistema de Control de Exámenes Citológicos
-                  (SICODEC)
-                </Typography> */}
               </Box>
 
               {/* Observaciones */}
@@ -1038,7 +1070,7 @@ const ListaExamenes = () => {
             variant="contained"
             onClick={() => {
               setModalVerAbierto(false);
-              handleEditarExamen(examenSeleccionado!);
+              handleEditarExamen(examenSeleccionado);
             }}
           >
             Editar Examen
@@ -1081,25 +1113,37 @@ const ListaExamenes = () => {
                   Información del Examen
                 </Typography>
                 <Grid container spacing={2}>
-                  <Grid size={6}>
+                  <Grid size={12}>
                     <Typography variant="subtitle2" fontWeight={600}>
                       Paciente:
                     </Typography>
                     <Typography>{examenSeleccionado.cliente.nombre}</Typography>
                   </Grid>
-                  <Grid size={6}>
+                  <Grid size={12}>
+                    <Typography variant="subtitle2" fontWeight={600}>
+                      Cédula:
+                    </Typography>
+                    <Typography>{examenSeleccionado.cliente.cedula}</Typography>
+                  </Grid>
+                  <Grid size={12}>
+                    <Typography variant="subtitle2" fontWeight={600}>
+                      Dirección:
+                    </Typography>
+                    <Typography>{examenSeleccionado.cliente.direccion}</Typography>
+                  </Grid>
+                  <Grid size={12}>
                     <Typography variant="subtitle2" fontWeight={600}>
                       Tipo de Examen:
                     </Typography>
                     <Typography>{examenSeleccionado.tipoExamen}</Typography>
                   </Grid>
-                  <Grid size={6}>
+                  <Grid size={12}>
                     <Typography variant="subtitle2" fontWeight={600}>
                       Área:
                     </Typography>
                     <Typography>{examenSeleccionado.area}</Typography>
                   </Grid>
-                  <Grid size={6}>
+                  <Grid size={12}>
                     <FormControl fullWidth size="small">
                       <InputLabel>Estado</InputLabel>
                       <Select
@@ -1156,7 +1200,7 @@ const ListaExamenes = () => {
                     </TableHead>
                     <TableBody>
                       {Object.entries(examenSeleccionado.resultados).map(
-                        ([prueba, datos]) => (
+                        ([prueba, datos]: any) => (
                           <TableRow key={prueba} hover>
                             <TableCell>
                               <Typography variant="subtitle2" fontWeight={600}>
