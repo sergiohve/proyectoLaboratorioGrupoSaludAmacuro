@@ -263,7 +263,7 @@ const plantillasExamenes: {
   SEROLOGIA: {
     area: "SEROLOGIA",
     campos: [
-      { nombre: "HIV (TEST Pack)", resultado: "", valorReferencia: "NEGATIVO" },
+      { nombre: "HIV", resultado: "", valorReferencia: "NEGATIVO" },
       { nombre: "VDRL", resultado: "", valorReferencia: "NO REACTIVO" },
     ],
   },
