@@ -52,7 +52,7 @@ console.log(stats)
                 left: 0,
                 right: 0,
                 bottom: 0,
-                background: 'radial-gradient(circle at top right, rgba(255,255,255,0.2) 0%, transparent 60%)',
+                background: 'radial-gradient(circle at top right, rgba(222, 28, 28, 0.2) 0%, transparent 60%)',
                 pointerEvents: 'none',
               },
               "&::after": {
@@ -76,7 +76,7 @@ console.log(stats)
               >
                 <Box flex={1}>
                   <Typography
-                    color="rgba(255,255,255,0.9)"
+                    color="rgba(35, 25, 25, 0.9)"
                     variant="h6"
                     fontWeight={600}
                     fontSize={14}
@@ -92,8 +92,8 @@ console.log(stats)
                     variant="h2"
                     fontWeight={900}
                     sx={{
-                      color: 'white',
-                      textShadow: '0 2px 10px rgba(0,0,0,0.2)',
+                      color: '#fa0707ff',
+                      textShadow: '0 2px 10px rgba(13, 4, 4, 0.2)',
                       letterSpacing: -1,
                     }}
                   >
