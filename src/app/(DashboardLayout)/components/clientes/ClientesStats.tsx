@@ -142,6 +142,4 @@ const ClientesStats = memo(() => {
   );
 });
 
-ClientesStats.displayName = 'ClientesStats';
-
 export default ClientesStats;
