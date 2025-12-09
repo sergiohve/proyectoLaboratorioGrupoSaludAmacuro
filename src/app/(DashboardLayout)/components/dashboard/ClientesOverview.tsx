@@ -330,31 +330,75 @@ const ClientesOverview = () => {
         </Select>
       }
     >
-      <Box sx={{ mb: 2 }}>
-        <Grid container spacing={2} alignItems="center">
-          <Grid>
-            <Typography
-              variant={isMobile ? "h5" : "h4"}
-              fontWeight="700"
-              color="primary"
-            >
-              {totalRegistros}
-            </Typography>
-            <Typography
-              variant="subtitle2"
-              color="textSecondary"
-              sx={{ fontSize: isMobile ? "0.75rem" : "0.875rem" }}
-            >
-              Registros en el período seleccionado
-            </Typography>
+      <Box sx={{ mb: 3 }}>
+        <Box sx={{
+          p: 3,
+          borderRadius: 3,
+          background: `linear-gradient(135deg, ${primary}15 0%, ${success}15 100%)`,
+          border: `2px solid ${primary}30`,
+          position: 'relative',
+          overflow: 'hidden',
+          '&::before': {
+            content: '""',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            height: '4px',
+            background: `linear-gradient(90deg, ${primary} 0%, ${success} 100%)`,
+          }
+        }}>
+          <Grid container spacing={2} alignItems="center">
+            <Grid>
+              <Typography
+                variant="caption"
+                fontWeight="600"
+                color="text.secondary"
+                sx={{
+                  textTransform: 'uppercase',
+                  letterSpacing: 1.2,
+                  mb: 1,
+                  display: 'block'
+                }}
+              >
+                Total del Período
+              </Typography>
+              <Typography
+                variant={isMobile ? "h3" : "h2"}
+                fontWeight="800"
+                sx={{
+                  background: `linear-gradient(135deg, ${primary} 0%, ${success} 100%)`,
+                  backgroundClip: 'text',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  mb: 0.5
+                }}
+              >
+                {totalRegistros}
+              </Typography>
+              <Typography
+                variant={isMobile ? "body2" : "body1"}
+                color="text.secondary"
+                fontWeight={500}
+                sx={{ fontSize: isMobile ? "0.75rem" : "0.875rem" }}
+              >
+                Nuevos registros de pacientes
+              </Typography>
+            </Grid>
           </Grid>
-        </Grid>
+        </Box>
       </Box>
 
       <Box
         sx={{
           width: "100%",
           overflow: "hidden",
+          p: 2,
+          borderRadius: 3,
+          background: theme.palette.mode === 'dark'
+            ? 'rgba(255,255,255,0.02)'
+            : 'rgba(0,0,0,0.01)',
+          border: `1px solid ${theme.palette.divider}`,
         }}
       >
         <Chart

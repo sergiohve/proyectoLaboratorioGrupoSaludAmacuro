@@ -133,23 +133,60 @@ const AgregarCliente = () => {
   };
 
   return (
-    <Card sx={{ height: "100%" }}>
-      <CardContent>
-        <Box display="flex" alignItems="center" mb={3}>
-          <PersonAdd sx={{ mr: 1, color: "primary.main" }} />
-          <Typography variant="h5" fontWeight={600}>
-            Registrar Paciente
-          </Typography>
+    <Card sx={{
+      height: "100%",
+      borderRadius: 3,
+      boxShadow: '0 8px 32px -8px rgba(0,0,0,0.1)',
+      border: '1px solid',
+      borderColor: 'divider',
+    }}>
+      <CardContent sx={{ p: 4 }}>
+        <Box display="flex" alignItems="center" mb={4} sx={{
+          pb: 3,
+          borderBottom: '2px solid',
+          borderColor: 'primary.main',
+          background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%)',
+          mx: -4,
+          px: 4,
+          pt: 2,
+        }}>
+          <Box sx={{
+            bgcolor: 'primary.main',
+            borderRadius: 2,
+            p: 1.5,
+            display: 'flex',
+            mr: 2,
+            boxShadow: '0 4px 12px rgba(99, 102, 241, 0.3)',
+          }}>
+            <PersonAdd sx={{ color: "white", fontSize: 28 }} />
+          </Box>
+          <Box>
+            <Typography variant="h4" fontWeight={700} color="text.primary">
+              Registrar Paciente
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+              Complete el formulario con los datos del paciente
+            </Typography>
+          </Box>
         </Box>
 
         {message && (
-          <Alert severity={message.type} sx={{ mb: 2 }}>
+          <Alert
+            severity={message.type}
+            sx={{
+              mb: 3,
+              borderRadius: 2,
+              '& .MuiAlert-icon': {
+                fontSize: 24
+              }
+            }}
+          >
             {message.text}
           </Alert>
         )}
 
         <form onSubmit={handleSubmit}>
-          <Grid container spacing={2}>
+          <Grid container spacing={3}>
             <Grid size={12}>
               <TextField
                 fullWidth
@@ -242,7 +279,25 @@ const AgregarCliente = () => {
                 fullWidth
                 disabled={loading}
                 startIcon={<Save />}
-                sx={{ mt: 1, py: 1.5 }}
+                sx={{
+                  mt: 2,
+                  py: 1.8,
+                  fontSize: '1.1rem',
+                  fontWeight: 700,
+                  borderRadius: 2,
+                  textTransform: 'none',
+                  background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+                  boxShadow: '0 8px 24px -8px rgba(99, 102, 241, 0.5)',
+                  transition: 'all 0.3s ease',
+                  '&:hover': {
+                    background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
+                    boxShadow: '0 12px 32px -8px rgba(99, 102, 241, 0.7)',
+                    transform: 'translateY(-2px)',
+                  },
+                  '&:disabled': {
+                    background: 'linear-gradient(135deg, #9ca3af 0%, #6b7280 100%)',
+                  }
+                }}
               >
                 {loading ? "Guardando..." : "Guardar Paciente"}
               </Button>

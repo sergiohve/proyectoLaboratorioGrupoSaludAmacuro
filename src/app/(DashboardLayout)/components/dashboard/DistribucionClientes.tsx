@@ -11,8 +11,8 @@ const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
 const DistribucionClientes = () => {
   const { clientes } = useClientes();
   const theme = useTheme();
-  
-  // chart colors
+
+  // Modern gradient colors
   const primary = theme.palette.primary.main;
   const secondary = theme.palette.secondary.main;
   const warning = theme.palette.warning.main;
@@ -119,34 +119,87 @@ const DistribucionClientes = () => {
   ];
 
   const StatCard = ({ icon, title, value, percentage, color }: any) => (
-    <Card 
-      sx={{ 
-        p: 2, 
-        backgroundColor: theme.palette.background.paper,
-        border: `1px solid ${theme.palette.divider}`,
-        borderRadius: 2,
-        transition: 'all 0.3s ease',
+    <Card
+      sx={{
+        p: 0,
+        background: `linear-gradient(135deg, ${color}08 0%, ${color}20 100%)`,
+        border: `2px solid ${color}30`,
+        borderRadius: 3,
+        transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+        position: 'relative',
+        overflow: 'hidden',
         '&:hover': {
-          transform: 'translateY(-2px)',
-          boxShadow: theme.shadows[4],
+          transform: 'translateY(-8px) scale(1.02)',
+          boxShadow: `0 12px 40px -10px ${color}40`,
+          border: `2px solid ${color}60`,
+        },
+        '&::before': {
+          content: '""',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: '4px',
+          background: `linear-gradient(90deg, ${color} 0%, ${color}80 100%)`,
         }
       }}
     >
-      <CardContent sx={{ p: '0 !important' }}>
-        <Stack direction="row" alignItems="center" spacing={2}>
-          <Avatar sx={{ bgcolor: `${color}15`, color: color, width: 48, height: 48 }}>
-            {icon}
-          </Avatar>
-          <Box>
-            <Typography variant="h4" fontWeight="700">
-              {value}
-            </Typography>
-            <Typography variant="subtitle2" color="textSecondary">
+      <CardContent sx={{ p: 3 }}>
+        <Stack direction="row" alignItems="center" spacing={2.5}>
+          <Box
+            sx={{
+              position: 'relative',
+              '&::before': {
+                content: '""',
+                position: 'absolute',
+                inset: -8,
+                background: `radial-gradient(circle, ${color}20 0%, transparent 70%)`,
+                borderRadius: '50%',
+                animation: 'pulse 2s ease-in-out infinite',
+              },
+              '@keyframes pulse': {
+                '0%, 100%': { opacity: 0.5, transform: 'scale(1)' },
+                '50%': { opacity: 1, transform: 'scale(1.1)' },
+              }
+            }}
+          >
+            <Avatar
+              sx={{
+                bgcolor: color,
+                background: `linear-gradient(135deg, ${color} 0%, ${color}CC 100%)`,
+                width: 60,
+                height: 60,
+                boxShadow: `0 8px 16px ${color}40`,
+              }}
+            >
+              {icon}
+            </Avatar>
+          </Box>
+          <Box flex={1}>
+            <Typography variant="subtitle2" color="text.secondary" fontWeight={500} sx={{ mb: 0.5 }}>
               {title}
             </Typography>
-            <Typography variant="caption" color={color} fontWeight="600">
-              {percentage}%
+            <Typography variant="h3" fontWeight="800" sx={{
+              background: `linear-gradient(135deg, ${color} 0%, ${color}CC 100%)`,
+              backgroundClip: 'text',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              mb: 0.5
+            }}>
+              {value}
             </Typography>
+            <Box sx={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              px: 1.5,
+              py: 0.5,
+              borderRadius: 2,
+              bgcolor: `${color}15`,
+            }}>
+              <Typography variant="body2" color={color} fontWeight="700">
+                {percentage}%
+              </Typography>
+            </Box>
           </Box>
         </Stack>
       </CardContent>
@@ -211,30 +264,96 @@ const DistribucionClientes = () => {
           </Box>
         </Grid>
 
-        {/* Legend */}
+        {/* Modern Legend */}
         <Grid size={{ xs: 12 }}>
-          <Stack direction="row" justifyContent="space-around" spacing={1}>
-            <Stack alignItems="center">
-              <Box sx={{ width: 12, height: 12, borderRadius: '50%', bgcolor: primary }} />
-              <Typography variant="caption" fontWeight="600">Hombres</Typography>
-              <Typography variant="caption" color="textSecondary">
-                {porcentajes.masculinos}%
-              </Typography>
-            </Stack>
-            <Stack alignItems="center">
-              <Box sx={{ width: 12, height: 12, borderRadius: '50%', bgcolor: secondary }} />
-              <Typography variant="caption" fontWeight="600">Mujeres</Typography>
-              <Typography variant="caption" color="textSecondary">
-                {porcentajes.femeninos}%
-              </Typography>
-            </Stack>
-            <Stack alignItems="center">
-              <Box sx={{ width: 12, height: 12, borderRadius: '50%', bgcolor: warning }} />
-              <Typography variant="caption" fontWeight="600">Otros</Typography>
-              <Typography variant="caption" color="textSecondary">
-                {porcentajes.otros}%
-              </Typography>
-            </Stack>
+          <Stack direction="row" justifyContent="space-around" spacing={2}>
+            <Box sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1,
+              px: 2,
+              py: 1.5,
+              borderRadius: 2,
+              bgcolor: `${primary}10`,
+              border: `1px solid ${primary}30`,
+              transition: 'all 0.3s ease',
+              '&:hover': {
+                transform: 'translateY(-2px)',
+                boxShadow: `0 4px 12px ${primary}20`,
+              }
+            }}>
+              <Box sx={{
+                width: 14,
+                height: 14,
+                borderRadius: '50%',
+                background: `linear-gradient(135deg, ${primary} 0%, ${primary}CC 100%)`,
+                boxShadow: `0 2px 8px ${primary}40`,
+              }} />
+              <Box>
+                <Typography variant="caption" fontWeight="700" display="block">Hombres</Typography>
+                <Typography variant="caption" color={primary} fontWeight="800">
+                  {porcentajes.masculinos}%
+                </Typography>
+              </Box>
+            </Box>
+            <Box sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1,
+              px: 2,
+              py: 1.5,
+              borderRadius: 2,
+              bgcolor: `${secondary}10`,
+              border: `1px solid ${secondary}30`,
+              transition: 'all 0.3s ease',
+              '&:hover': {
+                transform: 'translateY(-2px)',
+                boxShadow: `0 4px 12px ${secondary}20`,
+              }
+            }}>
+              <Box sx={{
+                width: 14,
+                height: 14,
+                borderRadius: '50%',
+                background: `linear-gradient(135deg, ${secondary} 0%, ${secondary}CC 100%)`,
+                boxShadow: `0 2px 8px ${secondary}40`,
+              }} />
+              <Box>
+                <Typography variant="caption" fontWeight="700" display="block">Mujeres</Typography>
+                <Typography variant="caption" color={secondary} fontWeight="800">
+                  {porcentajes.femeninos}%
+                </Typography>
+              </Box>
+            </Box>
+            <Box sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1,
+              px: 2,
+              py: 1.5,
+              borderRadius: 2,
+              bgcolor: `${warning}10`,
+              border: `1px solid ${warning}30`,
+              transition: 'all 0.3s ease',
+              '&:hover': {
+                transform: 'translateY(-2px)',
+                boxShadow: `0 4px 12px ${warning}20`,
+              }
+            }}>
+              <Box sx={{
+                width: 14,
+                height: 14,
+                borderRadius: '50%',
+                background: `linear-gradient(135deg, ${warning} 0%, ${warning}CC 100%)`,
+                boxShadow: `0 2px 8px ${warning}40`,
+              }} />
+              <Box>
+                <Typography variant="caption" fontWeight="700" display="block">Otros</Typography>
+                <Typography variant="caption" color={warning} fontWeight="800">
+                  {porcentajes.otros}%
+                </Typography>
+              </Box>
+            </Box>
           </Stack>
         </Grid>
       </Grid>

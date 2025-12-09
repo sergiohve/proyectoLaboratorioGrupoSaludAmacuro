@@ -448,10 +448,10 @@ const ListaExamenes = () => {
         imgHeight * ratio
       );
 
-      const fileName = `Examen_${examenSeleccionado.cliente.nombre.replace(
+      const fileName = `Examen_${examenSeleccionado.cliente?.nombre?.replace(
         /\s+/g,
         "_"
-      )}_${examenSeleccionado.tipoExamen.replace(
+      )}_${examenSeleccionado?.tipoExamen?.replace(
         /\s+/g,
         "_"
       )}_${formatDateForPDF(examenSeleccionado.fechaExamen)}.pdf`;
@@ -512,8 +512,8 @@ const ListaExamenes = () => {
           </Alert>
         )}
 
-        {/* Campo de Búsqueda */}
-        <Box sx={{ mb: 2 }}>
+        {/* Modern Search Bar */}
+        <Box sx={{ mb: 3 }}>
           <TextField
             fullWidth
             placeholder="Buscar por cédula, nombre, dirección, tipo de examen o área..."
@@ -522,15 +522,34 @@ const ListaExamenes = () => {
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <Search color="action" />
+                  <Search sx={{ color: 'success.main' }} />
                 </InputAdornment>
               ),
             }}
-            size="small"
             sx={{
-              "& .MuiOutlinedInput-root": {
-                borderRadius: 2,
+              '& .MuiOutlinedInput-root': {
+                borderRadius: 3,
+                backgroundColor: 'background.paper',
+                transition: 'all 0.3s ease',
+                '&:hover': {
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+                },
+                '&.Mui-focused': {
+                  boxShadow: '0 4px 20px rgba(16, 185, 129, 0.15)',
+                  '& fieldset': {
+                    borderWidth: 2,
+                    borderColor: 'success.main',
+                  }
+                },
+                '& fieldset': {
+                  borderWidth: 2,
+                  borderColor: 'divider',
+                }
               },
+              '& .MuiInputBase-input': {
+                py: 1.5,
+                fontSize: '0.95rem',
+              }
             }}
           />
           {terminoBusqueda && (
@@ -546,7 +565,11 @@ const ListaExamenes = () => {
           )}
         </Box>
 
-        <TableContainer component={Paper} elevation={0}>
+        <TableContainer component={Paper} elevation={0} sx={{
+          borderRadius: 3,
+          border: '2px solid',
+          borderColor: 'divider',
+        }}>
           <Table
             aria-label="tabla de exámenes"
             sx={{
@@ -555,34 +578,41 @@ const ListaExamenes = () => {
             }}
           >
             <TableHead>
-              <TableRow>
+              <TableRow sx={{
+                background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(5, 150, 105, 0.08) 100%)',
+                '& .MuiTableCell-root': {
+                  borderBottom: '2px solid',
+                  borderColor: 'success.main',
+                  py: 2,
+                }
+              }}>
                 <TableCell sx={{ minWidth: "200px" }}>
-                  <Typography variant="subtitle2" fontWeight={600}>
+                  <Typography variant="subtitle2" fontWeight={700} color="success.dark">
                     Paciente
                   </Typography>
                 </TableCell>
                 <TableCell sx={{ minWidth: "150px" }}>
-                  <Typography variant="subtitle2" fontWeight={600}>
+                  <Typography variant="subtitle2" fontWeight={700} color="success.dark">
                     Dirección
                   </Typography>
                 </TableCell>
                 <TableCell sx={{ minWidth: "150px" }}>
-                  <Typography variant="subtitle2" fontWeight={600}>
+                  <Typography variant="subtitle2" fontWeight={700} color="success.dark">
                     Examen
                   </Typography>
                 </TableCell>
                 <TableCell sx={{ minWidth: "100px" }}>
-                  <Typography variant="subtitle2" fontWeight={600}>
+                  <Typography variant="subtitle2" fontWeight={700} color="success.dark">
                     Fecha
                   </Typography>
                 </TableCell>
                 <TableCell sx={{ minWidth: "180px" }}>
-                  <Typography variant="subtitle2" fontWeight={600}>
+                  <Typography variant="subtitle2" fontWeight={700} color="success.dark">
                     Estado
                   </Typography>
                 </TableCell>
                 <TableCell align="center" sx={{ minWidth: "120px" }}>
-                  <Typography variant="subtitle2" fontWeight={600}>
+                  <Typography variant="subtitle2" fontWeight={700} color="success.dark">
                     Acciones
                   </Typography>
                 </TableCell>
@@ -603,8 +633,17 @@ const ListaExamenes = () => {
                 examenesPaginados.map((examen) => (
                   <TableRow
                     key={examen._id}
-                    hover
-                    sx={{ borderBottom: "none" }}
+                    sx={{
+                      transition: 'all 0.2s ease',
+                      '&:hover': {
+                        backgroundColor: 'action.hover',
+                        transform: 'scale(1.001)',
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+                      },
+                      '&:last-child td': {
+                        borderBottom: 0,
+                      }
+                    }}
                   >
                     <TableCell sx={{ borderBottom: "none" }}>
                       <Box display="flex" alignItems="center">
@@ -613,10 +652,10 @@ const ListaExamenes = () => {
                         />
                         <Box>
                           <Typography variant="subtitle2" fontWeight={600}>
-                            {examen.cliente.nombre}
+                            {examen?.cliente?.nombre ?? "Dato eliminado"}
                           </Typography>
                           <Typography color="textSecondary" fontSize="13px">
-                            CI: {examen.cliente.cedula} | {examen.cliente.edad}{" "}
+                            CI: {examen.cliente?.cedula ?? "Dato eliminado"} | {examen.cliente?.edad ?? ""}{" "}
                             años
                           </Typography>
                         </Box>
@@ -624,7 +663,7 @@ const ListaExamenes = () => {
                     </TableCell>
                     <TableCell sx={{ borderBottom: "none" }}>
                       <Tooltip
-                        title={examen.cliente.direccion}
+                        title={examen.cliente?.direccion ?? "Dato eliminado"}
                         arrow
                         placement="top"
                       >
@@ -648,7 +687,7 @@ const ListaExamenes = () => {
                               lineHeight: 1.2,
                             }}
                           >
-                            {examen.cliente.direccion}
+                            {examen.cliente?.direccion ?? "Cliente eliminado"}
                           </Typography>
                         </Box>
                       </Tooltip>
@@ -694,29 +733,53 @@ const ListaExamenes = () => {
                       )}
                     </TableCell>
                     <TableCell align="center" sx={{ borderBottom: "none" }}>
-                      <IconButton
-                        color="info"
-                        size="small"
-                        onClick={() => handleVerExamen(examen)}
-                        sx={{ mr: 1 }}
-                      >
-                        <Visibility fontSize="small" />
-                      </IconButton>
-                      <IconButton
-                        color="primary"
-                        size="small"
-                        onClick={() => handleEditarExamen(examen)}
-                        sx={{ mr: 1 }}
-                      >
-                        <Edit fontSize="small" />
-                      </IconButton>
-                      <IconButton
-                        color="error"
-                        size="small"
-                        onClick={() => handleDeleteClick(examen._id)}
-                      >
-                        <Delete fontSize="small" />
-                      </IconButton>
+                      <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'center' }}>
+                        <IconButton
+                          size="small"
+                          onClick={() => handleVerExamen(examen)}
+                          sx={{
+                            bgcolor: 'info.main',
+                            color: 'white',
+                            '&:hover': {
+                              bgcolor: 'info.dark',
+                              transform: 'scale(1.1)',
+                            },
+                            transition: 'all 0.2s ease',
+                          }}
+                        >
+                          <Visibility fontSize="small" />
+                        </IconButton>
+                        <IconButton
+                          size="small"
+                          onClick={() => handleEditarExamen(examen)}
+                          sx={{
+                            bgcolor: 'success.main',
+                            color: 'white',
+                            '&:hover': {
+                              bgcolor: 'success.dark',
+                              transform: 'scale(1.1)',
+                            },
+                            transition: 'all 0.2s ease',
+                          }}
+                        >
+                          <Edit fontSize="small" />
+                        </IconButton>
+                        <IconButton
+                          size="small"
+                          onClick={() => handleDeleteClick(examen._id)}
+                          sx={{
+                            bgcolor: 'error.main',
+                            color: 'white',
+                            '&:hover': {
+                              bgcolor: 'error.dark',
+                              transform: 'scale(1.1)',
+                            },
+                            transition: 'all 0.2s ease',
+                          }}
+                        >
+                          <Delete fontSize="small" />
+                        </IconButton>
+                      </Box>
                     </TableCell>
                   </TableRow>
                 ))
@@ -804,40 +867,63 @@ const ListaExamenes = () => {
             <Box
               ref={pdfRef}
               sx={{
-                p: 1,
+                p: 3,
                 backgroundColor: "white",
-                fontFamily: "Arial, sans-serif",
+                fontFamily: "'Helvetica Neue', Arial, sans-serif",
               }}
             >
-              {/* Encabezado del PDF - Estilo similar a la imagen */}
-              <Box sx={{ pb: 1, mb: 2 }}>
+              {/* Modern PDF Header */}
+              <Box sx={{
+                pb: 2,
+                mb: 3,
+                borderBottom: '3px solid',
+                borderImage: 'linear-gradient(90deg, #10b981 0%, #059669 100%) 1',
+              }}>
                 <Box
                   sx={{
                     display: "flex",
                     justifyContent: "space-between",
                     alignItems: "flex-start",
-                    mb: 1,
+                    mb: 2,
                   }}
                 >
                   <Box sx={{ flex: 1 }}>
                     <Typography
                       variant="h6"
-                      fontWeight="bold"
-                      sx={{ fontSize: "16px", lineHeight: 1.2 }}
+                      fontWeight="700"
+                      sx={{
+                        fontSize: "14px",
+                        lineHeight: 1.4,
+                        color: '#374151',
+                        mb: 0.5
+                      }}
                     >
                       RIF J-30857988-2
                     </Typography>
                     <Typography
-                      variant="h5"
-                      fontWeight="bold"
-                      sx={{ fontSize: "18px", lineHeight: 1.2 }}
+                      variant="h4"
+                      fontWeight="800"
+                      sx={{
+                        fontSize: "22px",
+                        lineHeight: 1.2,
+                        
+                      
+                        WebkitBackgroundClip: 'text',
+                       
+                        mb: 0.5,
+                        color: "black",
+                      }}
                     >
                       LABORATORIO CLÍNICO
                     </Typography>
                     <Typography
                       variant="h6"
-                      fontWeight="bold"
-                      sx={{ fontSize: "16px", lineHeight: 1.2 }}
+                      fontWeight="600"
+                      sx={{
+                        fontSize: "14px",
+                        lineHeight: 1.4,
+                        color: '#6b7280'
+                      }}
                     >
                       LIC. Vivian Fagre
                     </Typography>
@@ -855,7 +941,12 @@ const ListaExamenes = () => {
                   <Box sx={{ flex: 1, textAlign: "right" }}>
                     <Typography
                       variant="body2"
-                      sx={{ fontSize: "12px", lineHeight: 1.2 }}
+                      sx={{
+                        fontSize: "11px",
+                        lineHeight: 1.4,
+                        color: '#9ca3af',
+                        fontWeight: 500
+                      }}
                     >
                       Página 1 de 1
                     </Typography>
@@ -863,13 +954,19 @@ const ListaExamenes = () => {
                 </Box>
               </Box>
 
-              {/* Información del Paciente */}
-              <Box sx={{ mb: 2 }}>
+              {/* Modern Patient Information */}
+              <Box sx={{
+                mb: 3,
+                p: 2,
+                borderRadius: 2,
+                background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
+                border: '1px solid #bbf7d0',
+              }}>
                 <Table
                   size="small"
                   sx={{
                     whiteSpace: "nowrap",
-                    "& .MuiTableCell-root": { borderBottom: "none" },
+                    "& .MuiTableCell-root": { borderBottom: "none", py: 0.5 },
                   }}
                 >
                   <TableBody>
@@ -879,93 +976,111 @@ const ListaExamenes = () => {
                           border: "none",
                           p: 0,
                           width: "15%",
-                          fontWeight: "bold",
+                          fontWeight: "700",
+                          fontSize: "11px",
+                          color: '#065f46',
                         }}
                       >
                         PACIENTE:
                       </TableCell>
-                      <TableCell sx={{ border: "none", p: 0, width: "35%" }}>
-                        {examenSeleccionado.cliente.nombre.toUpperCase()}
+                      <TableCell sx={{
+                        border: "none",
+                        p: 0,
+                        width: "35%",
+                        fontSize: "11px",
+                        fontWeight: "600",
+                        color: '#1f2937'
+                      }}>
+                        {examenSeleccionado.cliente?.nombre?.toUpperCase() ?? "Dato eliminado"}
                       </TableCell>
                       <TableCell
                         sx={{
                           border: "none",
                           p: 0,
                           width: "10%",
-                          fontWeight: "bold",
+                          fontWeight: "700",
+                          fontSize: "11px",
+                          color: '#065f46',
                         }}
                       >
                         C.I.:
                       </TableCell>
-                      <TableCell sx={{ border: "none", p: 0, width: "40%" }}>
-                        {examenSeleccionado.cliente.cedula}
+                      <TableCell sx={{
+                        border: "none",
+                        p: 0,
+                        width: "40%",
+                        fontSize: "11px",
+                        fontWeight: "600",
+                        color: '#1f2937'
+                      }}>
+                        {examenSeleccionado.cliente?.cedula ?? "Dato eliminado"}
                       </TableCell>
                     </TableRow>
                     <TableRow sx={{ borderBottom: "none" }}>
                       <TableCell
-                        sx={{ border: "none", p: 0, fontWeight: "bold" }}
+                        sx={{ border: "none", p: 0, fontWeight: "700", fontSize: "11px", color: '#065f46' }}
                       >
                         EDAD:
                       </TableCell>
-                      <TableCell sx={{ border: "none", p: 0 }}>
-                        {examenSeleccionado.cliente.edad} años
+                      <TableCell sx={{ border: "none", p: 0, fontSize: "11px", fontWeight: "600", color: '#1f2937' }}>
+                        {examenSeleccionado.cliente?.edad ?? "Dato eliminado"} años
                       </TableCell>
                       <TableCell
-                        sx={{ border: "none", p: 0, fontWeight: "bold" }}
+                        sx={{ border: "none", p: 0, fontWeight: "700", fontSize: "11px", color: '#065f46' }}
                       >
                         CONVENIO:
                       </TableCell>
-                      <TableCell sx={{ border: "none", p: 0 }}>
+                      <TableCell sx={{ border: "none", p: 0, fontSize: "11px", fontWeight: "600", color: '#1f2937' }}>
                         PARTICULAR
                       </TableCell>
                     </TableRow>
                     <TableRow sx={{ borderBottom: "none" }}>
                       <TableCell
-                        sx={{ border: "none", p: 0, fontWeight: "bold" }}
+                        sx={{ border: "none", p: 0, fontWeight: "700", fontSize: "11px", color: '#065f46' }}
                       >
                         GÉNERO:
                       </TableCell>
-                      <TableCell sx={{ border: "none", p: 0 }}>
-                        {examenSeleccionado.cliente.sexo === "Masculino"
+                      <TableCell sx={{ border: "none", p: 0, fontSize: "11px", fontWeight: "600", color: '#1f2937' }}>
+                        {examenSeleccionado.cliente?.sexo === "Masculino"
                           ? "MASCULINO"
-                          : examenSeleccionado.cliente.sexo === "Femenino"
+                          : examenSeleccionado.cliente?.sexo === "Femenino"
                           ? "FEMENINO"
-                          : examenSeleccionado.cliente.sexo.toUpperCase()}
+                          : examenSeleccionado.cliente?.sexo.toUpperCase()}
                       </TableCell>
                       <TableCell
-                        sx={{ border: "none", p: 0, fontWeight: "bold" }}
+                        sx={{ border: "none", p: 0, fontWeight: "700", fontSize: "11px", color: '#065f46' }}
                       >
                         DIRECCIÓN:
                       </TableCell>
-                      <TableCell sx={{ border: "none", p: 0 }}>
-                        {examenSeleccionado.cliente.direccion}
+                      <TableCell sx={{ border: "none", p: 0, fontSize: "11px", fontWeight: "600", color: '#1f2937' }}>
+                        {examenSeleccionado.cliente?.direccion ?? "Dato eliminado"}
                       </TableCell>
                     </TableRow>
                     <TableRow sx={{ borderBottom: "none" }}>
                       <TableCell
-                        sx={{ border: "none", p: 0, fontWeight: "bold" }}
+                        sx={{ border: "none", p: 0, fontWeight: "700", fontSize: "11px", color: '#065f46' }}
                       >
                         FECHA MUESTRA:
                       </TableCell>
-                      <TableCell sx={{ border: "none", p: 0 }}>
+                      <TableCell sx={{ border: "none", p: 0, fontSize: "11px", fontWeight: "600", color: '#1f2937' }}>
                         {formatDate(examenSeleccionado.fechaExamen)}
                       </TableCell>
                       <TableCell
-                        sx={{ border: "none", p: 0, fontWeight: "bold" }}
+                        sx={{ border: "none", p: 0, fontWeight: "700", fontSize: "11px", color: '#065f46' }}
                       >
                         FECHA REPORTE:
                       </TableCell>
-                      <TableCell sx={{ border: "none", p: 0, marginLeft: 3 }}>
+                      <TableCell sx={{ border: "none", p: 0, fontSize: "11px", fontWeight: "600", color: '#1f2937' }}>
                         {formatDate(new Date().toISOString())}
                       </TableCell>
                     </TableRow>
                     <TableRow sx={{ borderBottom: "none" }}>
                       <TableCell
-                        sx={{ border: "none", p: 0, fontWeight: "bold" }}
+                        sx={{ border: "none", p: 0, fontWeight: "700", fontSize: "11px", color: '#065f46' }}
                       >
                         N° ORDEN:
                       </TableCell>
-                      <TableCell sx={{ border: "none", p: 0 }}>
+                      <TableCell sx={{ border: "none", p: 0, fontSize: "11px", fontWeight: "600", color: '#1f2937' }}>
                         {examenesFiltrados.length + 1}
                       </TableCell>
                       <TableCell sx={{ border: "none", p: 0 }}></TableCell>
@@ -975,68 +1090,96 @@ const ListaExamenes = () => {
                 </Table>
               </Box>
 
-              {/* Título ESPECIALES */}
-              <Box sx={{ textAlign: "center", mb: 1 }}>
+              {/* Modern Results Title */}
+              <Box sx={{
+                textAlign: "center",
+                mb: 2,
+                py: 1.5,
+                borderRadius: 2,
+                background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+              }}>
                 <Typography
-                  variant="h6"
-                  fontWeight="bold"
+                  variant="h5"
+                  fontWeight="800"
                   sx={{
-                    fontSize: "16px",
-                    py: 0.5,
+                    fontSize: "18px",
+                    color: 'white',
+                    letterSpacing: 1,
                   }}
                 >
-                  Resultados
+                  RESULTADOS DE LABORATORIO
                 </Typography>
               </Box>
 
-              {/* Tabla de Resultados */}
-              <TableContainer>
+              {/* Modern Results Table - Sin Rayas */}
+              <Box sx={{
+                border: '2px solid #e5e7eb',
+                borderRadius: 2,
+                overflow: 'hidden',
+              }}>
                 <Table
                   size="small"
-                  sx={{ "& .MuiTableCell-root": { borderBottom: "none" } }}
+                  sx={{
+                    "& .MuiTableCell-root": {
+                      border: "none",
+                      borderBottom: "none",
+                    }
+                  }}
                 >
                   <TableHead>
-                    <TableRow sx={{ borderBottom: "none" }}>
+                    <TableRow sx={{
+                      background: 'linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)',
+                      borderBottom: 'none',
+                    }}>
                       <TableCell
                         sx={{
-                          fontWeight: "bold",
-                          textAlign: "center",
-                          backgroundColor: "#f0f0f0",
-                          width: "50%",
-                          borderBottom: "none",
+                          fontWeight: "800",
+                          textAlign: "left",
+                          width: "45%",
+                          border: "none",
+                          fontSize: "11px",
+                          color: '#065f46',
+                          py: 1.5,
+                          px: 2,
                         }}
                       >
                         DESCRIPCIÓN DE EXAMEN
                       </TableCell>
                       <TableCell
                         sx={{
-                          fontWeight: "bold",
+                          fontWeight: "800",
                           textAlign: "center",
-                          backgroundColor: "#f0f0f0",
-                          width: "15%",
-                          borderBottom: "none",
+                          width: "20%",
+                          border: "none",
+                          fontSize: "11px",
+                          color: '#065f46',
+                          py: 1.5,
                         }}
                       >
                         RESULTADO
                       </TableCell>
                       <TableCell
                         sx={{
-                          fontWeight: "bold",
+                          fontWeight: "800",
                           textAlign: "center",
-                          backgroundColor: "#f0f0f0",
                           width: "15%",
-                          borderBottom: "none",
+                          border: "none",
+                          fontSize: "11px",
+                          color: '#065f46',
+                          py: 1.5,
                         }}
                       >
                         UNIDADES
                       </TableCell>
                       <TableCell
                         sx={{
-                          fontWeight: "bold",
+                          fontWeight: "800",
                           textAlign: "center",
-                          backgroundColor: "#f0f0f0",
                           width: "20%",
-                          borderBottom: "none",
+                          border: "none",
+                          fontSize: "11px",
+                          color: '#065f46',
+                          py: 1.5,
                         }}
                       >
                         VALORES DE REFERENCIA
@@ -1046,17 +1189,33 @@ const ListaExamenes = () => {
                   <TableBody>
                     {Object.entries(examenSeleccionado.resultados).map(
                       ([prueba, datos]: any, index: any) => (
-                        <TableRow key={prueba} sx={{ borderBottom: "none" }}>
-                          <TableCell sx={{ pl: 1, borderBottom: "none" }}>
-                            <Typography variant="body2" fontWeight="bold">
+                        <TableRow
+                          key={prueba}
+                          sx={{
+                            border: "none",
+                            borderBottom: "none",
+                            backgroundColor: index % 2 === 0 ? '#ffffff' : '#f9fafb',
+                          }}
+                        >
+                          <TableCell sx={{
+                            px: 2,
+                            py: 1,
+                            border: "none",
+                            borderBottom: "none",
+                          }}>
+                            <Typography variant="body2" fontWeight="700" sx={{ fontSize: "11px", color: '#374151' }}>
                               {prueba}
                             </Typography>
                           </TableCell>
                           <TableCell
                             sx={{
                               textAlign: "center",
-                              fontWeight: "bold",
+                              fontWeight: "700",
+                              border: "none",
                               borderBottom: "none",
+                              fontSize: "11px",
+                              color: '#10b981',
+                              py: 1,
                             }}
                           >
                             {datos.resultado || "No registrado"}
@@ -1064,7 +1223,12 @@ const ListaExamenes = () => {
                           <TableCell
                             sx={{
                               textAlign: "center",
+                              border: "none",
                               borderBottom: "none",
+                              fontSize: "10px",
+                              color: '#6b7280',
+                              fontWeight: '500',
+                              py: 1,
                             }}
                           >
                             {determinarUnidad(datos.valorReferencia)}
@@ -1072,7 +1236,12 @@ const ListaExamenes = () => {
                           <TableCell
                             sx={{
                               textAlign: "center",
+                              border: "none",
                               borderBottom: "none",
+                              fontSize: "10px",
+                              color: '#6b7280',
+                              fontWeight: '500',
+                              py: 1,
                             }}
                           >
                             {datos.valorReferencia}
@@ -1082,7 +1251,7 @@ const ListaExamenes = () => {
                     )}
                   </TableBody>
                 </Table>
-              </TableContainer>
+              </Box>
 
               {/* Información de Contacto */}
               <Box
@@ -1198,20 +1367,20 @@ const ListaExamenes = () => {
                     <Typography variant="subtitle2" fontWeight={600}>
                       Paciente:
                     </Typography>
-                    <Typography>{examenSeleccionado.cliente.nombre}</Typography>
+                    <Typography>{examenSeleccionado.cliente?.nombre ?? "Dato eliminado"}</Typography>
                   </Grid>
                   <Grid size={12}>
                     <Typography variant="subtitle2" fontWeight={600}>
                       Cédula:
                     </Typography>
-                    <Typography>{examenSeleccionado.cliente.cedula}</Typography>
+                    <Typography>{examenSeleccionado.cliente?.cedula ?? "Dato eliminado"}</Typography>
                   </Grid>
                   <Grid size={12}>
                     <Typography variant="subtitle2" fontWeight={600}>
                       Dirección:
                     </Typography>
                     <Typography>
-                      {examenSeleccionado.cliente.direccion}
+                      {examenSeleccionado.cliente?.direccion ?? "Dato eliminado"}
                     </Typography>
                   </Grid>
                   <Grid size={12}>
@@ -1250,17 +1419,39 @@ const ListaExamenes = () => {
                 </Grid>
               </Paper>
 
-              {/* Edición de Resultados */}
-              <Paper elevation={0} sx={{ p: 2, mb: 3 }}>
-                <Typography
-                  variant="h6"
-                  gutterBottom
-                  color="primary"
-                  align="center"
-                >
-                  EDITAR RESULTADOS - ÁREA DE: {examenSeleccionado.area}
-                </Typography>
-                <TableContainer>
+              {/* Modern Results Editor */}
+              <Paper elevation={0} sx={{
+                p: 3,
+                mb: 3,
+                borderRadius: 3,
+                border: '2px solid',
+                borderColor: 'success.light',
+                background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.02) 0%, rgba(5, 150, 105, 0.02) 100%)',
+              }}>
+                <Box sx={{
+                  textAlign: 'center',
+                  mb: 3,
+                  py: 2,
+                  borderRadius: 2,
+                  background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                }}>
+                  <Typography
+                    variant="h5"
+                    fontWeight="800"
+                    sx={{
+                      color: 'white',
+                      letterSpacing: 0.5,
+                    }}
+                  >
+                    EDITAR RESULTADOS - ÁREA DE: {examenSeleccionado.area}
+                  </Typography>
+                </Box>
+                <TableContainer sx={{
+                  borderRadius: 2,
+                  border: '2px solid',
+                  borderColor: 'divider',
+                  overflow: 'hidden',
+                }}>
                   <Table
                     size="small"
                     sx={{ "& .MuiTableCell-root": { borderBottom: "none" } }}
@@ -1268,36 +1459,42 @@ const ListaExamenes = () => {
                     <TableHead>
                       <TableRow
                         sx={{
-                          backgroundColor: "primary.main",
+                          background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.1) 100%)',
                           borderBottom: "none",
+                          '& .MuiTableCell-root': {
+                            py: 2,
+                          }
                         }}
                       >
                         <TableCell
                           sx={{
-                            color: "white",
-                            fontWeight: 600,
+                            color: "success.dark",
+                            fontWeight: 700,
                             width: "40%",
                             borderBottom: "none",
+                            fontSize: '0.95rem',
                           }}
                         >
                           PRUEBA
                         </TableCell>
                         <TableCell
                           sx={{
-                            color: "white",
-                            fontWeight: 600,
+                            color: "success.dark",
+                            fontWeight: 700,
                             width: "30%",
                             borderBottom: "none",
+                            fontSize: '0.95rem',
                           }}
                         >
                           RESULTADO
                         </TableCell>
                         <TableCell
                           sx={{
-                            color: "white",
-                            fontWeight: 600,
+                            color: "success.dark",
+                            fontWeight: 700,
                             width: "30%",
                             borderBottom: "none",
+                            fontSize: '0.95rem',
                           }}
                         >
                           VALOR DE REFERENCIA
@@ -1306,18 +1503,22 @@ const ListaExamenes = () => {
                     </TableHead>
                     <TableBody>
                       {Object.entries(examenSeleccionado.resultados).map(
-                        ([prueba, datos]: any) => (
+                        ([prueba, datos]: any, index: number) => (
                           <TableRow
                             key={prueba}
-                            hover
-                            sx={{ borderBottom: "none" }}
+                            sx={{
+                              borderBottom: "none",
+                              backgroundColor: index % 2 === 0 ? 'background.paper' : 'action.hover',
+                              transition: 'all 0.2s ease',
+                              
+                            }}
                           >
-                            <TableCell sx={{ borderBottom: "none" }}>
-                              <Typography variant="subtitle2" fontWeight={600}>
+                            <TableCell sx={{ borderBottom: "none", py: 2 }}>
+                              <Typography variant="subtitle2" fontWeight={700} color="text.primary">
                                 {prueba}
                               </Typography>
                             </TableCell>
-                            <TableCell sx={{ borderBottom: "none" }}>
+                            <TableCell sx={{ borderBottom: "none", py: 2 }}>
                               <TextField
                                 fullWidth
                                 size="small"
@@ -1327,12 +1528,22 @@ const ListaExamenes = () => {
                                 }
                                 placeholder="Ingrese resultado"
                                 variant="outlined"
+                                sx={{
+                                  '& .MuiOutlinedInput-root': {
+                                    borderRadius: 2,
+                                    '&.Mui-focused fieldset': {
+                                      borderColor: 'success.main',
+                                      borderWidth: 2,
+                                    }
+                                  }
+                                }}
                               />
                             </TableCell>
-                            <TableCell sx={{ borderBottom: "none" }}>
+                            <TableCell sx={{ borderBottom: "none", py: 2 }}>
                               <Typography
                                 variant="body2"
                                 color="text.secondary"
+                                fontWeight={500}
                               >
                                 {datos.valorReferencia}
                               </Typography>

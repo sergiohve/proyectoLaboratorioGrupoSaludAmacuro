@@ -28,7 +28,13 @@ import {
   DialogContent,
   DialogActions,
 } from "@mui/material";
-import { Save, MedicalServices, Add, Delete, Calculate } from "@mui/icons-material";
+import {
+  Save,
+  MedicalServices,
+  Add,
+  Delete,
+  Calculate,
+} from "@mui/icons-material";
 import { useRouter } from "next/navigation";
 
 interface Cliente {
@@ -319,6 +325,26 @@ const plantillasExamenes: {
       { nombre: "TSH", resultado: "", valorReferencia: "0.40 - 4.90 IU/ml" },
     ],
   },
+  "LIPIDOS TOTALES": {
+    area: "QUIMICA SANGUINEA",
+    campos: [
+      {
+        nombre: "LIPIDOS TOTALES",
+        resultado: "",
+        valorReferencia: "<800 mg/dL",
+      },
+    ],
+  },
+  "INDICE DE HOMA": {
+    area: "HORMONAS",
+    campos: [
+      {
+        nombre: "INDICE DE HOMA",
+        resultado: "",
+        valorReferencia: "≤ 2.5 (Normal)",
+      },
+    ],
+  },
 };
 
 const obtenerFechaVenezuela = () => {
@@ -353,13 +379,13 @@ const RegistroExamen = () => {
     type: "success" | "error";
     text: string;
   } | null>(null);
-  
+
   // Estado para el modal de cálculo
   const [modalOpen, setModalOpen] = useState(false);
   const [calculoData, setCalculoData] = useState<CalculoModalData>({
     trigliceridos: "",
     colesterol: "",
-    hdl: ""
+    hdl: "",
   });
 
   // Cargar clientes al montar el componente
@@ -380,72 +406,175 @@ const RegistroExamen = () => {
     fetchClientes();
   }, []);
 
-  // Verificar si es un examen que requiere cálculos
   const esExamenConCalculos = () => {
-    return formData.tipoExamen.includes("LIPIDICO") || 
-           formData.tipoExamen.includes("QUIMICA SANGUINEA COMPLETA") ||
-           formData.area === "QUIMICA SANGUINEA";
+    return (
+      formData.tipoExamen.includes("LIPIDICO") ||
+      formData.tipoExamen.includes("QUIMICA SANGUINEA COMPLETA") ||
+      formData.tipoExamen.includes("LIPIDOS TOTALES") ||
+      formData.tipoExamen.includes("INDICE DE HOMA") ||
+      formData.area === "QUIMICA SANGUINEA"
+    );
   };
 
   // Abrir modal de cálculo
   const abrirModalCalculo = () => {
-    // Buscar los valores actuales en los campos
-    const trigliceridos = formData.campos.find(campo => 
-      campo.nombre.toLowerCase().includes("triglicéridos") || 
-      campo.nombre.toLowerCase().includes("trigliceridos")
-    )?.resultado || "";
+    // Determinar qué tipo de cálculo necesita
+    if (formData.tipoExamen.includes("LIPIDOS TOTALES")) {
+      // Modal para Lípidos Totales
+      const colesterol =
+        formData.campos.find((campo) =>
+          campo.nombre.toLowerCase().includes("colesterol")
+        )?.resultado || "";
 
-    const colesterol = formData.campos.find(campo => 
-      campo.nombre.toLowerCase().includes("colesterol") && 
-      !campo.nombre.toLowerCase().includes("hdl") &&
-      !campo.nombre.toLowerCase().includes("relacion")
-    )?.resultado || "";
+      const trigliceridos =
+        formData.campos.find((campo) =>
+          campo.nombre.toLowerCase().includes("trigliceridos")
+        )?.resultado || "";
 
-    const hdl = formData.campos.find(campo => 
-      campo.nombre.toLowerCase().includes("h.d.l.") || 
-      campo.nombre.toLowerCase().includes("hdl")
-    )?.resultado || "";
+      setCalculoData({
+        trigliceridos,
+        colesterol,
+        hdl: "",
+      });
+      setModalOpen(true);
+    } else if (formData.tipoExamen.includes("INDICE DE HOMA")) {
+      // Modal para Índice de HOMA
+      const glicemia =
+        formData.campos.find((campo) =>
+          campo.nombre.toLowerCase().includes("glicemia")
+        )?.resultado || "";
 
-    setCalculoData({
-      trigliceridos,
-      colesterol,
-      hdl
-    });
-    setModalOpen(true);
+      const insulina =
+        formData.campos.find((campo) =>
+          campo.nombre.toLowerCase().includes("insulina")
+        )?.resultado || "";
+
+      setCalculoData({
+        trigliceridos: glicemia,
+        colesterol: insulina,
+        hdl: "",
+      });
+      setModalOpen(true);
+    } else {
+      // Modal original para perfil lipídico
+      const trigliceridos =
+        formData.campos.find(
+          (campo) =>
+            campo.nombre.toLowerCase().includes("triglicéridos") ||
+            campo.nombre.toLowerCase().includes("trigliceridos")
+        )?.resultado || "";
+
+      const colesterol =
+        formData.campos.find(
+          (campo) =>
+            campo.nombre.toLowerCase().includes("colesterol") &&
+            !campo.nombre.toLowerCase().includes("hdl") &&
+            !campo.nombre.toLowerCase().includes("relacion")
+        )?.resultado || "";
+
+      const hdl =
+        formData.campos.find(
+          (campo) =>
+            campo.nombre.toLowerCase().includes("h.d.l.") ||
+            campo.nombre.toLowerCase().includes("hdl")
+        )?.resultado || "";
+
+      setCalculoData({
+        trigliceridos,
+        colesterol,
+        hdl,
+      });
+      setModalOpen(true);
+    }
   };
 
-  // Calcular valores
   const calcularValores = () => {
-    const trig = parseFloat(calculoData.trigliceridos) || 0;
-    const col = parseFloat(calculoData.colesterol) || 0;
-    const hdlVal = parseFloat(calculoData.hdl) || 0;
+    if (formData.tipoExamen.includes("LIPIDOS TOTALES")) {
+      // Cálculo para Lípidos Totales: Colesterol x 2.5 + Triglicéridos
+      const col = parseFloat(calculoData.colesterol) || 0;
+      const trig = parseFloat(calculoData.trigliceridos) || 0;
+      const lipidosTotales = col * 2.5 + trig;
 
-    const vldl = trig / 5;
-    const ldl = col - hdlVal - vldl;
-    const colHdl = hdlVal > 0 ? col / hdlVal : 0;
-    const ldlHdl = hdlVal > 0 ? ldl / hdlVal : 0;
+      // Actualizar el campo de Lípidos Totales
+      const nuevosCampos = formData.campos.map((campo) => {
+        if (
+          campo.nombre.toLowerCase().includes("lípidos totales") ||
+          campo.nombre.toLowerCase().includes("lipidos totales")
+        ) {
+          return { ...campo, resultado: lipidosTotales.toFixed(2) };
+        }
+        return campo;
+      });
 
-    // Actualizar los campos en el formData
-    const nuevosCampos = formData.campos.map(campo => {
-      if (campo.nombre.toLowerCase().includes("v.l.d.l.") || campo.nombre.toLowerCase().includes("vldl")) {
-        return { ...campo, resultado: vldl.toFixed(2) };
-      }
-      if (campo.nombre.toLowerCase().includes("l.d.l.") || campo.nombre.toLowerCase().includes("ldl")) {
-        return { ...campo, resultado: ldl.toFixed(2) };
-      }
-      if (campo.nombre.toLowerCase().includes("relacion colesterol /hdl") || campo.nombre.toLowerCase().includes("colest/hdl")) {
-        return { ...campo, resultado: colHdl.toFixed(2) };
-      }
-      if (campo.nombre.toLowerCase().includes("relacion ldl /hdl") || campo.nombre.toLowerCase().includes("ldl/hdl")) {
-        return { ...campo, resultado: ldlHdl.toFixed(2) };
-      }
-      return campo;
-    });
+      setFormData((prev) => ({
+        ...prev,
+        campos: nuevosCampos,
+      }));
+    } else if (formData.tipoExamen.includes("INDICE DE HOMA")) {
+      // Cálculo para Índice de HOMA: (Glicemia x Insulina) / 405
+      const glicemia = parseFloat(calculoData.trigliceridos) || 0; // trigliceridos contiene glicemia
+      const insulina = parseFloat(calculoData.colesterol) || 0; // colesterol contiene insulina
+      const indiceHoma = (glicemia * insulina) / 405;
 
-    setFormData(prev => ({
-      ...prev,
-      campos: nuevosCampos
-    }));
+      // Actualizar el campo de Índice de HOMA
+      const nuevosCampos = formData.campos.map((campo) => {
+        if (
+          campo.nombre.toLowerCase().includes("índice de homa") ||
+          campo.nombre.toLowerCase().includes("indice de homa")
+        ) {
+          return { ...campo, resultado: indiceHoma.toFixed(2) };
+        }
+        return campo;
+      });
+
+      setFormData((prev) => ({
+        ...prev,
+        campos: nuevosCampos,
+      }));
+    } else {
+      // Cálculo original para perfil lipídico
+      const trig = parseFloat(calculoData.trigliceridos) || 0;
+      const col = parseFloat(calculoData.colesterol) || 0;
+      const hdlVal = parseFloat(calculoData.hdl) || 0;
+
+      const vldl = trig / 5;
+      const ldl = col - hdlVal - vldl;
+      const colHdl = hdlVal > 0 ? col / hdlVal : 0;
+      const ldlHdl = hdlVal > 0 ? ldl / hdlVal : 0;
+
+      const nuevosCampos = formData.campos.map((campo) => {
+        if (
+          campo.nombre.toLowerCase().includes("v.l.d.l.") ||
+          campo.nombre.toLowerCase().includes("vldl")
+        ) {
+          return { ...campo, resultado: vldl.toFixed(2) };
+        }
+        if (
+          campo.nombre.toLowerCase().includes("l.d.l.") ||
+          campo.nombre.toLowerCase().includes("ldl")
+        ) {
+          return { ...campo, resultado: ldl.toFixed(2) };
+        }
+        if (
+          campo.nombre.toLowerCase().includes("relacion colesterol /hdl") ||
+          campo.nombre.toLowerCase().includes("colest/hdl")
+        ) {
+          return { ...campo, resultado: colHdl.toFixed(2) };
+        }
+        if (
+          campo.nombre.toLowerCase().includes("relacion ldl /hdl") ||
+          campo.nombre.toLowerCase().includes("ldl/hdl")
+        ) {
+          return { ...campo, resultado: ldlHdl.toFixed(2) };
+        }
+        return campo;
+      });
+
+      setFormData((prev) => ({
+        ...prev,
+        campos: nuevosCampos,
+      }));
+    }
 
     setModalOpen(false);
   };
@@ -577,17 +706,64 @@ const RegistroExamen = () => {
   };
 
   return (
-    <Card sx={{ height: "100%" }}>
-      <CardContent>
-        <Box display="flex" alignItems="center" mb={3}>
-          <MedicalServices sx={{ mr: 1, color: "primary.main" }} />
-          <Typography variant="h5" fontWeight={600}>
-            Registrar Examen Médico
-          </Typography>
+    <Card
+      sx={{
+        height: "100%",
+        borderRadius: 3,
+        boxShadow: "0 8px 32px -8px rgba(0,0,0,0.1)",
+        border: "1px solid",
+        borderColor: "divider",
+      }}
+    >
+      <CardContent sx={{ p: 4 }}>
+        <Box
+          display="flex"
+          alignItems="center"
+          mb={4}
+          sx={{
+            pb: 3,
+            borderBottom: "2px solid",
+            borderColor: "success.main",
+            background:
+              "linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, rgba(5, 150, 105, 0.05) 100%)",
+            mx: -4,
+            px: 4,
+            pt: 2,
+          }}
+        >
+          <Box
+            sx={{
+              bgcolor: "success.main",
+              borderRadius: 2,
+              p: 1.5,
+              display: "flex",
+              mr: 2,
+              boxShadow: "0 4px 12px rgba(16, 185, 129, 0.3)",
+            }}
+          >
+            <MedicalServices sx={{ color: "white", fontSize: 28 }} />
+          </Box>
+          <Box>
+            <Typography variant="h4" fontWeight={700} color="text.primary">
+              Registrar Examen Médico
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+              Complete los datos del examen médico del paciente
+            </Typography>
+          </Box>
         </Box>
 
         {message && (
-          <Alert severity={message.type} sx={{ mb: 2 }}>
+          <Alert
+            severity={message.type}
+            sx={{
+              mb: 3,
+              borderRadius: 2,
+              "& .MuiAlert-icon": {
+                fontSize: 24,
+              },
+            }}
+          >
             {message.text}
           </Alert>
         )}
@@ -695,84 +871,153 @@ const RegistroExamen = () => {
               </Grid>
             )}
 
-            {/* Botón de cálculo para perfiles lipídicos */}
+            {/* Modern Calculation Button for Lipid Profiles */}
             {esExamenConCalculos() && (
               <Grid size={12}>
                 <Button
                   startIcon={<Calculate />}
                   onClick={abrirModalCalculo}
-                  variant="outlined"
-                  color="secondary"
+                  variant="contained"
                   fullWidth
-                  sx={{ mb: 2 }}
+                  sx={{
+                    mb: 2,
+                    py: 1.5,
+                    borderRadius: 2,
+                    background:
+                      "linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)",
+                    boxShadow: "0 4px 16px rgba(139, 92, 246, 0.3)",
+                    textTransform: "none",
+                    fontSize: "1rem",
+                    fontWeight: 600,
+                    "&:hover": {
+                      background:
+                        "linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%)",
+                      boxShadow: "0 6px 20px rgba(139, 92, 246, 0.4)",
+                      transform: "translateY(-2px)",
+                    },
+                    transition: "all 0.3s ease",
+                  }}
                 >
                   Calcular Valores de Perfil Lipídico
                 </Button>
               </Grid>
             )}
 
-            {/* Campos del Examen - SIEMPRE VISIBLE */}
+            {/* Modern Exam Parameters Section */}
             <Grid size={12}>
               <Box sx={{ mb: 2 }}>
                 <Box
                   display="flex"
                   justifyContent="space-between"
                   alignItems="center"
-                  mb={1}
+                  mb={2}
+                  sx={{
+                    p: 2,
+                    borderRadius: 2,
+                    background:
+                      "linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, rgba(5, 150, 105, 0.05) 100%)",
+                    border: "1px solid",
+                    borderColor: "success.light",
+                  }}
                 >
-                  <Typography variant="h6" color="primary">
+                  <Typography
+                    variant="h6"
+                    fontWeight={700}
+                    sx={{
+                      background:
+                        "linear-gradient(135deg, #10b981 0%, #059669 100%)",
+                      backgroundClip: "text",
+                      WebkitBackgroundClip: "text",
+                      WebkitTextFillColor: "transparent",
+                    }}
+                  >
                     Parámetros del Examen
                   </Typography>
                   <Button
                     startIcon={<Add />}
                     onClick={agregarCampo}
-                    variant="outlined"
+                    variant="contained"
                     size="small"
+                    sx={{
+                      borderRadius: 2,
+                      textTransform: "none",
+                      fontWeight: 600,
+                      background:
+                        "linear-gradient(135deg, #10b981 0%, #059669 100%)",
+                      "&:hover": {
+                        background:
+                          "linear-gradient(135deg, #059669 0%, #047857 100%)",
+                        transform: "scale(1.05)",
+                      },
+                      transition: "all 0.2s ease",
+                    }}
                   >
                     Agregar Campo
                   </Button>
                 </Box>
 
-                <TableContainer component={Paper} elevation={2}>
+                <TableContainer
+                  component={Paper}
+                  elevation={0}
+                  sx={{
+                    borderRadius: 2,
+                    border: "2px solid",
+                    borderColor: "divider",
+                  }}
+                >
                   <Table size="small">
                     <TableHead>
-                      <TableRow sx={{ backgroundColor: "primary.main" }}>
+                      <TableRow
+                        sx={{
+                          background:
+                            "linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.1) 100%)",
+                          "& .MuiTableCell-root": {
+                            borderBottom: "2px solid",
+                            borderColor: "success.main",
+                            py: 2,
+                          },
+                        }}
+                      >
                         <TableCell
                           sx={{
-                            color: "white",
-                            fontWeight: 600,
+                            color: "success.dark",
+                            fontWeight: 700,
                             width: "35%",
                             minWidth: "200px",
+                            fontSize: "0.95rem",
                           }}
                         >
                           PRUEBA
                         </TableCell>
                         <TableCell
                           sx={{
-                            color: "white",
-                            fontWeight: 600,
+                            color: "success.dark",
+                            fontWeight: 700,
                             width: "30%",
                             minWidth: "150px",
+                            fontSize: "0.95rem",
                           }}
                         >
                           RESULTADO
                         </TableCell>
                         <TableCell
                           sx={{
-                            color: "white",
-                            fontWeight: 600,
+                            color: "success.dark",
+                            fontWeight: 700,
                             width: "30%",
                             minWidth: "200px",
+                            fontSize: "0.95rem",
                           }}
                         >
                           VALOR DE REFERENCIA
                         </TableCell>
                         <TableCell
                           sx={{
-                            color: "white",
-                            fontWeight: 600,
+                            color: "success.dark",
+                            fontWeight: 700,
                             width: "5%",
                             minWidth: "80px",
+                            fontSize: "0.95rem",
                           }}
                         >
                           Acción
@@ -883,7 +1128,7 @@ const RegistroExamen = () => {
               />
             </Grid>
 
-            {/* Botón de guardar */}
+            {/* Modern Save Button */}
             <Grid size={12}>
               <Button
                 type="submit"
@@ -891,90 +1136,210 @@ const RegistroExamen = () => {
                 fullWidth
                 disabled={loading}
                 startIcon={<Save />}
-                sx={{ mt: 1, py: 1.5, fontSize: "1.1rem" }}
                 size="large"
+                sx={{
+                  mt: 3,
+                  py: 2,
+                  fontSize: "1.1rem",
+                  fontWeight: 700,
+                  borderRadius: 2,
+                  textTransform: "none",
+                  background:
+                    "linear-gradient(135deg, #10b981 0%, #059669 100%)",
+                  boxShadow: "0 8px 24px -8px rgba(16, 185, 129, 0.5)",
+                  transition: "all 0.3s ease",
+                  "&:hover": {
+                    background:
+                      "linear-gradient(135deg, #059669 0%, #047857 100%)",
+                    boxShadow: "0 12px 32px -8px rgba(16, 185, 129, 0.7)",
+                    transform: "translateY(-2px)",
+                  },
+                  "&:disabled": {
+                    background:
+                      "linear-gradient(135deg, #9ca3af 0%, #6b7280 100%)",
+                  },
+                }}
               >
                 {loading ? "Registrando Examen..." : "Guardar Examen Médico"}
               </Button>
             </Grid>
           </Grid>
         </form>
-
         {/* Modal de Cálculo */}
-        <Dialog open={modalOpen} onClose={() => setModalOpen(false)} maxWidth="sm" fullWidth>
+        <Dialog
+          open={modalOpen}
+          onClose={() => setModalOpen(false)}
+          maxWidth="sm"
+          fullWidth
+        >
           <DialogTitle>
             <Box display="flex" alignItems="center">
               <Calculate sx={{ mr: 1 }} />
-              Calcular Perfil Lipídico
+              {formData.tipoExamen.includes("LIPIDOS TOTALES")
+                ? "Calcular Lípidos Totales"
+                : formData.tipoExamen.includes("INDICE DE HOMA")
+                ? "Calcular Índice de HOMA"
+                : "Calcular Perfil Lipídico"}
             </Box>
           </DialogTitle>
           <DialogContent>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-              Ingrese los valores base para calcular automáticamente los demás parámetros:
+              {formData.tipoExamen.includes("LIPIDOS TOTALES")
+                ? "Ingrese los valores para calcular Lípidos Totales:"
+                : formData.tipoExamen.includes("INDICE DE HOMA")
+                ? "Ingrese los valores para calcular el Índice de HOMA:"
+                : "Ingrese los valores base para calcular automáticamente los demás parámetros:"}
             </Typography>
-            
+
             <Grid container spacing={2}>
-              <Grid size={12}>
-                <TextField
-                  fullWidth
-                  label="Triglicéridos (mg/dL)"
-                  value={calculoData.trigliceridos}
-                  onChange={(e) => setCalculoData(prev => ({
-                    ...prev,
-                    trigliceridos: e.target.value
-                  }))}
-                  type="number"
-                  size="small"
-                />
-              </Grid>
-              <Grid size={12}>
-                <TextField
-                  fullWidth
-                  label="Colesterol Total (mg/dL)"
-                  value={calculoData.colesterol}
-                  onChange={(e) => setCalculoData(prev => ({
-                    ...prev,
-                    colesterol: e.target.value
-                  }))}
-                  type="number"
-                  size="small"
-                />
-              </Grid>
-              <Grid size={12}>
-                <TextField
-                  fullWidth
-                  label="HDL (mg/dL)"
-                  value={calculoData.hdl}
-                  onChange={(e) => setCalculoData(prev => ({
-                    ...prev,
-                    hdl: e.target.value
-                  }))}
-                  type="number"
-                  size="small"
-                />
-              </Grid>
+              {formData.tipoExamen.includes("LIPIDOS TOTALES") ? (
+                <>
+                  <Grid size={12}>
+                    <TextField
+                      fullWidth
+                      label="Colesterol (mg/dL)"
+                      value={calculoData.colesterol}
+                      onChange={(e) =>
+                        setCalculoData((prev) => ({
+                          ...prev,
+                          colesterol: e.target.value,
+                        }))
+                      }
+                      type="number"
+                      size="small"
+                    />
+                  </Grid>
+                  <Grid size={12}>
+                    <TextField
+                      fullWidth
+                      label="Triglicéridos (mg/dL)"
+                      value={calculoData.trigliceridos}
+                      onChange={(e) =>
+                        setCalculoData((prev) => ({
+                          ...prev,
+                          trigliceridos: e.target.value,
+                        }))
+                      }
+                      type="number"
+                      size="small"
+                    />
+                  </Grid>
+                </>
+              ) : formData.tipoExamen.includes("INDICE DE HOMA") ? (
+                <>
+                  <Grid size={12}>
+                    <TextField
+                      fullWidth
+                      label="Glicemia (mg/dL)"
+                      value={calculoData.trigliceridos}
+                      onChange={(e) =>
+                        setCalculoData((prev) => ({
+                          ...prev,
+                          trigliceridos: e.target.value,
+                        }))
+                      }
+                      type="number"
+                      size="small"
+                    />
+                  </Grid>
+                  <Grid size={12}>
+                    <TextField
+                      fullWidth
+                      label="Insulina (µIU/mL)"
+                      value={calculoData.colesterol}
+                      onChange={(e) =>
+                        setCalculoData((prev) => ({
+                          ...prev,
+                          colesterol: e.target.value,
+                        }))
+                      }
+                      type="number"
+                      size="small"
+                    />
+                  </Grid>
+                </>
+              ) : (
+                <>
+                  <Grid size={12}>
+                    <TextField
+                      fullWidth
+                      label="Triglicéridos (mg/dL)"
+                      value={calculoData.trigliceridos}
+                      onChange={(e) =>
+                        setCalculoData((prev) => ({
+                          ...prev,
+                          trigliceridos: e.target.value,
+                        }))
+                      }
+                      type="number"
+                      size="small"
+                    />
+                  </Grid>
+                  <Grid size={12}>
+                    <TextField
+                      fullWidth
+                      label="Colesterol Total (mg/dL)"
+                      value={calculoData.colesterol}
+                      onChange={(e) =>
+                        setCalculoData((prev) => ({
+                          ...prev,
+                          colesterol: e.target.value,
+                        }))
+                      }
+                      type="number"
+                      size="small"
+                    />
+                  </Grid>
+                  <Grid size={12}>
+                    <TextField
+                      fullWidth
+                      label="HDL (mg/dL)"
+                      value={calculoData.hdl}
+                      onChange={(e) =>
+                        setCalculoData((prev) => ({
+                          ...prev,
+                          hdl: e.target.value,
+                        }))
+                      }
+                      type="number"
+                      size="small"
+                    />
+                  </Grid>
+                </>
+              )}
             </Grid>
 
-            <Box sx={{ mt: 2, p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
+            <Box sx={{ mt: 2, p: 2, bgcolor: "grey.50", borderRadius: 1 }}>
               <Typography variant="subtitle2" gutterBottom>
-                Fórmulas aplicadas:
+                {formData.tipoExamen.includes("LIPIDOS TOTALES")
+                  ? "Fórmula aplicada:"
+                  : formData.tipoExamen.includes("INDICE DE HOMA")
+                  ? "Fórmula aplicada:"
+                  : "Fórmulas aplicadas:"}
               </Typography>
               <Typography variant="body2">
-                • VLDL = Triglicéridos / 5<br/>
-                • LDL = Colesterol - HDL - VLDL<br/>
-                • Colesterol/HDL = Colesterol / HDL<br/>
-                • LDL/HDL = LDL / HDL
+                {formData.tipoExamen.includes("LIPIDOS TOTALES")
+                  ? "Lípidos Totales = (Colesterol × 2.5) + Triglicéridos"
+                  : formData.tipoExamen.includes("INDICE DE HOMA")
+                  ? "Índice de HOMA = (Glicemia × Insulina) / 405"
+                  : "• VLDL = Triglicéridos / 5\n• LDL = Colesterol - HDL - VLDL\n• Colesterol/HDL = Colesterol / HDL\n• LDL/HDL = LDL / HDL"}
               </Typography>
             </Box>
           </DialogContent>
           <DialogActions>
-            <Button onClick={() => setModalOpen(false)}>
-              Cancelar
-            </Button>
-            <Button 
-              onClick={calcularValores} 
+            <Button onClick={() => setModalOpen(false)}>Cancelar</Button>
+            <Button
+              onClick={calcularValores}
               variant="contained"
-              disabled={!calculoData.trigliceridos || !calculoData.colesterol || !calculoData.hdl}
+              disabled={
+                formData.tipoExamen.includes("LIPIDOS TOTALES")
+                  ? !calculoData.trigliceridos || !calculoData.colesterol
+                  : formData.tipoExamen.includes("INDICE DE HOMA")
+                  ? !calculoData.trigliceridos || !calculoData.colesterol
+                  : !calculoData.trigliceridos ||
+                    !calculoData.colesterol ||
+                    !calculoData.hdl
+              }
             >
               Calcular y Aplicar
             </Button>
