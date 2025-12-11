@@ -379,10 +379,10 @@ const ListaExamenes = () => {
 
     // Si el valor de referencia contiene unidades específicas
     if (valor.includes("mg/dl") || valor.includes("mg/l")) {
-      return "mg/dl";
+      return "mg/dL";
     }
     if (valor.includes("mg/dl")) {
-      return "mg/dl";
+      return "mg/dL";
     }
     if (valor.includes("mmol/l")) {
       return "mmol/L";
@@ -651,7 +651,7 @@ const ListaExamenes = () => {
                           sx={{ mr: 1, color: "primary.main" }}
                         />
                         <Box>
-                          <Typography variant="subtitle2" fontWeight={600}>
+                          <Typography sx={{color: "#000"}} variant="subtitle2" fontWeight={600}>
                             {examen?.cliente?.nombre ?? "Dato eliminado"}
                           </Typography>
                           <Typography color="textSecondary" fontSize="13px">
@@ -906,12 +906,10 @@ const ListaExamenes = () => {
                       sx={{
                         fontSize: "22px",
                         lineHeight: 1.2,
-                        
-                      
                         WebkitBackgroundClip: 'text',
                        
                         mb: 0.5,
-                        color: "black",
+                         color: 'black',
                       }}
                     >
                       LABORATORIO CLÍNICO
@@ -925,15 +923,15 @@ const ListaExamenes = () => {
                         color: '#6b7280'
                       }}
                     >
-                      LIC. Vivian Fagre
+                      Licda. Vivían Fagre Naim
                     </Typography>
                   </Box>
                   <Box sx={{ textAlign: "center", flex: 1 }}>
                     <Image
-                      src="/images/logos/dark-logo.png"
+                      src="/images/logos/back.png"
                       alt="logo"
-                      height={80}
-                      width={174}
+                      height={120}
+                      width={300}
                       priority
                       style={{ margin: "0 auto" }}
                     />
@@ -978,7 +976,7 @@ const ListaExamenes = () => {
                           width: "15%",
                           fontWeight: "700",
                           fontSize: "11px",
-                          color: '#065f46',
+                          color: '#000',
                         }}
                       >
                         PACIENTE:
@@ -1000,7 +998,7 @@ const ListaExamenes = () => {
                           width: "10%",
                           fontWeight: "700",
                           fontSize: "11px",
-                          color: '#065f46',
+                          color: '#000',
                         }}
                       >
                         C.I.:
@@ -1018,7 +1016,7 @@ const ListaExamenes = () => {
                     </TableRow>
                     <TableRow sx={{ borderBottom: "none" }}>
                       <TableCell
-                        sx={{ border: "none", p: 0, fontWeight: "700", fontSize: "11px", color: '#065f46' }}
+                        sx={{ border: "none", p: 0, fontWeight: "700", fontSize: "11px", color: '#000' }}
                       >
                         EDAD:
                       </TableCell>
@@ -1026,7 +1024,7 @@ const ListaExamenes = () => {
                         {examenSeleccionado.cliente?.edad ?? "Dato eliminado"} años
                       </TableCell>
                       <TableCell
-                        sx={{ border: "none", p: 0, fontWeight: "700", fontSize: "11px", color: '#065f46' }}
+                        sx={{ border: "none", p: 0, fontWeight: "700", fontSize: "11px", color: '#000' }}
                       >
                         CONVENIO:
                       </TableCell>
@@ -1036,7 +1034,7 @@ const ListaExamenes = () => {
                     </TableRow>
                     <TableRow sx={{ borderBottom: "none" }}>
                       <TableCell
-                        sx={{ border: "none", p: 0, fontWeight: "700", fontSize: "11px", color: '#065f46' }}
+                        sx={{ border: "none", p: 0, fontWeight: "700", fontSize: "11px", color: '#000' }}
                       >
                         GÉNERO:
                       </TableCell>
@@ -1048,7 +1046,7 @@ const ListaExamenes = () => {
                           : examenSeleccionado.cliente?.sexo.toUpperCase()}
                       </TableCell>
                       <TableCell
-                        sx={{ border: "none", p: 0, fontWeight: "700", fontSize: "11px", color: '#065f46' }}
+                        sx={{ border: "none", p: 0, fontWeight: "700", fontSize: "11px", color: '#000' }}
                       >
                         DIRECCIÓN:
                       </TableCell>
@@ -1058,7 +1056,7 @@ const ListaExamenes = () => {
                     </TableRow>
                     <TableRow sx={{ borderBottom: "none" }}>
                       <TableCell
-                        sx={{ border: "none", p: 0, fontWeight: "700", fontSize: "11px", color: '#065f46' }}
+                        sx={{ border: "none", p: 0, fontWeight: "700", fontSize: "11px", color: '#000' }}
                       >
                         FECHA MUESTRA:
                       </TableCell>
@@ -1066,7 +1064,7 @@ const ListaExamenes = () => {
                         {formatDate(examenSeleccionado.fechaExamen)}
                       </TableCell>
                       <TableCell
-                        sx={{ border: "none", p: 0, fontWeight: "700", fontSize: "11px", color: '#065f46' }}
+                        sx={{ border: "none", p: 0, fontWeight: "700", fontSize: "11px", color: '#000' }}
                       >
                         FECHA REPORTE:
                       </TableCell>
@@ -1076,7 +1074,7 @@ const ListaExamenes = () => {
                     </TableRow>
                     <TableRow sx={{ borderBottom: "none" }}>
                       <TableCell
-                        sx={{ border: "none", p: 0, fontWeight: "700", fontSize: "11px", color: '#065f46' }}
+                        sx={{ border: "none", p: 0, fontWeight: "700", fontSize: "11px", color: '#000' }}
                       >
                         N° ORDEN:
                       </TableCell>
@@ -1096,14 +1094,15 @@ const ListaExamenes = () => {
                 mb: 2,
                 py: 1.5,
                 borderRadius: 2,
-                background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                borderColor: 'black',
+                border: 1
               }}>
                 <Typography
                   variant="h5"
                   fontWeight="800"
                   sx={{
                     fontSize: "18px",
-                    color: 'white',
+                    color: 'black',
                     letterSpacing: 1,
                   }}
                 >
@@ -1138,7 +1137,7 @@ const ListaExamenes = () => {
                           width: "45%",
                           border: "none",
                           fontSize: "11px",
-                          color: '#065f46',
+                          color: '#000',
                           py: 1.5,
                           px: 2,
                         }}
@@ -1152,7 +1151,7 @@ const ListaExamenes = () => {
                           width: "20%",
                           border: "none",
                           fontSize: "11px",
-                          color: '#065f46',
+                          color: '#000',
                           py: 1.5,
                         }}
                       >
@@ -1165,7 +1164,7 @@ const ListaExamenes = () => {
                           width: "15%",
                           border: "none",
                           fontSize: "11px",
-                          color: '#065f46',
+                          color: '#000',
                           py: 1.5,
                         }}
                       >
@@ -1178,7 +1177,7 @@ const ListaExamenes = () => {
                           width: "20%",
                           border: "none",
                           fontSize: "11px",
-                          color: '#065f46',
+                          color: '#000',
                           py: 1.5,
                         }}
                       >
@@ -1202,19 +1201,20 @@ const ListaExamenes = () => {
                             py: 1,
                             border: "none",
                             borderBottom: "none",
+                            color: "#000"
                           }}>
-                            <Typography variant="body2" fontWeight="700" sx={{ fontSize: "11px", color: '#374151' }}>
+                            <Typography variant="body2" fontWeight="700" sx={{ fontSize: "11px", color: '#000' }}>
                               {prueba}
                             </Typography>
                           </TableCell>
                           <TableCell
                             sx={{
                               textAlign: "center",
-                              fontWeight: "700",
+                              fontWeight: "900",
                               border: "none",
                               borderBottom: "none",
                               fontSize: "11px",
-                              color: '#10b981',
+                              color: '#000',
                               py: 1,
                             }}
                           >
@@ -1364,19 +1364,19 @@ const ListaExamenes = () => {
                 </Typography>
                 <Grid container spacing={2}>
                   <Grid size={12}>
-                    <Typography variant="subtitle2" fontWeight={600}>
+                    <Typography sx={{color: "#000"}} variant="subtitle2" fontWeight={600}>
                       Paciente:
                     </Typography>
                     <Typography>{examenSeleccionado.cliente?.nombre ?? "Dato eliminado"}</Typography>
                   </Grid>
                   <Grid size={12}>
-                    <Typography variant="subtitle2" fontWeight={600}>
+                    <Typography sx={{color: "#000"}} variant="subtitle2" fontWeight={600}>
                       Cédula:
                     </Typography>
                     <Typography>{examenSeleccionado.cliente?.cedula ?? "Dato eliminado"}</Typography>
                   </Grid>
                   <Grid size={12}>
-                    <Typography variant="subtitle2" fontWeight={600}>
+                    <Typography sx={{color: "#000"}} variant="subtitle2" fontWeight={600}>
                       Dirección:
                     </Typography>
                     <Typography>
@@ -1384,13 +1384,13 @@ const ListaExamenes = () => {
                     </Typography>
                   </Grid>
                   <Grid size={12}>
-                    <Typography variant="subtitle2" fontWeight={600}>
+                    <Typography sx={{color: "#000"}} variant="subtitle2" fontWeight={600}>
                       Tipo de Examen:
                     </Typography>
                     <Typography>{examenSeleccionado.tipoExamen}</Typography>
                   </Grid>
                   <Grid size={12}>
-                    <Typography variant="subtitle2" fontWeight={600}>
+                    <Typography sx={{color: "#000"}} variant="subtitle2" fontWeight={600}>
                       Área:
                     </Typography>
                     <Typography>{examenSeleccionado.area}</Typography>
