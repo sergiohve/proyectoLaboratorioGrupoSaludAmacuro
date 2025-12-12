@@ -485,7 +485,7 @@ const ListaExamenes = () => {
       </DashboardCard>
     );
   }
-
+console.log(examenSeleccionado)
   return (
     <>
       <DashboardCard
@@ -962,7 +962,10 @@ const ListaExamenes = () => {
               }}>
                 <Table
                   size="small"
-                  
+                  sx={{
+                    whiteSpace: "nowrap",
+                    "& .MuiTableCell-root": { borderBottom: "none", py: 0.5 },
+                  }}
                 >
                   <TableBody>
                     <TableRow sx={{ borderBottom: "none" }}>
@@ -1154,7 +1157,7 @@ const ListaExamenes = () => {
                       >
                         RESULTADO
                       </TableCell>
-                      <TableCell
+                      {examenSeleccionado.area!=="ORINA" && <TableCell
                         sx={{
                           fontWeight: "800",
                           textAlign: "center",
@@ -1166,7 +1169,7 @@ const ListaExamenes = () => {
                         }}
                       >
                         UNIDADES
-                      </TableCell>
+                      </TableCell>}
                       <TableCell
                         sx={{
                           fontWeight: "800",
@@ -1217,7 +1220,7 @@ const ListaExamenes = () => {
                           >
                             {datos.resultado || "No registrado"}
                           </TableCell>
-                          <TableCell
+                          {examenSeleccionado.area!=="ORINA" &&  <TableCell
                             sx={{
                               textAlign: "center",
                               border: "none",
@@ -1229,7 +1232,7 @@ const ListaExamenes = () => {
                             }}
                           >
                             {determinarUnidad(datos.valorReferencia)}
-                          </TableCell>
+                          </TableCell>}
                           <TableCell
                             sx={{
                               textAlign: "center",

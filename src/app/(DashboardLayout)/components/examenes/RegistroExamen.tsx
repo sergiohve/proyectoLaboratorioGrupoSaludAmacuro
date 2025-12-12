@@ -223,7 +223,7 @@ const plantillasExamenes: {
         resultado: "",
         valorReferencia: "0 x campo",
       },
-      { nombre: "CRISTALES", resultado: "", valorReferencia: "ESCASOS" },
+      { nombre: "CRISTALES", resultado: "", valorReferencia: "0" },
       { nombre: "CILINDROS", resultado: "", valorReferencia: "0 x campo" },
       { nombre: "MUCINA", resultado: "", valorReferencia: "" },
     ],
