@@ -538,7 +538,7 @@ const ListaExamenes = () => {
                   boxShadow: '0 4px 20px rgba(16, 185, 129, 0.15)',
                   '& fieldset': {
                     borderWidth: 2,
-                    borderColor: 'success.main',
+                    borderColor: '#000',
                   }
                 },
                 '& fieldset': {
@@ -582,7 +582,7 @@ const ListaExamenes = () => {
                 background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(5, 150, 105, 0.08) 100%)',
                 '& .MuiTableCell-root': {
                   borderBottom: '2px solid',
-                  borderColor: 'success.main',
+                  borderColor: '#000',
                   py: 2,
                 }
               }}>
@@ -877,7 +877,7 @@ const ListaExamenes = () => {
                 pb: 2,
                 mb: 3,
                 borderBottom: '3px solid',
-                borderImage: 'linear-gradient(90deg, #10b981 0%, #059669 100%) 1',
+                borderImage: '#000',
               }}>
                 <Box
                   sx={{
@@ -958,14 +958,11 @@ const ListaExamenes = () => {
                 p: 2,
                 borderRadius: 2,
                 
-                border: '1px solid #bbf7d0',
+                border: '1px solid #000',
               }}>
                 <Table
                   size="small"
-                  sx={{
-                    whiteSpace: "nowrap",
-                    "& .MuiTableCell-root": { borderBottom: "none", py: 0.5 },
-                  }}
+                  
                 >
                   <TableBody>
                     <TableRow sx={{ borderBottom: "none" }}>
@@ -1532,7 +1529,7 @@ const ListaExamenes = () => {
                                   '& .MuiOutlinedInput-root': {
                                     borderRadius: 2,
                                     '&.Mui-focused fieldset': {
-                                      borderColor: 'success.main',
+                                      borderColor: '#000',
                                       borderWidth: 2,
                                     }
                                   }
