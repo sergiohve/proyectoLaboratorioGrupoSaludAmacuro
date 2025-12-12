@@ -957,7 +957,7 @@ const ListaExamenes = () => {
                 mb: 3,
                 p: 2,
                 borderRadius: 2,
-                background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
+                
                 border: '1px solid #bbf7d0',
               }}>
                 <Table
@@ -1127,7 +1127,7 @@ const ListaExamenes = () => {
                 >
                   <TableHead>
                     <TableRow sx={{
-                      background: 'linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)',
+                      background: 'transparent',
                       borderBottom: 'none',
                     }}>
                       <TableCell
@@ -1193,7 +1193,7 @@ const ListaExamenes = () => {
                           sx={{
                             border: "none",
                             borderBottom: "none",
-                            backgroundColor: index % 2 === 0 ? '#ffffff' : '#f9fafb',
+                            
                           }}
                         >
                           <TableCell sx={{

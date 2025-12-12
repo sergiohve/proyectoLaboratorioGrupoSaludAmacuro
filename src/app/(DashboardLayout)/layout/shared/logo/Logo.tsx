@@ -3,8 +3,8 @@ import { styled } from "@mui/material";
 import Image from "next/image";
 
 const LinkStyled = styled(Link)(() => ({
-  height: "80px",
-  width: "180px",
+  height: "100px",
+  width: "200px",
   overflow: "hidden",
   display: "block",
   marginBottom: 10
@@ -13,7 +13,7 @@ const LinkStyled = styled(Link)(() => ({
 const Logo = () => {
   return (
     <LinkStyled href="/">
-      <Image src="/images/logos/dark-logo.png" alt="logo" height={80} width={174} priority />
+      <Image src="/images/logos/back.png" alt="logo" height={100} width={200} priority />
     </LinkStyled>
   );
 };

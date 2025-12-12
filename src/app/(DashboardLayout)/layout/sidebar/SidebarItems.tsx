@@ -27,10 +27,10 @@ const renderMenuItems = (items: any, pathDirect: any, theme: any) => {
           key={item.subheader}
           sx={{
             color: theme.palette.text.secondary,
-            fontSize: '11px',
+            fontSize: "11px",
             fontWeight: 800,
             letterSpacing: 1.2,
-            textTransform: 'uppercase',
+            textTransform: "uppercase",
             opacity: 0.7,
             mt: 2,
             mb: 1,
@@ -52,12 +52,13 @@ const renderMenuItems = (items: any, pathDirect: any, theme: any) => {
             fontWeight: 600,
             mx: 2,
             mb: 0.5,
-            '&:hover': {
-              background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(139, 92, 246, 0.08) 100%)',
+            "&:hover": {
+              background:
+                "linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(139, 92, 246, 0.08) 100%)",
               color: theme.palette.primary.main,
-              transform: 'translateX(4px)',
+              transform: "translateX(4px)",
             },
-            transition: 'all 0.3s ease',
+            transition: "all 0.3s ease",
           }}
         >
           {renderMenuItems(item.children, pathDirect, theme)}
@@ -78,42 +79,44 @@ const renderMenuItems = (items: any, pathDirect: any, theme: any) => {
           link={item.href}
           component={Link}
           sx={{
-            color: isSelected ? 'white' : theme.palette.text.primary,
+            color: isSelected ? "white" : theme.palette.text.primary,
             fontWeight: isSelected ? 700 : 600,
             py: 1.5,
             px: 2,
-            position: 'relative',
-            overflow: 'hidden',
+            position: "relative",
+            overflow: "hidden",
             background: isSelected
-              ? 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)'
-              : 'transparent',
+              ? "linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)"
+              : "transparent",
             boxShadow: isSelected
-              ? '0 4px 12px rgba(99, 102, 241, 0.3)'
-              : 'none',
-            '&:hover': {
+              ? "0 4px 12px rgba(99, 102, 241, 0.3)"
+              : "none",
+            "&:hover": {
               background: isSelected
-                ? 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)'
-                : 'linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(139, 92, 246, 0.08) 100%)',
-              color: isSelected ? 'white' : theme.palette.primary.main,
-              transform: 'translateX(6px)',
+                ? "linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)"
+                : "linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(139, 92, 246, 0.08) 100%)",
+              color: isSelected ? "white" : theme.palette.primary.main,
+              transform: "translateX(6px)",
               boxShadow: isSelected
-                ? '0 6px 16px rgba(99, 102, 241, 0.4)'
-                : 'none',
+                ? "0 6px 16px rgba(99, 102, 241, 0.4)"
+                : "none",
             },
-            '&::before': isSelected ? {
-              content: '""',
-              position: 'absolute',
-              left: 0,
-              top: 0,
-              bottom: 0,
-              width: '4px',
-              background: 'white',
-              borderRadius: '0 4px 4px 0',
-            } : {},
-            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-            '& .MuiSvgIcon-root, & svg': {
-              color: isSelected ? 'white !important' : 'inherit',
-            }
+            "&::before": isSelected
+              ? {
+                  content: '""',
+                  position: "absolute",
+                  left: 0,
+                  top: 0,
+                  bottom: 0,
+                  width: "4px",
+                  background: "white",
+                  borderRadius: "0 4px 4px 0",
+                }
+              : {},
+            transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+            "& .MuiSvgIcon-root, & svg": {
+              color: isSelected ? "white !important" : "inherit",
+            },
           }}
         >
           {item.title}
@@ -138,57 +141,60 @@ const SidebarItems = () => {
         themeColor={theme.palette.primary.main}
         themeSecondaryColor={theme.palette.secondary.main}
         sx={{
-          '& .MuiTypography-root': {
+          "& .MuiTypography-root": {
             color: theme.palette.text.primary,
           },
-          '& .MuiSvgIcon-root': {
+          "& .MuiSvgIcon-root": {
             color: theme.palette.text.primary,
-          }
+          },
         }}
       >
         {/* Modern Logo Container */}
-        <Box sx={{
-          display: "flex",
-          justifyContent: "center",
-          py: 3,
-          px: 2,
-          mb: 2,
-          position: 'relative',
-          '&::after': {
-            content: '""',
-            position: 'absolute',
-            bottom: 0,
-            left: '10%',
-            right: '10%',
-            height: '2px',
-            background: 'linear-gradient(90deg, transparent 0%, rgba(99, 102, 241, 0.5) 50%, transparent 100%)',
-          }
-        }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            py: 3,
+            px: 2,
+            mb: 2,
+            position: "relative",
+            "&::after": {
+              content: '""',
+              position: "absolute",
+              bottom: 0,
+              left: "10%",
+              right: "10%",
+              height: "2px",
+              background:
+                "linear-gradient(90deg, transparent 0%, rgba(99, 102, 241, 0.5) 50%, transparent 100%)",
+            },
+          }}
+        >
           <Link href="/" style={{ display: "flex" }}>
-            <Box sx={{
-              position: 'relative',
-              p: 2,
-              borderRadius: 3,
-              background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%)',
-              border: '2px solid',
-              borderColor: 'divider',
-              transition: 'all 0.3s ease',
-              '&:hover': {
-                transform: 'scale(1.05) rotate(5deg)',
-                boxShadow: '0 8px 24px rgba(99, 102, 241, 0.2)',
-                borderColor: 'primary.main',
-              }
-            }}>
+            <Box
+              sx={{
+                position: "relative",
+                p: 2,
+                borderRadius: 3,
+                background: "#fff",
+                border: "2px solid",
+                borderColor: "divider",
+                transition: "all 0.3s ease",
+                "&:hover": {
+                  transform: "scale(1.05) rotate(5deg)",
+                  boxShadow: "0 8px 24px rgba(99, 102, 241, 0.2)",
+                  borderColor: "primary.main",
+                },
+              }}
+            >
               <img
-                src={theme.palette.mode === 'dark'
-                  ? "/images/logos/light-logo.png"
-                  : "/images/logos/dark-logo.png"}
+                src={"/images/logos/back.png"}
                 alt="Logo"
                 style={{
-                  width: "80px",
-                  height: "80px",
+                  width: "120px",
+                  height: "120px",
                   objectFit: "contain",
-                  filter: 'none'
+                  filter: "none",
                 }}
               />
             </Box>
