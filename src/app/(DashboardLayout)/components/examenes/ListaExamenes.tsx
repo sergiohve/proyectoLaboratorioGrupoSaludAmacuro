@@ -485,7 +485,7 @@ const ListaExamenes = () => {
       </DashboardCard>
     );
   }
-console.log(examenSeleccionado)
+  console.log(examenSeleccionado);
   return (
     <>
       <DashboardCard
@@ -522,34 +522,34 @@ console.log(examenSeleccionado)
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <Search sx={{ color: 'success.main' }} />
+                  <Search sx={{ color: "success.main" }} />
                 </InputAdornment>
               ),
             }}
             sx={{
-              '& .MuiOutlinedInput-root': {
+              "& .MuiOutlinedInput-root": {
                 borderRadius: 3,
-                backgroundColor: 'background.paper',
-                transition: 'all 0.3s ease',
-                '&:hover': {
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+                backgroundColor: "background.paper",
+                transition: "all 0.3s ease",
+                "&:hover": {
+                  boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
                 },
-                '&.Mui-focused': {
-                  boxShadow: '0 4px 20px rgba(16, 185, 129, 0.15)',
-                  '& fieldset': {
+                "&.Mui-focused": {
+                  boxShadow: "0 4px 20px rgba(16, 185, 129, 0.15)",
+                  "& fieldset": {
                     borderWidth: 2,
-                    borderColor: '#000',
-                  }
+                    borderColor: "#000",
+                  },
                 },
-                '& fieldset': {
+                "& fieldset": {
                   borderWidth: 2,
-                  borderColor: 'divider',
-                }
+                  borderColor: "divider",
+                },
               },
-              '& .MuiInputBase-input': {
+              "& .MuiInputBase-input": {
                 py: 1.5,
-                fontSize: '0.95rem',
-              }
+                fontSize: "0.95rem",
+              },
             }}
           />
           {terminoBusqueda && (
@@ -565,11 +565,15 @@ console.log(examenSeleccionado)
           )}
         </Box>
 
-        <TableContainer component={Paper} elevation={0} sx={{
-          borderRadius: 3,
-          border: '2px solid',
-          borderColor: 'divider',
-        }}>
+        <TableContainer
+          component={Paper}
+          elevation={0}
+          sx={{
+            borderRadius: 3,
+            border: "2px solid",
+            borderColor: "divider",
+          }}
+        >
           <Table
             aria-label="tabla de exámenes"
             sx={{
@@ -578,41 +582,68 @@ console.log(examenSeleccionado)
             }}
           >
             <TableHead>
-              <TableRow sx={{
-                background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(5, 150, 105, 0.08) 100%)',
-                '& .MuiTableCell-root': {
-                  borderBottom: '2px solid',
-                  borderColor: '#000',
-                  py: 2,
-                }
-              }}>
+              <TableRow
+                sx={{
+                  background:
+                    "linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(5, 150, 105, 0.08) 100%)",
+                  "& .MuiTableCell-root": {
+                    borderBottom: "2px solid",
+                    borderColor: "#000",
+                    py: 2,
+                  },
+                }}
+              >
                 <TableCell sx={{ minWidth: "200px" }}>
-                  <Typography variant="subtitle2" fontWeight={700} color="success.dark">
+                  <Typography
+                    variant="subtitle2"
+                    fontWeight={700}
+                    color="success.dark"
+                  >
                     Paciente
                   </Typography>
                 </TableCell>
                 <TableCell sx={{ minWidth: "150px" }}>
-                  <Typography variant="subtitle2" fontWeight={700} color="success.dark">
+                  <Typography
+                    variant="subtitle2"
+                    fontWeight={700}
+                    color="success.dark"
+                  >
                     Dirección
                   </Typography>
                 </TableCell>
                 <TableCell sx={{ minWidth: "150px" }}>
-                  <Typography variant="subtitle2" fontWeight={700} color="success.dark">
+                  <Typography
+                    variant="subtitle2"
+                    fontWeight={700}
+                    color="success.dark"
+                  >
                     Examen
                   </Typography>
                 </TableCell>
                 <TableCell sx={{ minWidth: "100px" }}>
-                  <Typography variant="subtitle2" fontWeight={700} color="success.dark">
+                  <Typography
+                    variant="subtitle2"
+                    fontWeight={700}
+                    color="success.dark"
+                  >
                     Fecha
                   </Typography>
                 </TableCell>
                 <TableCell sx={{ minWidth: "180px" }}>
-                  <Typography variant="subtitle2" fontWeight={700} color="success.dark">
+                  <Typography
+                    variant="subtitle2"
+                    fontWeight={700}
+                    color="success.dark"
+                  >
                     Estado
                   </Typography>
                 </TableCell>
                 <TableCell align="center" sx={{ minWidth: "120px" }}>
-                  <Typography variant="subtitle2" fontWeight={700} color="success.dark">
+                  <Typography
+                    variant="subtitle2"
+                    fontWeight={700}
+                    color="success.dark"
+                  >
                     Acciones
                   </Typography>
                 </TableCell>
@@ -634,15 +665,15 @@ console.log(examenSeleccionado)
                   <TableRow
                     key={examen._id}
                     sx={{
-                      transition: 'all 0.2s ease',
-                      '&:hover': {
-                        backgroundColor: 'action.hover',
-                        transform: 'scale(1.001)',
-                        boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+                      transition: "all 0.2s ease",
+                      "&:hover": {
+                        backgroundColor: "action.hover",
+                        transform: "scale(1.001)",
+                        boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
                       },
-                      '&:last-child td': {
+                      "&:last-child td": {
                         borderBottom: 0,
-                      }
+                      },
                     }}
                   >
                     <TableCell sx={{ borderBottom: "none" }}>
@@ -651,12 +682,16 @@ console.log(examenSeleccionado)
                           sx={{ mr: 1, color: "primary.main" }}
                         />
                         <Box>
-                          <Typography sx={{color: "#000"}} variant="subtitle2" fontWeight={600}>
+                          <Typography
+                            sx={{ color: "#000" }}
+                            variant="subtitle2"
+                            fontWeight={600}
+                          >
                             {examen?.cliente?.nombre ?? "Dato eliminado"}
                           </Typography>
                           <Typography color="textSecondary" fontSize="13px">
-                            CI: {examen.cliente?.cedula ?? "Dato eliminado"} | {examen.cliente?.edad ?? ""}{" "}
-                            años
+                            CI: {examen.cliente?.cedula ?? "Dato eliminado"} |{" "}
+                            {examen.cliente?.edad ?? ""} años
                           </Typography>
                         </Box>
                       </Box>
@@ -733,18 +768,24 @@ console.log(examenSeleccionado)
                       )}
                     </TableCell>
                     <TableCell align="center" sx={{ borderBottom: "none" }}>
-                      <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'center' }}>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          gap: 0.5,
+                          justifyContent: "center",
+                        }}
+                      >
                         <IconButton
                           size="small"
                           onClick={() => handleVerExamen(examen)}
                           sx={{
-                            bgcolor: 'info.main',
-                            color: 'white',
-                            '&:hover': {
-                              bgcolor: 'info.dark',
-                              transform: 'scale(1.1)',
+                            bgcolor: "info.main",
+                            color: "white",
+                            "&:hover": {
+                              bgcolor: "info.dark",
+                              transform: "scale(1.1)",
                             },
-                            transition: 'all 0.2s ease',
+                            transition: "all 0.2s ease",
                           }}
                         >
                           <Visibility fontSize="small" />
@@ -753,13 +794,13 @@ console.log(examenSeleccionado)
                           size="small"
                           onClick={() => handleEditarExamen(examen)}
                           sx={{
-                            bgcolor: 'success.main',
-                            color: 'white',
-                            '&:hover': {
-                              bgcolor: 'success.dark',
-                              transform: 'scale(1.1)',
+                            bgcolor: "success.main",
+                            color: "white",
+                            "&:hover": {
+                              bgcolor: "success.dark",
+                              transform: "scale(1.1)",
                             },
-                            transition: 'all 0.2s ease',
+                            transition: "all 0.2s ease",
                           }}
                         >
                           <Edit fontSize="small" />
@@ -768,13 +809,13 @@ console.log(examenSeleccionado)
                           size="small"
                           onClick={() => handleDeleteClick(examen._id)}
                           sx={{
-                            bgcolor: 'error.main',
-                            color: 'white',
-                            '&:hover': {
-                              bgcolor: 'error.dark',
-                              transform: 'scale(1.1)',
+                            bgcolor: "error.main",
+                            color: "white",
+                            "&:hover": {
+                              bgcolor: "error.dark",
+                              transform: "scale(1.1)",
                             },
-                            transition: 'all 0.2s ease',
+                            transition: "all 0.2s ease",
                           }}
                         >
                           <Delete fontSize="small" />
@@ -835,6 +876,92 @@ console.log(examenSeleccionado)
               </Typography>
             </Box>
             <Box display="flex" alignItems="center" gap={1}>
+              <DialogActions sx={{ p: 2 }}>
+                <Button
+                  variant="contained"
+                  onClick={() => {
+                    // Función para imprimir directamente
+                    const handleImprimirDirecto = async () => {
+                      if (!pdfRef.current || !examenSeleccionado) return;
+
+                      setGenerandoPDF(true);
+                      try {
+                        const canvas = await html2canvas(pdfRef.current, {
+                          scale: 2,
+                          useCORS: true,
+                          logging: false,
+                          backgroundColor: "#ffffff",
+                        });
+
+                        const imgData = canvas.toDataURL("image/png");
+                        const pdf = new jsPDF("p", "mm", "a4");
+                        const pdfWidth = pdf.internal.pageSize.getWidth();
+                        const pdfHeight = pdf.internal.pageSize.getHeight();
+
+                        const imgWidth = canvas.width;
+                        const imgHeight = canvas.height;
+                        const ratio = Math.min(
+                          pdfWidth / imgWidth,
+                          pdfHeight / imgHeight
+                        );
+                        const imgX = (pdfWidth - imgWidth * ratio) / 2;
+                        const imgY = 10;
+
+                        pdf.addImage(
+                          imgData,
+                          "PNG",
+                          imgX,
+                          imgY,
+                          imgWidth * ratio,
+                          imgHeight * ratio
+                        );
+
+                        // Imprimir directamente sin guardar
+                        const pdfBlob = pdf.output("blob");
+                        const pdfUrl = URL.createObjectURL(pdfBlob);
+
+                        // Abrir en nueva ventana para imprimir
+                        const printWindow = window.open(pdfUrl, "_blank");
+                        if (printWindow) {
+                          printWindow.onload = () => {
+                            printWindow.print();
+                            // Cerrar la ventana después de imprimir
+                            setTimeout(() => {
+                              printWindow.close();
+                              URL.revokeObjectURL(pdfUrl);
+                            }, 500);
+                          };
+                        }
+                      } catch (error) {
+                        console.error(
+                          "Error generando PDF para imprimir:",
+                          error
+                        );
+                        setError("Error al generar el PDF para imprimir");
+                      } finally {
+                        setGenerandoPDF(false);
+                      }
+                    };
+
+                    handleImprimirDirecto();
+                  }}
+                  disabled={generandoPDF}
+                  startIcon={
+                    generandoPDF ? (
+                      <CircularProgress size={16} />
+                    ) : (
+                      <MedicalServices />
+                    )
+                  }
+                  sx={{
+                    background: "white",
+                    border: "1px solid #6082e9ff",
+                    color: "black",
+                  }}
+                >
+                  {generandoPDF ? "Preparando..." : "Imprimir PDF Directo"}
+                </Button>
+              </DialogActions>
               <Button
                 variant="outlined"
                 startIcon={
@@ -873,12 +1000,14 @@ console.log(examenSeleccionado)
               }}
             >
               {/* Modern PDF Header */}
-              <Box sx={{
-                pb: 2,
-                mb: 3,
-                borderBottom: '3px solid',
-                borderImage: '#000',
-              }}>
+              <Box
+                sx={{
+                  pb: 2,
+                  mb: 3,
+                  borderBottom: "3px solid",
+                  borderImage: "#000",
+                }}
+              >
                 <Box
                   sx={{
                     display: "flex",
@@ -894,8 +1023,8 @@ console.log(examenSeleccionado)
                       sx={{
                         fontSize: "14px",
                         lineHeight: 1.4,
-                        color: '#374151',
-                        mb: 0.5
+                        color: "#374151",
+                        mb: 0.5,
                       }}
                     >
                       RIF J-30857988-2
@@ -906,10 +1035,10 @@ console.log(examenSeleccionado)
                       sx={{
                         fontSize: "22px",
                         lineHeight: 1.2,
-                        WebkitBackgroundClip: 'text',
-                       
+                        WebkitBackgroundClip: "text",
+
                         mb: 0.5,
-                         color: 'black',
+                        color: "black",
                       }}
                     >
                       LABORATORIO CLÍNICO
@@ -920,7 +1049,7 @@ console.log(examenSeleccionado)
                       sx={{
                         fontSize: "14px",
                         lineHeight: 1.4,
-                        color: '#6b7280'
+                        color: "#6b7280",
                       }}
                     >
                       Licda. Vivían Fagre Naim
@@ -942,8 +1071,8 @@ console.log(examenSeleccionado)
                       sx={{
                         fontSize: "11px",
                         lineHeight: 1.4,
-                        color: '#9ca3af',
-                        fontWeight: 500
+                        color: "#9ca3af",
+                        fontWeight: 500,
                       }}
                     >
                       Página 1 de 1
@@ -953,13 +1082,15 @@ console.log(examenSeleccionado)
               </Box>
 
               {/* Modern Patient Information */}
-              <Box sx={{
-                mb: 3,
-                p: 2,
-                borderRadius: 2,
-                
-                border: '1px solid #000',
-              }}>
+              <Box
+                sx={{
+                  mb: 3,
+                  p: 2,
+                  borderRadius: 2,
+
+                  border: "1px solid #000",
+                }}
+              >
                 <Table
                   size="small"
                   sx={{
@@ -976,20 +1107,23 @@ console.log(examenSeleccionado)
                           width: "15%",
                           fontWeight: "700",
                           fontSize: "11px",
-                          color: '#000',
+                          color: "#000",
                         }}
                       >
                         PACIENTE:
                       </TableCell>
-                      <TableCell sx={{
-                        border: "none",
-                        p: 0,
-                        width: "35%",
-                        fontSize: "11px",
-                        fontWeight: "600",
-                        color: '#1f2937'
-                      }}>
-                        {examenSeleccionado.cliente?.nombre?.toUpperCase() ?? "Dato eliminado"}
+                      <TableCell
+                        sx={{
+                          border: "none",
+                          p: 0,
+                          width: "35%",
+                          fontSize: "11px",
+                          fontWeight: "600",
+                          color: "#1f2937",
+                        }}
+                      >
+                        {examenSeleccionado.cliente?.nombre?.toUpperCase() ??
+                          "Dato eliminado"}
                       </TableCell>
                       <TableCell
                         sx={{
@@ -998,47 +1132,92 @@ console.log(examenSeleccionado)
                           width: "10%",
                           fontWeight: "700",
                           fontSize: "11px",
-                          color: '#000',
+                          color: "#000",
                         }}
                       >
                         C.I.:
                       </TableCell>
-                      <TableCell sx={{
-                        border: "none",
-                        p: 0,
-                        width: "40%",
-                        fontSize: "11px",
-                        fontWeight: "600",
-                        color: '#1f2937'
-                      }}>
+                      <TableCell
+                        sx={{
+                          border: "none",
+                          p: 0,
+                          width: "40%",
+                          fontSize: "11px",
+                          fontWeight: "600",
+                          color: "#1f2937",
+                        }}
+                      >
                         {examenSeleccionado.cliente?.cedula ?? "Dato eliminado"}
                       </TableCell>
                     </TableRow>
                     <TableRow sx={{ borderBottom: "none" }}>
                       <TableCell
-                        sx={{ border: "none", p: 0, fontWeight: "700", fontSize: "11px", color: '#000' }}
+                        sx={{
+                          border: "none",
+                          p: 0,
+                          fontWeight: "700",
+                          fontSize: "11px",
+                          color: "#000",
+                        }}
                       >
                         EDAD:
                       </TableCell>
-                      <TableCell sx={{ border: "none", p: 0, fontSize: "11px", fontWeight: "600", color: '#1f2937' }}>
-                        {examenSeleccionado.cliente?.edad ?? "Dato eliminado"} años
+                      <TableCell
+                        sx={{
+                          border: "none",
+                          p: 0,
+                          fontSize: "11px",
+                          fontWeight: "600",
+                          color: "#1f2937",
+                        }}
+                      >
+                        {examenSeleccionado.cliente?.edad ?? "Dato eliminado"}{" "}
+                        años
                       </TableCell>
                       <TableCell
-                        sx={{ border: "none", p: 0, fontWeight: "700", fontSize: "11px", color: '#000' }}
+                        sx={{
+                          border: "none",
+                          p: 0,
+                          fontWeight: "700",
+                          fontSize: "11px",
+                          color: "#000",
+                        }}
                       >
                         CONVENIO:
                       </TableCell>
-                      <TableCell sx={{ border: "none", p: 0, fontSize: "11px", fontWeight: "600", color: '#1f2937' }}>
+                      <TableCell
+                        sx={{
+                          border: "none",
+                          p: 0,
+                          fontSize: "11px",
+                          fontWeight: "600",
+                          color: "#1f2937",
+                        }}
+                      >
                         PARTICULAR
                       </TableCell>
                     </TableRow>
                     <TableRow sx={{ borderBottom: "none" }}>
                       <TableCell
-                        sx={{ border: "none", p: 0, fontWeight: "700", fontSize: "11px", color: '#000' }}
+                        sx={{
+                          border: "none",
+                          p: 0,
+                          fontWeight: "700",
+                          fontSize: "11px",
+                          color: "#000",
+                        }}
                       >
                         GÉNERO:
                       </TableCell>
-                      <TableCell sx={{ border: "none", p: 0, fontSize: "11px", fontWeight: "600", color: '#1f2937' }}>
+                      <TableCell
+                        sx={{
+                          border: "none",
+                          p: 0,
+                          fontSize: "11px",
+                          fontWeight: "600",
+                          color: "#1f2937",
+                        }}
+                      >
                         {examenSeleccionado.cliente?.sexo === "Masculino"
                           ? "MASCULINO"
                           : examenSeleccionado.cliente?.sexo === "Femenino"
@@ -1046,39 +1225,96 @@ console.log(examenSeleccionado)
                           : examenSeleccionado.cliente?.sexo.toUpperCase()}
                       </TableCell>
                       <TableCell
-                        sx={{ border: "none", p: 0, fontWeight: "700", fontSize: "11px", color: '#000' }}
+                        sx={{
+                          border: "none",
+                          p: 0,
+                          fontWeight: "700",
+                          fontSize: "11px",
+                          color: "#000",
+                        }}
                       >
                         DIRECCIÓN:
                       </TableCell>
-                      <TableCell sx={{ border: "none", p: 0, fontSize: "11px", fontWeight: "600", color: '#1f2937' }}>
-                        {examenSeleccionado.cliente?.direccion ?? "Dato eliminado"}
+                      <TableCell
+                        sx={{
+                          border: "none",
+                          p: 0,
+                          fontSize: "11px",
+                          fontWeight: "600",
+                          color: "#1f2937",
+                        }}
+                      >
+                        {examenSeleccionado.cliente?.direccion ??
+                          "Dato eliminado"}
                       </TableCell>
                     </TableRow>
                     <TableRow sx={{ borderBottom: "none" }}>
                       <TableCell
-                        sx={{ border: "none", p: 0, fontWeight: "700", fontSize: "11px", color: '#000' }}
+                        sx={{
+                          border: "none",
+                          p: 0,
+                          fontWeight: "700",
+                          fontSize: "11px",
+                          color: "#000",
+                        }}
                       >
                         FECHA MUESTRA:
                       </TableCell>
-                      <TableCell sx={{ border: "none", p: 0, fontSize: "11px", fontWeight: "600", color: '#1f2937' }}>
+                      <TableCell
+                        sx={{
+                          border: "none",
+                          p: 0,
+                          fontSize: "11px",
+                          fontWeight: "600",
+                          color: "#1f2937",
+                        }}
+                      >
                         {formatDate(examenSeleccionado.fechaExamen)}
                       </TableCell>
                       <TableCell
-                        sx={{ border: "none", p: 0, fontWeight: "700", fontSize: "11px", color: '#000' }}
+                        sx={{
+                          border: "none",
+                          p: 0,
+                          fontWeight: "700",
+                          fontSize: "11px",
+                          color: "#000",
+                        }}
                       >
                         FECHA REPORTE:
                       </TableCell>
-                      <TableCell sx={{ border: "none", p: 0, fontSize: "11px", fontWeight: "600", color: '#1f2937' }}>
+                      <TableCell
+                        sx={{
+                          border: "none",
+                          p: 0,
+                          fontSize: "11px",
+                          fontWeight: "600",
+                          color: "#1f2937",
+                        }}
+                      >
                         {formatDate(new Date().toISOString())}
                       </TableCell>
                     </TableRow>
                     <TableRow sx={{ borderBottom: "none" }}>
                       <TableCell
-                        sx={{ border: "none", p: 0, fontWeight: "700", fontSize: "11px", color: '#000' }}
+                        sx={{
+                          border: "none",
+                          p: 0,
+                          fontWeight: "700",
+                          fontSize: "11px",
+                          color: "#000",
+                        }}
                       >
                         N° ORDEN:
                       </TableCell>
-                      <TableCell sx={{ border: "none", p: 0, fontSize: "11px", fontWeight: "600", color: '#1f2937' }}>
+                      <TableCell
+                        sx={{
+                          border: "none",
+                          p: 0,
+                          fontSize: "11px",
+                          fontWeight: "600",
+                          color: "#1f2937",
+                        }}
+                      >
                         {examenesFiltrados.length + 1}
                       </TableCell>
                       <TableCell sx={{ border: "none", p: 0 }}></TableCell>
@@ -1089,20 +1325,22 @@ console.log(examenSeleccionado)
               </Box>
 
               {/* Modern Results Title */}
-              <Box sx={{
-                textAlign: "center",
-                mb: 2,
-                py: 1.5,
-                borderRadius: 2,
-                borderColor: 'black',
-                border: 1
-              }}>
+              <Box
+                sx={{
+                  textAlign: "center",
+                  mb: 2,
+                  py: 1.5,
+                  borderRadius: 2,
+                  borderColor: "black",
+                  border: 1,
+                }}
+              >
                 <Typography
                   variant="h5"
                   fontWeight="800"
                   sx={{
                     fontSize: "18px",
-                    color: 'black',
+                    color: "black",
                     letterSpacing: 1,
                   }}
                 >
@@ -1111,25 +1349,29 @@ console.log(examenSeleccionado)
               </Box>
 
               {/* Modern Results Table - Sin Rayas */}
-              <Box sx={{
-                border: '2px solid #e5e7eb',
-                borderRadius: 2,
-                overflow: 'hidden',
-              }}>
+              <Box
+                sx={{
+                  border: "2px solid #e5e7eb",
+                  borderRadius: 2,
+                  overflow: "hidden",
+                }}
+              >
                 <Table
                   size="small"
                   sx={{
                     "& .MuiTableCell-root": {
                       border: "none",
                       borderBottom: "none",
-                    }
+                    },
                   }}
                 >
                   <TableHead>
-                    <TableRow sx={{
-                      background: 'transparent',
-                      borderBottom: 'none',
-                    }}>
+                    <TableRow
+                      sx={{
+                        background: "transparent",
+                        borderBottom: "none",
+                      }}
+                    >
                       <TableCell
                         sx={{
                           fontWeight: "800",
@@ -1137,7 +1379,7 @@ console.log(examenSeleccionado)
                           width: "45%",
                           border: "none",
                           fontSize: "11px",
-                          color: '#000',
+                          color: "#000",
                           py: 1.5,
                           px: 2,
                         }}
@@ -1151,25 +1393,27 @@ console.log(examenSeleccionado)
                           width: "20%",
                           border: "none",
                           fontSize: "11px",
-                          color: '#000',
+                          color: "#000",
                           py: 1.5,
                         }}
                       >
                         RESULTADO
                       </TableCell>
-                      {examenSeleccionado.area!=="ORINA" && <TableCell
-                        sx={{
-                          fontWeight: "800",
-                          textAlign: "center",
-                          width: "15%",
-                          border: "none",
-                          fontSize: "11px",
-                          color: '#000',
-                          py: 1.5,
-                        }}
-                      >
-                        UNIDADES
-                      </TableCell>}
+                      {examenSeleccionado.area !== "ORINA" && (
+                        <TableCell
+                          sx={{
+                            fontWeight: "800",
+                            textAlign: "center",
+                            width: "15%",
+                            border: "none",
+                            fontSize: "11px",
+                            color: "#000",
+                            py: 1.5,
+                          }}
+                        >
+                          UNIDADES
+                        </TableCell>
+                      )}
                       <TableCell
                         sx={{
                           fontWeight: "800",
@@ -1177,7 +1421,7 @@ console.log(examenSeleccionado)
                           width: "20%",
                           border: "none",
                           fontSize: "11px",
-                          color: '#000',
+                          color: "#000",
                           py: 1.5,
                         }}
                       >
@@ -1193,17 +1437,22 @@ console.log(examenSeleccionado)
                           sx={{
                             border: "none",
                             borderBottom: "none",
-                            
                           }}
                         >
-                          <TableCell sx={{
-                            px: 2,
-                            py: 1,
-                            border: "none",
-                            borderBottom: "none",
-                            color: "#000"
-                          }}>
-                            <Typography variant="body2" fontWeight="700" sx={{ fontSize: "11px", color: '#000' }}>
+                          <TableCell
+                            sx={{
+                              px: 2,
+                              py: 1,
+                              border: "none",
+                              borderBottom: "none",
+                              color: "#000",
+                            }}
+                          >
+                            <Typography
+                              variant="body2"
+                              fontWeight="700"
+                              sx={{ fontSize: "11px", color: "#000" }}
+                            >
                               {prueba}
                             </Typography>
                           </TableCell>
@@ -1214,33 +1463,35 @@ console.log(examenSeleccionado)
                               border: "none",
                               borderBottom: "none",
                               fontSize: "11px",
-                              color: '#000',
+                              color: "#000",
                               py: 1,
                             }}
                           >
                             {datos.resultado || "No registrado"}
                           </TableCell>
-                          {examenSeleccionado.area!=="ORINA" &&  <TableCell
-                            sx={{
-                              textAlign: "center",
-                              border: "none",
-                              borderBottom: "none",
-                              fontSize: "10px",
-                              color: '#6b7280',
-                              fontWeight: '500',
-                              py: 1,
-                            }}
-                          >
-                            {determinarUnidad(datos.valorReferencia)}
-                          </TableCell>}
+                          {examenSeleccionado.area !== "ORINA" && (
+                            <TableCell
+                              sx={{
+                                textAlign: "center",
+                                border: "none",
+                                borderBottom: "none",
+                                fontSize: "10px",
+                                color: "#6b7280",
+                                fontWeight: "500",
+                                py: 1,
+                              }}
+                            >
+                              {determinarUnidad(datos.valorReferencia)}
+                            </TableCell>
+                          )}
                           <TableCell
                             sx={{
                               textAlign: "center",
                               border: "none",
                               borderBottom: "none",
                               fontSize: "10px",
-                              color: '#6b7280',
-                              fontWeight: '500',
+                              color: "#6b7280",
+                              fontWeight: "500",
                               py: 1,
                             }}
                           >
@@ -1260,8 +1511,7 @@ console.log(examenSeleccionado)
                   pt: 2,
                   pb: 2,
                   textAlign: "center",
-                 
-                  
+
                   borderTop: "1px solid #efeaeaff",
                   borderBottom: "1px solid #efeaeaff",
                 }}
@@ -1364,33 +1614,58 @@ console.log(examenSeleccionado)
                 </Typography>
                 <Grid container spacing={2}>
                   <Grid size={12}>
-                    <Typography sx={{color: "#000"}} variant="subtitle2" fontWeight={600}>
+                    <Typography
+                      sx={{ color: "#000" }}
+                      variant="subtitle2"
+                      fontWeight={600}
+                    >
                       Paciente:
                     </Typography>
-                    <Typography>{examenSeleccionado.cliente?.nombre ?? "Dato eliminado"}</Typography>
+                    <Typography>
+                      {examenSeleccionado.cliente?.nombre ?? "Dato eliminado"}
+                    </Typography>
                   </Grid>
                   <Grid size={12}>
-                    <Typography sx={{color: "#000"}} variant="subtitle2" fontWeight={600}>
+                    <Typography
+                      sx={{ color: "#000" }}
+                      variant="subtitle2"
+                      fontWeight={600}
+                    >
                       Cédula:
                     </Typography>
-                    <Typography>{examenSeleccionado.cliente?.cedula ?? "Dato eliminado"}</Typography>
+                    <Typography>
+                      {examenSeleccionado.cliente?.cedula ?? "Dato eliminado"}
+                    </Typography>
                   </Grid>
                   <Grid size={12}>
-                    <Typography sx={{color: "#000"}} variant="subtitle2" fontWeight={600}>
+                    <Typography
+                      sx={{ color: "#000" }}
+                      variant="subtitle2"
+                      fontWeight={600}
+                    >
                       Dirección:
                     </Typography>
                     <Typography>
-                      {examenSeleccionado.cliente?.direccion ?? "Dato eliminado"}
+                      {examenSeleccionado.cliente?.direccion ??
+                        "Dato eliminado"}
                     </Typography>
                   </Grid>
                   <Grid size={12}>
-                    <Typography sx={{color: "#000"}} variant="subtitle2" fontWeight={600}>
+                    <Typography
+                      sx={{ color: "#000" }}
+                      variant="subtitle2"
+                      fontWeight={600}
+                    >
                       Tipo de Examen:
                     </Typography>
                     <Typography>{examenSeleccionado.tipoExamen}</Typography>
                   </Grid>
                   <Grid size={12}>
-                    <Typography sx={{color: "#000"}} variant="subtitle2" fontWeight={600}>
+                    <Typography
+                      sx={{ color: "#000" }}
+                      variant="subtitle2"
+                      fontWeight={600}
+                    >
                       Área:
                     </Typography>
                     <Typography>{examenSeleccionado.area}</Typography>
@@ -1420,38 +1695,47 @@ console.log(examenSeleccionado)
               </Paper>
 
               {/* Modern Results Editor */}
-              <Paper elevation={0} sx={{
-                p: 3,
-                mb: 3,
-                borderRadius: 3,
-                border: '2px solid',
-                borderColor: 'success.light',
-                background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.02) 0%, rgba(5, 150, 105, 0.02) 100%)',
-              }}>
-                <Box sx={{
-                  textAlign: 'center',
+              <Paper
+                elevation={0}
+                sx={{
+                  p: 3,
                   mb: 3,
-                  py: 2,
-                  borderRadius: 2,
-                  background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                }}>
+                  borderRadius: 3,
+                  border: "2px solid",
+                  borderColor: "success.light",
+                  background:
+                    "linear-gradient(135deg, rgba(16, 185, 129, 0.02) 0%, rgba(5, 150, 105, 0.02) 100%)",
+                }}
+              >
+                <Box
+                  sx={{
+                    textAlign: "center",
+                    mb: 3,
+                    py: 2,
+                    borderRadius: 2,
+                    background:
+                      "linear-gradient(135deg, #10b981 0%, #059669 100%)",
+                  }}
+                >
                   <Typography
                     variant="h5"
                     fontWeight="800"
                     sx={{
-                      color: 'white',
+                      color: "white",
                       letterSpacing: 0.5,
                     }}
                   >
                     EDITAR RESULTADOS - ÁREA DE: {examenSeleccionado.area}
                   </Typography>
                 </Box>
-                <TableContainer sx={{
-                  borderRadius: 2,
-                  border: '2px solid',
-                  borderColor: 'divider',
-                  overflow: 'hidden',
-                }}>
+                <TableContainer
+                  sx={{
+                    borderRadius: 2,
+                    border: "2px solid",
+                    borderColor: "divider",
+                    overflow: "hidden",
+                  }}
+                >
                   <Table
                     size="small"
                     sx={{ "& .MuiTableCell-root": { borderBottom: "none" } }}
@@ -1459,11 +1743,12 @@ console.log(examenSeleccionado)
                     <TableHead>
                       <TableRow
                         sx={{
-                          background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.1) 100%)',
+                          background:
+                            "linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.1) 100%)",
                           borderBottom: "none",
-                          '& .MuiTableCell-root': {
+                          "& .MuiTableCell-root": {
                             py: 2,
-                          }
+                          },
                         }}
                       >
                         <TableCell
@@ -1472,7 +1757,7 @@ console.log(examenSeleccionado)
                             fontWeight: 700,
                             width: "40%",
                             borderBottom: "none",
-                            fontSize: '0.95rem',
+                            fontSize: "0.95rem",
                           }}
                         >
                           PRUEBA
@@ -1483,7 +1768,7 @@ console.log(examenSeleccionado)
                             fontWeight: 700,
                             width: "30%",
                             borderBottom: "none",
-                            fontSize: '0.95rem',
+                            fontSize: "0.95rem",
                           }}
                         >
                           RESULTADO
@@ -1494,7 +1779,7 @@ console.log(examenSeleccionado)
                             fontWeight: 700,
                             width: "30%",
                             borderBottom: "none",
-                            fontSize: '0.95rem',
+                            fontSize: "0.95rem",
                           }}
                         >
                           VALOR DE REFERENCIA
@@ -1508,13 +1793,19 @@ console.log(examenSeleccionado)
                             key={prueba}
                             sx={{
                               borderBottom: "none",
-                              backgroundColor: index % 2 === 0 ? 'background.paper' : 'action.hover',
-                              transition: 'all 0.2s ease',
-                              
+                              backgroundColor:
+                                index % 2 === 0
+                                  ? "background.paper"
+                                  : "action.hover",
+                              transition: "all 0.2s ease",
                             }}
                           >
                             <TableCell sx={{ borderBottom: "none", py: 2 }}>
-                              <Typography variant="subtitle2" fontWeight={700} color="text.primary">
+                              <Typography
+                                variant="subtitle2"
+                                fontWeight={700}
+                                color="text.primary"
+                              >
                                 {prueba}
                               </Typography>
                             </TableCell>
@@ -1529,13 +1820,13 @@ console.log(examenSeleccionado)
                                 placeholder="Ingrese resultado"
                                 variant="outlined"
                                 sx={{
-                                  '& .MuiOutlinedInput-root': {
+                                  "& .MuiOutlinedInput-root": {
                                     borderRadius: 2,
-                                    '&.Mui-focused fieldset': {
-                                      borderColor: '#000',
+                                    "&.Mui-focused fieldset": {
+                                      borderColor: "#000",
                                       borderWidth: 2,
-                                    }
-                                  }
+                                    },
+                                  },
                                 }}
                               />
                             </TableCell>
