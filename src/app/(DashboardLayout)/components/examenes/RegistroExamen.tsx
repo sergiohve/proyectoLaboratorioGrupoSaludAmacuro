@@ -13,7 +13,6 @@ import {
   FormControl,
   InputLabel,
   Select,
-  Divider,
   Paper,
   IconButton,
   Table,
@@ -27,6 +26,10 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  Chip,
+  Stack,
+  Checkbox,
+  ListItemText,
 } from "@mui/material";
 import {
   Save,
@@ -34,6 +37,7 @@ import {
   Add,
   Delete,
   Calculate,
+  Close,
 } from "@mui/icons-material";
 import { useRouter } from "next/navigation";
 
@@ -49,18 +53,19 @@ interface CampoExamen {
   nombre: string;
   resultado: string;
   valorReferencia: string;
+  tipoExamen?: string; // Para identificar de qué tipo de examen proviene (opcional en plantillas)
 }
 
 interface ExamenForm {
   cliente: string;
-  tipoExamen: string;
-  area: string;
+  tiposExamen: string[]; // Ahora es un array
+  area: string; // Área principal o combinada
   observaciones: string;
   fechaExamen: string;
   campos: CampoExamen[];
 }
 
-// Plantillas de exámenes basadas en las imágenes
+// Plantillas de exámenes basadas en las imágenes (sin cambios)
 const plantillasExamenes: {
   [key: string]: { area: string; campos: CampoExamen[] };
 } = {
@@ -368,11 +373,11 @@ const RegistroExamen = () => {
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [formData, setFormData] = useState<ExamenForm>({
     cliente: "",
-    tipoExamen: "",
+    tiposExamen: [], // Ahora es un array vacío
     area: "",
     observaciones: "",
     fechaExamen: obtenerFechaVenezuela(),
-    campos: [{ nombre: "", resultado: "", valorReferencia: "" }],
+    campos: [], // Inicialmente vacío
   });
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{
@@ -406,200 +411,194 @@ const RegistroExamen = () => {
     fetchClientes();
   }, []);
 
+  // Función para combinar áreas cuando hay múltiples exámenes
+  const combinarAreas = (tipos: string[]): string => {
+    const areas = tipos.map((tipo) => plantillasExamenes[tipo]?.area || tipo);
+    const areasUnicas = Array.from(new Set(areas));
+    return areasUnicas.join(" + ");
+  };
+
+  // Determinar si algún examen seleccionado requiere cálculos
   const esExamenConCalculos = () => {
-    return (
-      formData.tipoExamen.includes("LIPIDICO") ||
-      formData.tipoExamen.includes("QUIMICA SANGUINEA COMPLETA") ||
-      formData.tipoExamen.includes("LIPIDOS TOTALES") ||
-      formData.tipoExamen.includes("INDICE DE HOMA") ||
-      formData.area === "QUIMICA SANGUINEA"
+    return formData.tiposExamen.some((tipo) =>
+      tipo.includes("LIPIDICO") ||
+      tipo.includes("QUIMICA SANGUINEA COMPLETA") ||
+      tipo.includes("LIPIDOS TOTALES") ||
+      tipo.includes("INDICE DE HOMA") ||
+      plantillasExamenes[tipo]?.area === "QUIMICA SANGUINEA"
+    );
+  };
+
+  // Obtener tipos de examen que requieren cálculos
+  const obtenerTiposConCalculos = () => {
+    return formData.tiposExamen.filter((tipo) =>
+      tipo.includes("LIPIDICO") ||
+      tipo.includes("QUIMICA SANGUINEA COMPLETA") ||
+      tipo.includes("LIPIDOS TOTALES") ||
+      tipo.includes("INDICE DE HOMA") ||
+      plantillasExamenes[tipo]?.area === "QUIMICA SANGUINEA"
     );
   };
 
   // Abrir modal de cálculo
   const abrirModalCalculo = () => {
-    // Determinar qué tipo de cálculo necesita
-    if (formData.tipoExamen.includes("LIPIDOS TOTALES")) {
-      // Modal para Lípidos Totales
-      const colesterol =
-        formData.campos.find((campo) =>
-          campo.nombre.toLowerCase().includes("colesterol")
-        )?.resultado || "";
-
-      const trigliceridos =
-        formData.campos.find((campo) =>
+    // Tomar valores de todos los campos combinados
+    const trigliceridos =
+      formData.campos.find(
+        (campo) =>
+          campo.nombre.toLowerCase().includes("triglicéridos") ||
           campo.nombre.toLowerCase().includes("trigliceridos")
-        )?.resultado || "";
+      )?.resultado || "";
 
-      setCalculoData({
-        trigliceridos,
-        colesterol,
-        hdl: "",
-      });
-      setModalOpen(true);
-    } else if (formData.tipoExamen.includes("INDICE DE HOMA")) {
-      // Modal para Índice de HOMA
-      const glicemia =
-        formData.campos.find((campo) =>
-          campo.nombre.toLowerCase().includes("glicemia")
-        )?.resultado || "";
+    const colesterol =
+      formData.campos.find(
+        (campo) =>
+          campo.nombre.toLowerCase().includes("colesterol") &&
+          !campo.nombre.toLowerCase().includes("hdl") &&
+          !campo.nombre.toLowerCase().includes("relacion")
+      )?.resultado || "";
 
-      const insulina =
-        formData.campos.find((campo) =>
-          campo.nombre.toLowerCase().includes("insulina")
-        )?.resultado || "";
+    const hdl =
+      formData.campos.find(
+        (campo) =>
+          campo.nombre.toLowerCase().includes("h.d.l.") ||
+          campo.nombre.toLowerCase().includes("hdl")
+      )?.resultado || "";
 
-      setCalculoData({
-        trigliceridos: glicemia,
-        colesterol: insulina,
-        hdl: "",
-      });
-      setModalOpen(true);
-    } else {
-      // Modal original para perfil lipídico
-      const trigliceridos =
-        formData.campos.find(
-          (campo) =>
-            campo.nombre.toLowerCase().includes("triglicéridos") ||
-            campo.nombre.toLowerCase().includes("trigliceridos")
-        )?.resultado || "";
-
-      const colesterol =
-        formData.campos.find(
-          (campo) =>
-            campo.nombre.toLowerCase().includes("colesterol") &&
-            !campo.nombre.toLowerCase().includes("hdl") &&
-            !campo.nombre.toLowerCase().includes("relacion")
-        )?.resultado || "";
-
-      const hdl =
-        formData.campos.find(
-          (campo) =>
-            campo.nombre.toLowerCase().includes("h.d.l.") ||
-            campo.nombre.toLowerCase().includes("hdl")
-        )?.resultado || "";
-
-      setCalculoData({
-        trigliceridos,
-        colesterol,
-        hdl,
-      });
-      setModalOpen(true);
-    }
+    setCalculoData({
+      trigliceridos,
+      colesterol,
+      hdl,
+    });
+    setModalOpen(true);
   };
 
   const calcularValores = () => {
-    if (formData.tipoExamen.includes("LIPIDOS TOTALES")) {
-      // Cálculo para Lípidos Totales: Colesterol x 2.5 + Triglicéridos
-      const col = parseFloat(calculoData.colesterol) || 0;
-      const trig = parseFloat(calculoData.trigliceridos) || 0;
-      const lipidosTotales = col * 2.5 + trig;
+    const trig = parseFloat(calculoData.trigliceridos) || 0;
+    const col = parseFloat(calculoData.colesterol) || 0;
+    const hdlVal = parseFloat(calculoData.hdl) || 0;
 
-      // Actualizar el campo de Lípidos Totales
-      const nuevosCampos = formData.campos.map((campo) => {
-        if (
-          campo.nombre.toLowerCase().includes("lípidos totales") ||
-          campo.nombre.toLowerCase().includes("lipidos totales")
-        ) {
-          return { ...campo, resultado: lipidosTotales.toFixed(2) };
-        }
-        return campo;
-      });
+    const vldl = trig / 5;
+    const ldl = col - hdlVal - vldl;
+    const colHdl = hdlVal > 0 ? col / hdlVal : 0;
+    const ldlHdl = hdlVal > 0 ? ldl / hdlVal : 0;
 
-      setFormData((prev) => ({
-        ...prev,
-        campos: nuevosCampos,
-      }));
-    } else if (formData.tipoExamen.includes("INDICE DE HOMA")) {
-      // Cálculo para Índice de HOMA: (Glicemia x Insulina) / 405
-      const glicemia = parseFloat(calculoData.trigliceridos) || 0; // trigliceridos contiene glicemia
-      const insulina = parseFloat(calculoData.colesterol) || 0; // colesterol contiene insulina
-      const indiceHoma = (glicemia * insulina) / 405;
+    const nuevosCampos = formData.campos.map((campo) => {
+      if (
+        campo.nombre.toLowerCase().includes("v.l.d.l.") ||
+        campo.nombre.toLowerCase().includes("vldl")
+      ) {
+        return { ...campo, resultado: vldl.toFixed(2) };
+      }
+      if (
+        campo.nombre.toLowerCase().includes("l.d.l.") ||
+        campo.nombre.toLowerCase().includes("ldl")
+      ) {
+        return { ...campo, resultado: ldl.toFixed(2) };
+      }
+      if (
+        campo.nombre.toLowerCase().includes("relacion colesterol /hdl") ||
+        campo.nombre.toLowerCase().includes("colest/hdl")
+      ) {
+        return { ...campo, resultado: colHdl.toFixed(2) };
+      }
+      if (
+        campo.nombre.toLowerCase().includes("relacion ldl /hdl") ||
+        campo.nombre.toLowerCase().includes("ldl/hdl")
+      ) {
+        return { ...campo, resultado: ldlHdl.toFixed(2) };
+      }
+      return campo;
+    });
 
-      // Actualizar el campo de Índice de HOMA
-      const nuevosCampos = formData.campos.map((campo) => {
-        if (
-          campo.nombre.toLowerCase().includes("índice de homa") ||
-          campo.nombre.toLowerCase().includes("indice de homa")
-        ) {
-          return { ...campo, resultado: indiceHoma.toFixed(2) };
-        }
-        return campo;
-      });
-
-      setFormData((prev) => ({
-        ...prev,
-        campos: nuevosCampos,
-      }));
-    } else {
-      // Cálculo original para perfil lipídico
-      const trig = parseFloat(calculoData.trigliceridos) || 0;
-      const col = parseFloat(calculoData.colesterol) || 0;
-      const hdlVal = parseFloat(calculoData.hdl) || 0;
-
-      const vldl = trig / 5;
-      const ldl = col - hdlVal - vldl;
-      const colHdl = hdlVal > 0 ? col / hdlVal : 0;
-      const ldlHdl = hdlVal > 0 ? ldl / hdlVal : 0;
-
-      const nuevosCampos = formData.campos.map((campo) => {
-        if (
-          campo.nombre.toLowerCase().includes("v.l.d.l.") ||
-          campo.nombre.toLowerCase().includes("vldl")
-        ) {
-          return { ...campo, resultado: vldl.toFixed(2) };
-        }
-        if (
-          campo.nombre.toLowerCase().includes("l.d.l.") ||
-          campo.nombre.toLowerCase().includes("ldl")
-        ) {
-          return { ...campo, resultado: ldl.toFixed(2) };
-        }
-        if (
-          campo.nombre.toLowerCase().includes("relacion colesterol /hdl") ||
-          campo.nombre.toLowerCase().includes("colest/hdl")
-        ) {
-          return { ...campo, resultado: colHdl.toFixed(2) };
-        }
-        if (
-          campo.nombre.toLowerCase().includes("relacion ldl /hdl") ||
-          campo.nombre.toLowerCase().includes("ldl/hdl")
-        ) {
-          return { ...campo, resultado: ldlHdl.toFixed(2) };
-        }
-        return campo;
-      });
-
-      setFormData((prev) => ({
-        ...prev,
-        campos: nuevosCampos,
-      }));
-    }
+    setFormData((prev) => ({
+      ...prev,
+      campos: nuevosCampos,
+    }));
 
     setModalOpen(false);
+  };
+
+  // Manejar cambio en la selección de tipos de examen
+  const handleTiposExamenChange = (event: { target: { value: string | string[] } }) => {
+    const {
+      target: { value },
+    } = event;
+
+    // Convertir string a array si es necesario
+    const nuevosTipos: string[] = typeof value === 'string' ? value.split(',') : value;
+
+    // Eliminar duplicados
+    const tiposUnicos: string[] = Array.from(new Set(nuevosTipos));
+
+    // Combinar todos los campos de los exámenes seleccionados
+    let nuevosCampos: CampoExamen[] = [];
+
+    tiposUnicos.forEach((tipo: string) => {
+      const plantilla = plantillasExamenes[tipo];
+      if (plantilla) {
+        const camposConTipo = plantilla.campos.map(campo => ({
+          ...campo,
+          tipoExamen: tipo
+        }));
+        nuevosCampos = [...nuevosCampos, ...camposConTipo];
+      }
+    });
+
+    // Actualizar el estado
+    setFormData((prev) => ({
+      ...prev,
+      tiposExamen: tiposUnicos,
+      area: tiposUnicos.length > 0 ? combinarAreas(tiposUnicos) : "",
+      campos: nuevosCampos.length > 0 ? nuevosCampos : []
+    }));
+  };
+
+  // Eliminar un tipo de examen específico
+  const eliminarTipoExamen = (tipoAEliminar: string) => {
+    const nuevosTipos = formData.tiposExamen.filter(tipo => tipo !== tipoAEliminar);
+    
+    // Recalcular campos manteniendo solo los de los tipos restantes
+    let nuevosCampos: CampoExamen[] = [];
+    
+    nuevosTipos.forEach((tipo: string) => {
+      const plantilla = plantillasExamenes[tipo];
+      if (plantilla) {
+        const camposConTipo = plantilla.campos.map(campo => ({
+          ...campo,
+          tipoExamen: tipo
+        }));
+        nuevosCampos = [...nuevosCampos, ...camposConTipo];
+      }
+    });
+    
+    setFormData((prev) => ({
+      ...prev,
+      tiposExamen: nuevosTipos,
+      area: nuevosTipos.length > 0 ? combinarAreas(nuevosTipos) : "",
+      campos: nuevosCampos.length > 0 ? nuevosCampos : []
+    }));
+  };
+
+  // Agregar un tipo de examen personalizado
+  const agregarTipoPersonalizado = (tipo: string) => {
+    if (!tipo || formData.tiposExamen.includes(tipo)) return;
+    
+    const nuevosTipos = [...formData.tiposExamen, tipo];
+    setFormData((prev) => ({
+      ...prev,
+      tiposExamen: nuevosTipos,
+      area: combinarAreas(nuevosTipos)
+    }));
   };
 
   const handleChange = (e: any): any => {
     const { name, value } = e.target;
     if (name) {
-      if (name === "tipoExamen") {
-        const plantilla = plantillasExamenes[value as string];
-        setFormData((prev) => ({
-          ...prev,
-          tipoExamen: value as string,
-          area: plantilla?.area || "",
-          campos: plantilla
-            ? [...plantilla.campos]
-            : prev.campos.length > 0
-            ? prev.campos
-            : [{ nombre: "", resultado: "", valorReferencia: "" }],
-        }));
-      } else {
-        setFormData((prev) => ({
-          ...prev,
-          [name]: value,
-        }));
-      }
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
     }
   };
 
@@ -616,18 +615,25 @@ const RegistroExamen = () => {
     }));
   };
 
-  const agregarCampo = () => {
+  // Agregar campo personalizado
+  const agregarCampoPersonalizado = () => {
     setFormData((prev) => ({
       ...prev,
       campos: [
         ...prev.campos,
-        { nombre: "", resultado: "", valorReferencia: "" },
+        { 
+          nombre: "", 
+          resultado: "", 
+          valorReferencia: "",
+          tipoExamen: "Personalizado"
+        },
       ],
     }));
   };
 
+  // Eliminar campo específico
   const eliminarCampo = (index: number) => {
-    if (formData.campos.length <= 1) return;
+    if (formData.campos.length <= 0) return;
     setFormData((prev) => ({
       ...prev,
       campos: prev.campos.filter((_, i) => i !== index),
@@ -639,16 +645,19 @@ const RegistroExamen = () => {
     setLoading(true);
     setMessage(null);
 
-    if (!formData.cliente || !formData.tipoExamen) {
+    if (!formData.cliente || formData.tiposExamen.length === 0) {
       setMessage({
         type: "error",
-        text: "Cliente y tipo de examen son requeridos",
+        text: "Cliente y al menos un tipo de examen son requeridos",
       });
       setLoading(false);
       return;
     }
 
     try {
+      // Combinar todos los tipos de examen en un string para el backend
+      const tiposExamenCombinados = formData.tiposExamen.join(" + ");
+      
       const response = await fetch(
         "https://backinvent.onrender.com/api/examenes",
         {
@@ -658,7 +667,7 @@ const RegistroExamen = () => {
           },
           body: JSON.stringify({
             cliente: formData.cliente,
-            tipoExamen: formData.tipoExamen,
+            tipoExamen: tiposExamenCombinados, // Enviar combinado
             area: formData.area,
             observaciones: formData.observaciones,
             fechaExamen: formData.fechaExamen,
@@ -681,11 +690,11 @@ const RegistroExamen = () => {
         setMessage({ type: "success", text: "Examen registrado exitosamente" });
         setFormData({
           cliente: "",
-          tipoExamen: "",
+          tiposExamen: [],
           area: "",
           observaciones: "",
-          fechaExamen: new Date().toISOString().split("T")[0],
-          campos: [{ nombre: "", resultado: "", valorReferencia: "" }],
+          fechaExamen: obtenerFechaVenezuela(),
+          campos: [],
         });
         window.dispatchEvent(new Event("examenAdded"));
 
@@ -703,6 +712,26 @@ const RegistroExamen = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Función para obtener color basado en el tipo de examen
+  const getColorPorTipo = (tipo: string) => {
+    const colores = {
+      "HEMATOLOGIA": "error",
+      "QUIMICA": "warning",
+      "ORINA": "info",
+      "HECES": "secondary",
+      "SEROLOGIA": "success",
+      "HEPATITIS": "error",
+      "TIROIDES": "info",
+      "HORMONAS": "warning",
+      "default": "primary"
+    };
+
+    for (const [key, color] of Object.entries(colores)) {
+      if (tipo.includes(key)) return color as any;
+    }
+    return colores.default;
   };
 
   return (
@@ -769,7 +798,7 @@ const RegistroExamen = () => {
         )}
 
         <form onSubmit={handleSubmit}>
-          <Grid container spacing={2}>
+          <Grid container spacing={3}>
             {/* Selección de Cliente */}
             <Grid size={12}>
               <FormControl fullWidth size="small">
@@ -791,53 +820,71 @@ const RegistroExamen = () => {
               </FormControl>
             </Grid>
 
-            {/* Tipo de Examen */}
+            {/* Selección MÚLTIPLE de Tipo de Examen */}
+            <Grid size={12}>
+              <FormControl fullWidth size="small">
+                <InputLabel>Tipos de Examen</InputLabel>
+                <Select
+                  multiple
+                  name="tiposExamen"
+                  value={formData.tiposExamen}
+                  onChange={handleTiposExamenChange}
+                  label="Tipos de Examen"
+                  required
+                  renderValue={(selected) => (
+                    <Stack direction="row" spacing={1} flexWrap="wrap">
+                      {selected.map((value) => (
+                        <Chip 
+                          key={value} 
+                          label={value} 
+                          size="small"
+                          color={getColorPorTipo(value)}
+                          onDelete={(e) => {
+                            e.stopPropagation();
+                            eliminarTipoExamen(value);
+                          }}
+                          deleteIcon={<Close />}
+                        />
+                      ))}
+                    </Stack>
+                  )}
+                >
+                  {tiposExamen.map((tipo) => (
+                    <MenuItem key={tipo} value={tipo}>
+                      <Checkbox checked={formData.tiposExamen.indexOf(tipo) > -1} />
+                      <ListItemText primary={tipo} />
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              <Typography variant="caption" color="text.secondary" sx={{ mt: 1 }}>
+                Seleccione uno o más tipos de examen. Se combinarán automáticamente.
+              </Typography>
+            </Grid>
+
+            {/* Autocomplete para tipo personalizado */}
             <Grid size={12}>
               <Autocomplete
                 freeSolo
-                options={tiposExamen}
-                value={formData.tipoExamen}
+                options={tiposExamen.filter(tipo => !formData.tiposExamen.includes(tipo))}
+                value=""
                 onChange={(event: any, newValue: any) => {
-                  if (newValue) {
-                    const plantilla = plantillasExamenes[newValue];
-                    setFormData((prev) => ({
-                      ...prev,
-                      tipoExamen: newValue,
-                      area: plantilla?.area || "",
-                      campos: plantilla
-                        ? [...plantilla.campos]
-                        : prev.campos.length > 0
-                        ? prev.campos
-                        : [{ nombre: "", resultado: "", valorReferencia: "" }],
-                    }));
+                  if (newValue && !formData.tiposExamen.includes(newValue)) {
+                    const nuevosTipos = [...formData.tiposExamen, newValue];
+                    handleTiposExamenChange({ target: { value: nuevosTipos } });
                   }
                 }}
                 onInputChange={(event: any, newInputValue: any) => {
-                  if (newInputValue && !tiposExamen.includes(newInputValue)) {
-                    setFormData((prev) => ({
-                      ...prev,
-                      tipoExamen: newInputValue,
-                      area: "",
-                      campos:
-                        prev.campos.length > 0
-                          ? prev.campos
-                          : [
-                              {
-                                nombre: "",
-                                resultado: "",
-                                valorReferencia: "",
-                              },
-                            ],
-                    }));
+                  if (newInputValue && event.type === 'keydown' && event.key === 'Enter') {
+                    agregarTipoPersonalizado(newInputValue);
                   }
                 }}
                 renderInput={(params: any) => (
                   <TextField
                     {...params}
-                    label="Tipo de Examen"
-                    required
+                    label="Agregar tipo personalizado"
                     size="small"
-                    placeholder="Seleccionar de la lista o escribir un tipo personalizado"
+                    placeholder="Escriba y presione Enter para agregar"
                   />
                 )}
               />
@@ -857,17 +904,48 @@ const RegistroExamen = () => {
               />
             </Grid>
 
-            {/* Área del Examen (automática) */}
+            {/* Área del Examen (combinada) */}
             {formData.area && (
               <Grid size={12}>
                 <Paper
                   elevation={1}
-                  sx={{ p: 2, bgcolor: "primary.light", color: "white" }}
+                  sx={{ 
+                    p: 2, 
+                    bgcolor: "primary.light", 
+                    color: "white",
+                    textAlign: "center"
+                  }}
                 >
-                  <Typography variant="h6" align="center" fontWeight={600}>
-                    ÁREA DE: {formData.area}
+                  <Typography variant="h6" fontWeight={600}>
+                    ÁREA(S): {formData.area}
+                  </Typography>
+                  <Typography variant="body2" sx={{ mt: 1, opacity: 0.9 }}>
+                    {formData.tiposExamen.length} tipo(s) de examen seleccionado(s)
                   </Typography>
                 </Paper>
+              </Grid>
+            )}
+
+            {/* Chips de tipos seleccionados */}
+            {formData.tiposExamen.length > 0 && (
+              <Grid size={12}>
+                <Box sx={{ mb: 2 }}>
+                  <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                    Tipos seleccionados:
+                  </Typography>
+                  <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+                    {formData.tiposExamen.map((tipo) => (
+                      <Chip
+                        key={tipo}
+                        label={tipo}
+                        color={getColorPorTipo(tipo)}
+                        size="small"
+                        onDelete={() => eliminarTipoExamen(tipo)}
+                        deleteIcon={<Close />}
+                      />
+                    ))}
+                  </Stack>
+                </Box>
               </Grid>
             )}
 
@@ -900,6 +978,9 @@ const RegistroExamen = () => {
                 >
                   Calcular Valores de Perfil Lipídico
                 </Button>
+                <Typography variant="caption" color="text.secondary">
+                  Cálculos disponibles para: {obtenerTiposConCalculos().join(", ")}
+                </Typography>
               </Grid>
             )}
 
@@ -920,22 +1001,27 @@ const RegistroExamen = () => {
                     borderColor: "success.light",
                   }}
                 >
-                  <Typography
-                    variant="h6"
-                    fontWeight={700}
-                    sx={{
-                      background:
-                        "linear-gradient(135deg, #10b981 0%, #059669 100%)",
-                      backgroundClip: "text",
-                      WebkitBackgroundClip: "text",
-                      WebkitTextFillColor: "transparent",
-                    }}
-                  >
-                    Parámetros del Examen
-                  </Typography>
+                  <Box>
+                    <Typography
+                      variant="h6"
+                      fontWeight={700}
+                      sx={{
+                        background:
+                          "linear-gradient(135deg, #10b981 0%, #059669 100%)",
+                        backgroundClip: "text",
+                        WebkitBackgroundClip: "text",
+                        WebkitTextFillColor: "transparent",
+                      }}
+                    >
+                      Parámetros del Examen
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      {formData.campos.length} parámetro(s) combinado(s) de {formData.tiposExamen.length} examen(s)
+                    </Typography>
+                  </Box>
                   <Button
                     startIcon={<Add />}
-                    onClick={agregarCampo}
+                    onClick={agregarCampoPersonalizado}
                     variant="contained"
                     size="small"
                     sx={{
@@ -956,155 +1042,172 @@ const RegistroExamen = () => {
                   </Button>
                 </Box>
 
-                <TableContainer
-                  component={Paper}
-                  elevation={0}
-                  sx={{
-                    borderRadius: 2,
-                    border: "2px solid",
-                    borderColor: "divider",
-                  }}
-                >
-                  <Table size="small">
-                    <TableHead>
-                      <TableRow
-                        sx={{
-                          background:
-                            "linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.1) 100%)",
-                          "& .MuiTableCell-root": {
-                            borderBottom: "2px solid",
-                            borderColor: "success.main",
-                            py: 2,
-                          },
-                        }}
-                      >
-                        <TableCell
+                {formData.campos.length > 0 ? (
+                  <TableContainer
+                    component={Paper}
+                    elevation={0}
+                    sx={{
+                      borderRadius: 2,
+                      border: "2px solid",
+                      borderColor: "divider",
+                      maxHeight: 500,
+                      overflow: "auto",
+                    }}
+                  >
+                    <Table size="small" stickyHeader>
+                      <TableHead>
+                        <TableRow
                           sx={{
-                            color: "success.dark",
-                            fontWeight: 700,
-                            width: "35%",
-                            minWidth: "200px",
-                            fontSize: "0.95rem",
+                            background:
+                              "linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.1) 100%)",
+                            "& .MuiTableCell-root": {
+                              borderBottom: "2px solid",
+                              borderColor: "success.main",
+                              py: 2,
+                            },
                           }}
                         >
-                          PRUEBA
-                        </TableCell>
-                        <TableCell
-                          sx={{
-                            color: "success.dark",
-                            fontWeight: 700,
-                            width: "30%",
-                            minWidth: "150px",
-                            fontSize: "0.95rem",
-                          }}
-                        >
-                          RESULTADO
-                        </TableCell>
-                        <TableCell
-                          sx={{
-                            color: "success.dark",
-                            fontWeight: 700,
-                            width: "30%",
-                            minWidth: "200px",
-                            fontSize: "0.95rem",
-                          }}
-                        >
-                          VALOR DE REFERENCIA
-                        </TableCell>
-                        <TableCell
-                          sx={{
-                            color: "success.dark",
-                            fontWeight: 700,
-                            width: "5%",
-                            minWidth: "80px",
-                            fontSize: "0.95rem",
-                          }}
-                        >
-                          Acción
-                        </TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {formData.campos.map((campo, index) => (
-                        <TableRow key={index} hover>
-                          <TableCell>
-                            <TextField
-                              fullWidth
-                              size="small"
-                              value={campo.nombre}
-                              onChange={(e) =>
-                                handleCampoChange(
-                                  index,
-                                  "nombre",
-                                  e.target.value
-                                )
-                              }
-                              placeholder="Nombre del parámetro"
-                              sx={{
-                                "& .MuiInputBase-input": {
-                                  fontSize: "14px",
-                                  padding: "8px 12px",
-                                },
-                              }}
-                            />
+                          
+                          <TableCell
+                            sx={{
+                              color: "success.dark",
+                              fontWeight: 700,
+                              width: "30%",
+                              fontSize: "0.95rem",
+                            }}
+                          >
+                            PRUEBA
                           </TableCell>
-                          <TableCell>
-                            <TextField
-                              fullWidth
-                              size="small"
-                              value={campo.resultado}
-                              onChange={(e) =>
-                                handleCampoChange(
-                                  index,
-                                  "resultado",
-                                  e.target.value
-                                )
-                              }
-                              placeholder="Resultado obtenido"
-                              sx={{
-                                "& .MuiInputBase-input": {
-                                  fontSize: "14px",
-                                  padding: "8px 12px",
-                                },
-                              }}
-                            />
+                          <TableCell
+                            sx={{
+                              color: "success.dark",
+                              fontWeight: 700,
+                              width: "25%",
+                              fontSize: "0.95rem",
+                            }}
+                          >
+                            RESULTADO
                           </TableCell>
-                          <TableCell>
-                            <TextField
-                              fullWidth
-                              size="small"
-                              value={campo.valorReferencia}
-                              onChange={(e) =>
-                                handleCampoChange(
-                                  index,
-                                  "valorReferencia",
-                                  e.target.value
-                                )
-                              }
-                              placeholder="Valor de referencia"
-                              sx={{
-                                "& .MuiInputBase-input": {
-                                  fontSize: "14px",
-                                  padding: "8px 12px",
-                                },
-                              }}
-                            />
+                          <TableCell
+                            sx={{
+                              color: "success.dark",
+                              fontWeight: 700,
+                              width: "15%",
+                              fontSize: "0.95rem",
+                            }}
+                          >
+                            VALOR REF.
                           </TableCell>
-                          <TableCell align="center">
-                            <IconButton
-                              size="small"
-                              color="error"
-                              onClick={() => eliminarCampo(index)}
-                              disabled={formData.campos.length <= 1}
-                            >
-                              <Delete fontSize="small" />
-                            </IconButton>
+                          <TableCell
+                            sx={{
+                              color: "success.dark",
+                              fontWeight: 700,
+                              width: "5%",
+                              fontSize: "0.95rem",
+                            }}
+                          >
+                            Acción
                           </TableCell>
                         </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
+                      </TableHead>
+                      <TableBody>
+                        {formData.campos.map((campo, index) => (
+                          <TableRow key={index} hover>
+                           
+                            <TableCell>
+                              <TextField
+                                fullWidth
+                                size="small"
+                                value={campo.nombre}
+                                onChange={(e) =>
+                                  handleCampoChange(
+                                    index,
+                                    "nombre",
+                                    e.target.value
+                                  )
+                                }
+                                placeholder="Nombre del parámetro"
+                                sx={{
+                                  "& .MuiInputBase-input": {
+                                    fontSize: "14px",
+                                    padding: "8px 12px",
+                                  },
+                                }}
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <TextField
+                                fullWidth
+                                size="small"
+                                value={campo.resultado}
+                                onChange={(e) =>
+                                  handleCampoChange(
+                                    index,
+                                    "resultado",
+                                    e.target.value
+                                  )
+                                }
+                                placeholder="Resultado obtenido"
+                                sx={{
+                                  "& .MuiInputBase-input": {
+                                    fontSize: "14px",
+                                    padding: "8px 12px",
+                                  },
+                                }}
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <TextField
+                                fullWidth
+                                size="small"
+                                value={campo.valorReferencia}
+                                onChange={(e) =>
+                                  handleCampoChange(
+                                    index,
+                                    "valorReferencia",
+                                    e.target.value
+                                  )
+                                }
+                                placeholder="Valor de referencia"
+                                sx={{
+                                  "& .MuiInputBase-input": {
+                                    fontSize: "14px",
+                                    padding: "8px 12px",
+                                  },
+                                }}
+                              />
+                            </TableCell>
+                            <TableCell align="center">
+                              <IconButton
+                                size="small"
+                                color="error"
+                                onClick={() => eliminarCampo(index)}
+                              >
+                                <Delete fontSize="small" />
+                              </IconButton>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                ) : (
+                  <Paper
+                    elevation={0}
+                    sx={{
+                      p: 4,
+                      textAlign: "center",
+                      border: "2px dashed",
+                      borderColor: "divider",
+                      borderRadius: 2,
+                      bgcolor: "grey.50",
+                    }}
+                  >
+                    <Typography color="text.secondary">
+                      Seleccione uno o más tipos de examen para ver los parámetros
+                    </Typography>
+                  </Paper>
+                )}
               </Box>
             </Grid>
 
@@ -1165,6 +1268,7 @@ const RegistroExamen = () => {
             </Grid>
           </Grid>
         </form>
+
         {/* Modal de Cálculo */}
         <Dialog
           open={modalOpen}
@@ -1175,154 +1279,74 @@ const RegistroExamen = () => {
           <DialogTitle>
             <Box display="flex" alignItems="center">
               <Calculate sx={{ mr: 1 }} />
-              {formData.tipoExamen.includes("LIPIDOS TOTALES")
-                ? "Calcular Lípidos Totales"
-                : formData.tipoExamen.includes("INDICE DE HOMA")
-                ? "Calcular Índice de HOMA"
-                : "Calcular Perfil Lipídico"}
+              Calcular Perfil Lipídico
             </Box>
           </DialogTitle>
           <DialogContent>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-              {formData.tipoExamen.includes("LIPIDOS TOTALES")
-                ? "Ingrese los valores para calcular Lípidos Totales:"
-                : formData.tipoExamen.includes("INDICE DE HOMA")
-                ? "Ingrese los valores para calcular el Índice de HOMA:"
-                : "Ingrese los valores base para calcular automáticamente los demás parámetros:"}
+              Ingrese los valores base para calcular automáticamente los demás parámetros:
             </Typography>
 
             <Grid container spacing={2}>
-              {formData.tipoExamen.includes("LIPIDOS TOTALES") ? (
-                <>
-                  <Grid size={12}>
-                    <TextField
-                      fullWidth
-                      label="Colesterol (mg/dL)"
-                      value={calculoData.colesterol}
-                      onChange={(e) =>
-                        setCalculoData((prev) => ({
-                          ...prev,
-                          colesterol: e.target.value,
-                        }))
-                      }
-                      type="number"
-                      size="small"
-                    />
-                  </Grid>
-                  <Grid size={12}>
-                    <TextField
-                      fullWidth
-                      label="Triglicéridos (mg/dL)"
-                      value={calculoData.trigliceridos}
-                      onChange={(e) =>
-                        setCalculoData((prev) => ({
-                          ...prev,
-                          trigliceridos: e.target.value,
-                        }))
-                      }
-                      type="number"
-                      size="small"
-                    />
-                  </Grid>
-                </>
-              ) : formData.tipoExamen.includes("INDICE DE HOMA") ? (
-                <>
-                  <Grid size={12}>
-                    <TextField
-                      fullWidth
-                      label="Glicemia (mg/dL)"
-                      value={calculoData.trigliceridos}
-                      onChange={(e) =>
-                        setCalculoData((prev) => ({
-                          ...prev,
-                          trigliceridos: e.target.value,
-                        }))
-                      }
-                      type="number"
-                      size="small"
-                    />
-                  </Grid>
-                  <Grid size={12}>
-                    <TextField
-                      fullWidth
-                      label="Insulina (µIU/mL)"
-                      value={calculoData.colesterol}
-                      onChange={(e) =>
-                        setCalculoData((prev) => ({
-                          ...prev,
-                          colesterol: e.target.value,
-                        }))
-                      }
-                      type="number"
-                      size="small"
-                    />
-                  </Grid>
-                </>
-              ) : (
-                <>
-                  <Grid size={12}>
-                    <TextField
-                      fullWidth
-                      label="Triglicéridos (mg/dL)"
-                      value={calculoData.trigliceridos}
-                      onChange={(e) =>
-                        setCalculoData((prev) => ({
-                          ...prev,
-                          trigliceridos: e.target.value,
-                        }))
-                      }
-                      type="number"
-                      size="small"
-                    />
-                  </Grid>
-                  <Grid size={12}>
-                    <TextField
-                      fullWidth
-                      label="Colesterol Total (mg/dL)"
-                      value={calculoData.colesterol}
-                      onChange={(e) =>
-                        setCalculoData((prev) => ({
-                          ...prev,
-                          colesterol: e.target.value,
-                        }))
-                      }
-                      type="number"
-                      size="small"
-                    />
-                  </Grid>
-                  <Grid size={12}>
-                    <TextField
-                      fullWidth
-                      label="HDL (mg/dL)"
-                      value={calculoData.hdl}
-                      onChange={(e) =>
-                        setCalculoData((prev) => ({
-                          ...prev,
-                          hdl: e.target.value,
-                        }))
-                      }
-                      type="number"
-                      size="small"
-                    />
-                  </Grid>
-                </>
-              )}
+              <Grid size={12}>
+                <TextField
+                  fullWidth
+                  label="Triglicéridos (mg/dL)"
+                  value={calculoData.trigliceridos}
+                  onChange={(e) =>
+                    setCalculoData((prev) => ({
+                      ...prev,
+                      trigliceridos: e.target.value,
+                    }))
+                  }
+                  type="number"
+                  size="small"
+                />
+              </Grid>
+              <Grid size={12}>
+                <TextField
+                  fullWidth
+                  label="Colesterol Total (mg/dL)"
+                  value={calculoData.colesterol}
+                  onChange={(e) =>
+                    setCalculoData((prev) => ({
+                      ...prev,
+                      colesterol: e.target.value,
+                    }))
+                  }
+                  type="number"
+                  size="small"
+                />
+              </Grid>
+              <Grid size={12}>
+                <TextField
+                  fullWidth
+                  label="HDL (mg/dL)"
+                  value={calculoData.hdl}
+                  onChange={(e) =>
+                    setCalculoData((prev) => ({
+                      ...prev,
+                      hdl: e.target.value,
+                    }))
+                  }
+                  type="number"
+                  size="small"
+                />
+              </Grid>
             </Grid>
 
             <Box sx={{ mt: 2, p: 2, bgcolor: "grey.50", borderRadius: 1 }}>
               <Typography variant="subtitle2" gutterBottom>
-                {formData.tipoExamen.includes("LIPIDOS TOTALES")
-                  ? "Fórmula aplicada:"
-                  : formData.tipoExamen.includes("INDICE DE HOMA")
-                  ? "Fórmula aplicada:"
-                  : "Fórmulas aplicadas:"}
+                Fórmulas aplicadas:
               </Typography>
               <Typography variant="body2">
-                {formData.tipoExamen.includes("LIPIDOS TOTALES")
-                  ? "Lípidos Totales = (Colesterol × 2.5) + Triglicéridos"
-                  : formData.tipoExamen.includes("INDICE DE HOMA")
-                  ? "Índice de HOMA = (Glicemia × Insulina) / 405"
-                  : "• VLDL = Triglicéridos / 5\n• LDL = Colesterol - HDL - VLDL\n• Colesterol/HDL = Colesterol / HDL\n• LDL/HDL = LDL / HDL"}
+                • VLDL = Triglicéridos / 5
+                <br />
+                • LDL = Colesterol - HDL - VLDL
+                <br />
+                • Colesterol/HDL = Colesterol / HDL
+                <br />
+                • LDL/HDL = LDL / HDL
               </Typography>
             </Box>
           </DialogContent>
@@ -1332,13 +1356,9 @@ const RegistroExamen = () => {
               onClick={calcularValores}
               variant="contained"
               disabled={
-                formData.tipoExamen.includes("LIPIDOS TOTALES")
-                  ? !calculoData.trigliceridos || !calculoData.colesterol
-                  : formData.tipoExamen.includes("INDICE DE HOMA")
-                  ? !calculoData.trigliceridos || !calculoData.colesterol
-                  : !calculoData.trigliceridos ||
-                    !calculoData.colesterol ||
-                    !calculoData.hdl
+                !calculoData.trigliceridos ||
+                !calculoData.colesterol ||
+                !calculoData.hdl
               }
             >
               Calcular y Aplicar
