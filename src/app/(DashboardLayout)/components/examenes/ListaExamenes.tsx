@@ -1376,7 +1376,7 @@ const ListaExamenes = () => {
                         sx={{
                           fontWeight: "800",
                           textAlign: "left",
-                          width: "45%",
+                          width: "10%",
                           border: "none",
                           fontSize: "11px",
                           color: "#000",
@@ -1390,7 +1390,7 @@ const ListaExamenes = () => {
                         sx={{
                           fontWeight: "800",
                           textAlign: "center",
-                          width: "20%",
+                          width: "10%",
                           border: "none",
                           fontSize: "11px",
                           color: "#000",
@@ -1399,12 +1399,12 @@ const ListaExamenes = () => {
                       >
                         RESULTADO
                       </TableCell>
-                      {examenSeleccionado.area !== "ORINA" && (
+                      {examenSeleccionado.area !== "ORINA"  && (
                         <TableCell
                           sx={{
                             fontWeight: "800",
                             textAlign: "center",
-                            width: "15%",
+                            width: "10%",
                             border: "none",
                             fontSize: "11px",
                             color: "#000",
@@ -1418,7 +1418,7 @@ const ListaExamenes = () => {
                         sx={{
                           fontWeight: "800",
                           textAlign: "center",
-                          width: "20%",
+                          width: "10%",
                           border: "none",
                           fontSize: "11px",
                           color: "#000",
@@ -1469,14 +1469,14 @@ const ListaExamenes = () => {
                           >
                             {datos.resultado || "No registrado"}
                           </TableCell>
-                          {examenSeleccionado.area !== "ORINA" && (
+                          {examenSeleccionado.area !== "ORINA"  && (
                             <TableCell
                               sx={{
                                 textAlign: "center",
                                 border: "none",
                                 borderBottom: "none",
                                 fontSize: "10px",
-                                color: "#6b7280",
+                                color: "#000",
                                 fontWeight: "500",
                                 py: 1,
                               }}
@@ -1490,7 +1490,7 @@ const ListaExamenes = () => {
                               border: "none",
                               borderBottom: "none",
                               fontSize: "10px",
-                              color: "#6b7280",
+                              color: "#000",
                               fontWeight: "500",
                               py: 1,
                             }}
