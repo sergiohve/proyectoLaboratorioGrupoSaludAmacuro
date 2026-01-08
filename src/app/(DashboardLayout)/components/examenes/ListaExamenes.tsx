@@ -93,6 +93,44 @@ const ListaExamenes = () => {
 
   const pdfRef = useRef<HTMLDivElement>(null);
 
+  // Función para obtener los tipos de examen separados
+  const obtenerTiposExamen = (tipoExamen: string): string[] => {
+    return tipoExamen.split(" + ").map((tipo) => tipo.trim());
+  };
+
+  // Función para agrupar resultados por tipo de examen (si hay múltiples tipos)
+  const agruparResultadosPorTipo = (
+    tipoExamen: string,
+    resultados: { [key: string]: { resultado: string; valorReferencia: string } }
+  ) => {
+    const tipos = obtenerTiposExamen(tipoExamen);
+
+    // Si solo hay un tipo, devolver todos los resultados bajo ese tipo
+    if (tipos.length === 1) {
+      return [{ tipo: tipos[0], resultados: resultados }];
+    }
+
+    // Si hay múltiples tipos, intentar agruparlos (por ahora, dividir equitativamente)
+    // En una implementación más robusta, usarías las plantillas para determinar la pertenencia
+    const resultadosArray = Object.entries(resultados);
+    const grupos: { tipo: string; resultados: any }[] = [];
+
+    // Por ahora, simplemente dividir los resultados equitativamente entre los tipos
+    const resultadosPorTipo = Math.ceil(resultadosArray.length / tipos.length);
+
+    tipos.forEach((tipo, index) => {
+      const inicio = index * resultadosPorTipo;
+      const fin = Math.min((index + 1) * resultadosPorTipo, resultadosArray.length);
+      const resultadosTipo = Object.fromEntries(resultadosArray.slice(inicio, fin));
+
+      if (Object.keys(resultadosTipo).length > 0) {
+        grupos.push({ tipo, resultados: resultadosTipo });
+      }
+    });
+
+    return grupos;
+  };
+
   const fetchExamenes = async () => {
     try {
       setLoading(true);
@@ -359,7 +397,7 @@ const ListaExamenes = () => {
 
   // Función para determinar las unidades basadas en los valores de referencia
   const determinarUnidad = (valorReferencia: string) => {
-    const valor = valorReferencia.toLowerCase();
+    const valor = valorReferencia.toLowerCase().trim();
 
     // Si el valor de referencia es un color o una descripción cualitativa
     if (
@@ -367,52 +405,54 @@ const ListaExamenes = () => {
       valor.includes("sugeneris") ||
       valor.includes("limpida") ||
       valor.includes("ácida") ||
+      valor.includes("alcalina") ||
       valor.includes("negativo") ||
       valor.includes("positivo") ||
       valor.includes("trazas") ||
       valor.includes("escasas") ||
+      valor.includes("ausentes") ||
       valor.includes("x campos") ||
-      valor.includes("x campo")
+      valor.includes("x campo") ||
+      valor === "-" ||
+      valor === ""
     ) {
       return "-";
     }
 
-    // Si el valor de referencia contiene unidades específicas
-    if (valor.includes("mg/dl") || valor.includes("mg/l")) {
-      return "mg/dL";
-    }
-    if (valor.includes("mg/dl")) {
-      return "mg/dL";
-    }
-    if (valor.includes("mmol/l")) {
-      return "mmol/L";
-    }
-    if (valor.includes("u/l") || valor.includes("u/ml")) {
-      return "U/mL";
-    }
-    if (valor.includes("u/l")) {
-      return "IU/L";
-    }
-    if (valor.includes("cel/μl") || valor.includes("cel/ml")) {
-      return "cel/μL";
-    }
-    if (valor.includes("fl")) {
-      return "fL";
-    }
-    if (valor.includes("pg")) {
-      return "pg";
+    // Extraer unidades específicas del valor de referencia
+    // Buscar patrones de unidades comunes
+    const unidadesPatrones = [
+      { patron: /mg\/dl/i, unidad: "mg/dL" },
+      { patron: /mg\/l/i, unidad: "mg/L" },
+      { patron: /mmol\/l/i, unidad: "mmol/L" },
+      { patron: /g\/dl/i, unidad: "g/dL" },
+      { patron: /g\/l/i, unidad: "g/L" },
+      { patron: /iu\/l/i, unidad: "IU/L" },
+      { patron: /ui\/l/i, unidad: "UI/L" },
+      { patron: /u\/l/i, unidad: "U/L" },
+      { patron: /u\/ml/i, unidad: "U/mL" },
+      { patron: /μl|ul/i, unidad: "μL" },
+      { patron: /cel\/μl/i, unidad: "cel/μL" },
+      { patron: /cel\/ul/i, unidad: "cel/μL" },
+      { patron: /cel\/mm3/i, unidad: "cel/mm³" },
+      { patron: /x 10\^3\/μl/i, unidad: "x 10³/μL" },
+      { patron: /x 10\^6\/μl/i, unidad: "x 10⁶/μL" },
+      { patron: /fl/i, unidad: "fL" },
+      { patron: /pg/i, unidad: "pg" },
+      { patron: /%/i, unidad: "%" },
+      { patron: /mm\/h/i, unidad: "mm/h" },
+      { patron: /seg|sec/i, unidad: "seg" },
+      { patron: /min/i, unidad: "min" },
+    ];
+
+    // Buscar coincidencias con los patrones
+    for (const { patron, unidad } of unidadesPatrones) {
+      if (patron.test(valorReferencia)) {
+        return unidad;
+      }
     }
 
-    // Para valores de referencia numéricos sin unidades explícitas
-    if (
-      valor.includes("-") ||
-      valor.includes("<") ||
-      valor.includes(">") ||
-      /\d/.test(valor)
-    ) {
-      return "U/mL"; // Unidad por defecto para valores numéricos
-    }
-
+    // Si no se encuentra ninguna unidad específica, devolver "-"
     return "-";
   };
 
@@ -460,6 +500,66 @@ const ListaExamenes = () => {
     } catch (error) {
       console.error("Error generando PDF:", error);
       setError("Error al generar el PDF");
+    } finally {
+      setGenerandoPDF(false);
+    }
+  };
+
+  const imprimirPDFDirecto = async () => {
+    if (!pdfRef.current || !examenSeleccionado) return;
+
+    setGenerandoPDF(true);
+    try {
+      const canvas = await html2canvas(pdfRef.current, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: "#ffffff",
+      });
+
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF("p", "mm", "a4");
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+
+      const imgWidth = canvas.width;
+      const imgHeight = canvas.height;
+      const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
+      const imgX = (pdfWidth - imgWidth * ratio) / 2;
+      const imgY = 10;
+
+      pdf.addImage(
+        imgData,
+        "PNG",
+        imgX,
+        imgY,
+        imgWidth * ratio,
+        imgHeight * ratio
+      );
+
+      // Crear un Blob del PDF
+      const pdfBlob = pdf.output("blob");
+      const pdfUrl = URL.createObjectURL(pdfBlob);
+
+      // Abrir en nueva ventana para imprimir
+      const printWindow = window.open(pdfUrl, "_blank");
+
+      if (printWindow) {
+        printWindow.addEventListener("load", () => {
+          printWindow.print();
+          // Liberar el objeto URL después de un tiempo
+          setTimeout(() => {
+            URL.revokeObjectURL(pdfUrl);
+          }, 1000);
+        });
+      } else {
+        // Si el popup fue bloqueado, mostrar mensaje de error
+        setError("Por favor, permite ventanas emergentes para imprimir el PDF");
+        URL.revokeObjectURL(pdfUrl);
+      }
+    } catch (error) {
+      console.error("Error generando PDF para imprimir:", error);
+      setError("Error al generar el PDF para imprimir");
     } finally {
       setGenerandoPDF(false);
     }
@@ -876,92 +976,28 @@ const ListaExamenes = () => {
               </Typography>
             </Box>
             <Box display="flex" alignItems="center" gap={1}>
-              <DialogActions sx={{ p: 2 }}>
-                <Button
-                  variant="contained"
-                  onClick={() => {
-                    // Función para imprimir directamente
-                    const handleImprimirDirecto = async () => {
-                      if (!pdfRef.current || !examenSeleccionado) return;
-
-                      setGenerandoPDF(true);
-                      try {
-                        const canvas = await html2canvas(pdfRef.current, {
-                          scale: 2,
-                          useCORS: true,
-                          logging: false,
-                          backgroundColor: "#ffffff",
-                        });
-
-                        const imgData = canvas.toDataURL("image/png");
-                        const pdf = new jsPDF("p", "mm", "a4");
-                        const pdfWidth = pdf.internal.pageSize.getWidth();
-                        const pdfHeight = pdf.internal.pageSize.getHeight();
-
-                        const imgWidth = canvas.width;
-                        const imgHeight = canvas.height;
-                        const ratio = Math.min(
-                          pdfWidth / imgWidth,
-                          pdfHeight / imgHeight
-                        );
-                        const imgX = (pdfWidth - imgWidth * ratio) / 2;
-                        const imgY = 10;
-
-                        pdf.addImage(
-                          imgData,
-                          "PNG",
-                          imgX,
-                          imgY,
-                          imgWidth * ratio,
-                          imgHeight * ratio
-                        );
-
-                        // Imprimir directamente sin guardar
-                        const pdfBlob = pdf.output("blob");
-                        const pdfUrl = URL.createObjectURL(pdfBlob);
-
-                        // Abrir en nueva ventana para imprimir
-                        const printWindow = window.open(pdfUrl, "_blank");
-                        if (printWindow) {
-                          printWindow.onload = () => {
-                            printWindow.print();
-                            // Cerrar la ventana después de imprimir
-                            setTimeout(() => {
-                              printWindow.close();
-                              URL.revokeObjectURL(pdfUrl);
-                            }, 500);
-                          };
-                        }
-                      } catch (error) {
-                        console.error(
-                          "Error generando PDF para imprimir:",
-                          error
-                        );
-                        setError("Error al generar el PDF para imprimir");
-                      } finally {
-                        setGenerandoPDF(false);
-                      }
-                    };
-
-                    handleImprimirDirecto();
-                  }}
-                  disabled={generandoPDF}
-                  startIcon={
-                    generandoPDF ? (
-                      <CircularProgress size={16} />
-                    ) : (
-                      <MedicalServices />
-                    )
-                  }
-                  sx={{
-                    background: "white",
-                    border: "1px solid #6082e9ff",
-                    color: "black",
-                  }}
-                >
-                  {generandoPDF ? "Preparando..." : "Imprimir PDF Directo"}
-                </Button>
-              </DialogActions>
+              <Button
+                variant="contained"
+                onClick={imprimirPDFDirecto}
+                disabled={generandoPDF}
+                startIcon={
+                  generandoPDF ? (
+                    <CircularProgress size={16} />
+                  ) : (
+                    <PictureAsPdf />
+                  )
+                }
+                sx={{
+                  background: "white",
+                  border: "1px solid #6082e9ff",
+                  color: "black",
+                  "&:hover": {
+                    background: "#f3f4f6",
+                  },
+                }}
+              >
+                {generandoPDF ? "Preparando..." : "Imprimir PDF Directo"}
+              </Button>
               <Button
                 variant="outlined"
                 startIcon={
@@ -975,7 +1011,7 @@ const ListaExamenes = () => {
                 disabled={generandoPDF}
                 size="small"
               >
-                {generandoPDF ? "Generando..." : "PDF"}
+                {generandoPDF ? "Generando..." : "Descargar PDF"}
               </Button>
               <IconButton onClick={handleCerrarModal} size="small">
                 <Close />
@@ -1004,8 +1040,6 @@ const ListaExamenes = () => {
                 sx={{
                   pb: 2,
                   mb: 3,
-                  borderBottom: "3px solid",
-                  borderImage: "#000",
                 }}
               >
                 <Box
@@ -1052,7 +1086,7 @@ const ListaExamenes = () => {
                         color: "#6b7280",
                       }}
                     >
-                      Licda. Vivían Fagre Naim
+                      Lcda Vivían Fagre Naim
                     </Typography>
                   </Box>
                   <Box sx={{ textAlign: "center", flex: 1 }}>
@@ -1348,161 +1382,188 @@ const ListaExamenes = () => {
                 </Typography>
               </Box>
 
-              {/* Modern Results Table - Sin Rayas */}
-              <Box
-                sx={{
-                  border: "2px solid #e5e7eb",
-                  borderRadius: 2,
-                  overflow: "hidden",
-                }}
-              >
-                <Table
-                  size="small"
-                  sx={{
-                    "& .MuiTableCell-root": {
-                      border: "none",
-                      borderBottom: "none",
-                    },
-                  }}
-                >
-                  <TableHead>
-                    <TableRow
+              {/* Modern Results Tables - Agrupados por tipo de examen */}
+              {agruparResultadosPorTipo(
+                examenSeleccionado.tipoExamen,
+                examenSeleccionado.resultados
+              ).map((grupo, grupoIndex) => (
+                <Box key={grupoIndex} sx={{ mb: 3 }}>
+                  {/* Título del tipo de examen (solo si hay múltiples tipos) */}
+                  {obtenerTiposExamen(examenSeleccionado.tipoExamen).length > 1 && (
+                    <Typography
+                      variant="h5"
+                      fontWeight="900"
                       sx={{
-                        background: "transparent",
-                        borderBottom: "none",
+                        fontSize: "14px",
+                        color: "#111413ff",
+                        fontWeight: "bold",
+                        mb: 1.5,
+                        textAlign: "left",
+                        textTransform: "uppercase",
+                        pl: 1,
                       }}
                     >
-                      <TableCell
-                        sx={{
-                          fontWeight: "800",
-                          textAlign: "left",
-                          width: "10%",
+                      {grupo.tipo}
+                    </Typography>
+                  )}
+
+                  {/* Tabla de resultados para este tipo */}
+                  <Box
+                    sx={{
+                      border: "2px solid #e5e7eb",
+                      borderRadius: 2,
+                      overflow: "hidden",
+                    }}
+                  >
+                    <Table
+                      size="small"
+                      sx={{
+                        "& .MuiTableCell-root": {
                           border: "none",
-                          fontSize: "11px",
-                          color: "#000",
-                          py: 1.5,
-                          px: 2,
-                        }}
-                      >
-                        DESCRIPCIÓN DE EXAMEN
-                      </TableCell>
-                      <TableCell
-                        sx={{
-                          fontWeight: "800",
-                          textAlign: "center",
-                          width: "10%",
-                          border: "none",
-                          fontSize: "11px",
-                          color: "#000",
-                          py: 1.5,
-                        }}
-                      >
-                        RESULTADO
-                      </TableCell>
-                      {examenSeleccionado.area !== "ORINA"  && (
-                        <TableCell
-                          sx={{
-                            fontWeight: "800",
-                            textAlign: "center",
-                            width: "10%",
-                            border: "none",
-                            fontSize: "11px",
-                            color: "#000",
-                            py: 1.5,
-                          }}
-                        >
-                          UNIDADES
-                        </TableCell>
-                      )}
-                      <TableCell
-                        sx={{
-                          fontWeight: "800",
-                          textAlign: "center",
-                          width: "10%",
-                          border: "none",
-                          fontSize: "11px",
-                          color: "#000",
-                          py: 1.5,
-                        }}
-                      >
-                        VALORES DE REFERENCIA
-                      </TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {Object.entries(examenSeleccionado.resultados).map(
-                      ([prueba, datos]: any, index: any) => (
+                          borderBottom: "none",
+                        },
+                      }}
+                    >
+                      <TableHead>
                         <TableRow
-                          key={prueba}
                           sx={{
-                            border: "none",
+                            background: "transparent",
                             borderBottom: "none",
                           }}
                         >
                           <TableCell
                             sx={{
-                              px: 2,
-                              py: 1,
+                              fontWeight: "800",
+                              textAlign: "left",
+                              width: "10%",
                               border: "none",
-                              borderBottom: "none",
+                              fontSize: "12px",
                               color: "#000",
+                              py: 1.5,
+                              px: 2,
                             }}
                           >
-                            <Typography
-                              variant="body2"
-                              fontWeight="700"
-                              sx={{ fontSize: "11px", color: "#000" }}
-                            >
-                              {prueba}
-                            </Typography>
+                            DESCRIPCIÓN DE EXAMEN
                           </TableCell>
                           <TableCell
                             sx={{
+                              fontWeight: "800",
                               textAlign: "center",
-                              fontWeight: "900",
+                              width: "10%",
                               border: "none",
-                              borderBottom: "none",
-                              fontSize: "11px",
+                              fontSize: "12px",
                               color: "#000",
-                              py: 1,
+                              py: 1.5,
                             }}
                           >
-                            {datos.resultado || "No registrado"}
+                            RESULTADO
                           </TableCell>
-                          {examenSeleccionado.area !== "ORINA"  && (
+                          {examenSeleccionado.area !== "ORINA" && (
                             <TableCell
                               sx={{
+                                fontWeight: "800",
                                 textAlign: "center",
+                                width: "10%",
                                 border: "none",
-                                borderBottom: "none",
-                                fontSize: "10px",
+                                fontSize: "12px",
                                 color: "#000",
-                                fontWeight: "500",
-                                py: 1,
+                                py: 1.5,
                               }}
                             >
-                              {determinarUnidad(datos.valorReferencia)}
+                              UNIDADES
                             </TableCell>
                           )}
                           <TableCell
                             sx={{
+                              fontWeight: "800",
                               textAlign: "center",
+                              width: "10%",
                               border: "none",
-                              borderBottom: "none",
-                              fontSize: "10px",
+                              fontSize: "12px",
                               color: "#000",
-                              fontWeight: "500",
-                              py: 1,
+                              py: 1.5,
                             }}
                           >
-                            {datos.valorReferencia}
+                            VALORES DE REFERENCIA
                           </TableCell>
                         </TableRow>
-                      )
-                    )}
-                  </TableBody>
-                </Table>
-              </Box>
+                      </TableHead>
+                      <TableBody>
+                        {Object.entries(grupo.resultados).map(
+                          ([prueba, datos]: any, index: any) => (
+                            <TableRow
+                              key={prueba}
+                              sx={{
+                                border: "none",
+                                borderBottom: "none",
+                              }}
+                            >
+                              <TableCell
+                                sx={{
+                                  px: 2,
+                                  py: 1,
+                                  border: "none",
+                                  borderBottom: "none",
+                                  color: "#000",
+                                }}
+                              >
+                                <Typography
+                                  variant="body2"
+                                  fontWeight="700"
+                                  sx={{ fontSize: "12px", color: "#000" }}
+                                >
+                                  {prueba}
+                                </Typography>
+                              </TableCell>
+                              <TableCell
+                                sx={{
+                                  textAlign: "center",
+                                  fontWeight: "900",
+                                  border: "none",
+                                  borderBottom: "none",
+                                  fontSize: "12px",
+                                  color: "#000",
+                                  py: 1,
+                                }}
+                              >
+                                {datos.resultado || "No registrado"}
+                              </TableCell>
+                              {examenSeleccionado.area !== "ORINA" && (
+                                <TableCell
+                                  sx={{
+                                    textAlign: "center",
+                                    border: "none",
+                                    borderBottom: "none",
+                                    fontSize: "11px",
+                                    color: "#000",
+                                    fontWeight: "500",
+                                    py: 1,
+                                  }}
+                                >
+                                  {determinarUnidad(datos.valorReferencia)}
+                                </TableCell>
+                              )}
+                              <TableCell
+                                sx={{
+                                  textAlign: "center",
+                                  border: "none",
+                                  borderBottom: "none",
+                                  fontSize: "11px",
+                                  color: "#000",
+                                  fontWeight: "500",
+                                  py: 1,
+                                }}
+                              >
+                                {datos.valorReferencia}
+                              </TableCell>
+                            </TableRow>
+                          )
+                        )}
+                      </TableBody>
+                    </Table>
+                  </Box>
+                </Box>
+              ))}
 
               {/* Información de Contacto */}
               <Box

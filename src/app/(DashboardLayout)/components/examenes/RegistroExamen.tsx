@@ -366,6 +366,8 @@ interface CalculoModalData {
   trigliceridos: string;
   colesterol: string;
   hdl: string;
+  glicemia: string;
+  insulina: string;
 }
 
 const RegistroExamen = () => {
@@ -387,10 +389,14 @@ const RegistroExamen = () => {
 
   // Estado para el modal de cálculo
   const [modalOpen, setModalOpen] = useState(false);
+  const [modalHomaOpen, setModalHomaOpen] = useState(false);
+  const [modalLipidosOpen, setModalLipidosOpen] = useState(false);
   const [calculoData, setCalculoData] = useState<CalculoModalData>({
     trigliceridos: "",
     colesterol: "",
     hdl: "",
+    glicemia: "",
+    insulina: "",
   });
 
   // Cargar clientes al montar el componente
@@ -418,25 +424,35 @@ const RegistroExamen = () => {
     return areasUnicas.join(" + ");
   };
 
-  // Determinar si algún examen seleccionado requiere cálculos
-  const esExamenConCalculos = () => {
-    return formData.tiposExamen.some((tipo) =>
-      tipo.includes("LIPIDICO") ||
-      tipo.includes("QUIMICA SANGUINEA COMPLETA") ||
-      tipo.includes("LIPIDOS TOTALES") ||
-      tipo.includes("INDICE DE HOMA") ||
-      plantillasExamenes[tipo]?.area === "QUIMICA SANGUINEA"
+  // Determinar si algún examen seleccionado requiere cálculos lipídicos
+  const esExamenConCalculosLipidicos = () => {
+    return formData.tiposExamen.some(
+      (tipo) =>
+        tipo.includes("LIPIDICO") ||
+        tipo.includes("QUIMICA SANGUINEA COMPLETA") ||
+        plantillasExamenes[tipo]?.area === "QUIMICA SANGUINEA"
     );
+  };
+
+  // Determinar si algún examen seleccionado es INDICE DE HOMA
+  const esExamenHoma = () => {
+    return formData.tiposExamen.some((tipo) => tipo.includes("INDICE DE HOMA"));
+  };
+
+  // Determinar si algún examen seleccionado es LIPIDOS TOTALES
+  const esExamenLipidosTotales = () => {
+    return formData.tiposExamen.some((tipo) => tipo.includes("LIPIDOS TOTALES"));
   };
 
   // Obtener tipos de examen que requieren cálculos
   const obtenerTiposConCalculos = () => {
-    return formData.tiposExamen.filter((tipo) =>
-      tipo.includes("LIPIDICO") ||
-      tipo.includes("QUIMICA SANGUINEA COMPLETA") ||
-      tipo.includes("LIPIDOS TOTALES") ||
-      tipo.includes("INDICE DE HOMA") ||
-      plantillasExamenes[tipo]?.area === "QUIMICA SANGUINEA"
+    return formData.tiposExamen.filter(
+      (tipo) =>
+        tipo.includes("LIPIDICO") ||
+        tipo.includes("QUIMICA SANGUINEA COMPLETA") ||
+        tipo.includes("LIPIDOS TOTALES") ||
+        tipo.includes("INDICE DE HOMA") ||
+        plantillasExamenes[tipo]?.area === "QUIMICA SANGUINEA"
     );
   };
 
@@ -469,8 +485,121 @@ const RegistroExamen = () => {
       trigliceridos,
       colesterol,
       hdl,
+      glicemia: "",
+      insulina: "",
     });
     setModalOpen(true);
+  };
+
+  // Abrir modal de cálculo HOMA
+  const abrirModalHoma = () => {
+    // Tomar valores de glicemia e insulina si existen
+    const glicemia =
+      formData.campos.find(
+        (campo) =>
+          campo.nombre.toLowerCase().includes("glicemia") ||
+          campo.nombre.toLowerCase().includes("glucosa")
+      )?.resultado || "";
+
+    const insulina =
+      formData.campos.find((campo) =>
+        campo.nombre.toLowerCase().includes("insulina")
+      )?.resultado || "";
+
+    setCalculoData({
+      trigliceridos: "",
+      colesterol: "",
+      hdl: "",
+      glicemia,
+      insulina,
+    });
+    setModalHomaOpen(true);
+  };
+
+  // Calcular Índice de HOMA
+  const calcularHoma = () => {
+    const glicemiaVal = parseFloat(calculoData.glicemia) || 0;
+    const insulinaVal = parseFloat(calculoData.insulina) || 0;
+
+    // Fórmula: HOMA-IR = (Glicemia × Insulina) / 405
+    const homaIndex = (glicemiaVal * insulinaVal) / 405;
+
+    const nuevosCampos = formData.campos.map((campo) => {
+      if (campo.nombre.toLowerCase().includes("glicemia")) {
+        return { ...campo, resultado: calculoData.glicemia };
+      }
+      if (campo.nombre.toLowerCase().includes("insulina")) {
+        return { ...campo, resultado: calculoData.insulina };
+      }
+      if (
+        campo.nombre.toLowerCase().includes("indice de homa") ||
+        campo.nombre.toLowerCase().includes("homa")
+      ) {
+        return { ...campo, resultado: homaIndex.toFixed(2) };
+      }
+      return campo;
+    });
+
+    setFormData((prev) => ({
+      ...prev,
+      campos: nuevosCampos,
+    }));
+
+    setModalHomaOpen(false);
+  };
+
+  // Abrir modal de cálculo Lípidos Totales
+  const abrirModalLipidos = () => {
+    // Tomar valores de colesterol y triglicéridos si existen
+    const colesterol =
+      formData.campos.find(
+        (campo) =>
+          campo.nombre.toLowerCase().includes("colesterol") &&
+          !campo.nombre.toLowerCase().includes("hdl") &&
+          !campo.nombre.toLowerCase().includes("relacion")
+      )?.resultado || "";
+
+    const trigliceridos =
+      formData.campos.find(
+        (campo) =>
+          campo.nombre.toLowerCase().includes("triglicéridos") ||
+          campo.nombre.toLowerCase().includes("trigliceridos")
+      )?.resultado || "";
+
+    setCalculoData({
+      trigliceridos,
+      colesterol,
+      hdl: "",
+      glicemia: "",
+      insulina: "",
+    });
+    setModalLipidosOpen(true);
+  };
+
+  // Calcular Lípidos Totales
+  const calcularLipidosTotales = () => {
+    const colesterolVal = parseFloat(calculoData.colesterol) || 0;
+    const trigliceridosVal = parseFloat(calculoData.trigliceridos) || 0;
+
+    // Fórmula: Lípidos Totales = Colesterol × 2.5 + Triglicéridos
+    const lipidosTotales = colesterolVal * 2.5 + trigliceridosVal;
+
+    const nuevosCampos = formData.campos.map((campo) => {
+      if (
+        campo.nombre.toLowerCase().includes("lipidos totales") ||
+        campo.nombre.toLowerCase().includes("lípidos totales")
+      ) {
+        return { ...campo, resultado: lipidosTotales.toFixed(2) };
+      }
+      return campo;
+    });
+
+    setFormData((prev) => ({
+      ...prev,
+      campos: nuevosCampos,
+    }));
+
+    setModalLipidosOpen(false);
   };
 
   const calcularValores = () => {
@@ -950,7 +1079,7 @@ const RegistroExamen = () => {
             )}
 
             {/* Modern Calculation Button for Lipid Profiles */}
-            {esExamenConCalculos() && (
+            {esExamenConCalculosLipidicos() && (
               <Grid size={12}>
                 <Button
                   startIcon={<Calculate />}
@@ -978,237 +1107,287 @@ const RegistroExamen = () => {
                 >
                   Calcular Valores de Perfil Lipídico
                 </Button>
-                <Typography variant="caption" color="text.secondary">
-                  Cálculos disponibles para: {obtenerTiposConCalculos().join(", ")}
-                </Typography>
               </Grid>
             )}
 
-            {/* Modern Exam Parameters Section */}
-            <Grid size={12}>
-              <Box sx={{ mb: 2 }}>
-                <Box
-                  display="flex"
-                  justifyContent="space-between"
-                  alignItems="center"
-                  mb={2}
+            {/* Modern Calculation Button for HOMA Index */}
+            {esExamenHoma() && (
+              <Grid size={12}>
+                <Button
+                  startIcon={<Calculate />}
+                  onClick={abrirModalHoma}
+                  variant="contained"
+                  fullWidth
                   sx={{
-                    p: 2,
+                    mb: 2,
+                    py: 1.5,
                     borderRadius: 2,
                     background:
-                      "linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, rgba(5, 150, 105, 0.05) 100%)",
-                    border: "1px solid",
-                    borderColor: "success.light",
+                      "linear-gradient(135deg, #10b981 0%, #059669 100%)",
+                    boxShadow: "0 4px 16px rgba(16, 185, 129, 0.3)",
+                    textTransform: "none",
+                    fontSize: "1rem",
+                    fontWeight: 600,
+                    "&:hover": {
+                      background:
+                        "linear-gradient(135deg, #059669 0%, #047857 100%)",
+                      boxShadow: "0 6px 20px rgba(16, 185, 129, 0.4)",
+                      transform: "translateY(-2px)",
+                    },
+                    transition: "all 0.3s ease",
                   }}
                 >
-                  <Box>
-                    <Typography
-                      variant="h6"
-                      fontWeight={700}
-                      sx={{
-                        background:
-                          "linear-gradient(135deg, #10b981 0%, #059669 100%)",
-                        backgroundClip: "text",
-                        WebkitBackgroundClip: "text",
-                        WebkitTextFillColor: "transparent",
-                      }}
-                    >
-                      Parámetros del Examen
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      {formData.campos.length} parámetro(s) combinado(s) de {formData.tiposExamen.length} examen(s)
-                    </Typography>
-                  </Box>
-                  <Button
-                    startIcon={<Add />}
-                    onClick={agregarCampoPersonalizado}
-                    variant="contained"
-                    size="small"
-                    sx={{
-                      borderRadius: 2,
-                      textTransform: "none",
-                      fontWeight: 600,
-                      background:
-                        "linear-gradient(135deg, #10b981 0%, #059669 100%)",
-                      "&:hover": {
-                        background:
-                          "linear-gradient(135deg, #059669 0%, #047857 100%)",
-                        transform: "scale(1.05)",
-                      },
-                      transition: "all 0.2s ease",
-                    }}
-                  >
-                    Agregar Campo
-                  </Button>
-                </Box>
+                  Calcular Índice de HOMA
+                </Button>
+              </Grid>
+            )}
 
-                {formData.campos.length > 0 ? (
-                  <TableContainer
-                    component={Paper}
-                    elevation={0}
-                    sx={{
-                      borderRadius: 2,
-                      border: "2px solid",
-                      borderColor: "divider",
-                      maxHeight: 500,
-                      overflow: "auto",
-                    }}
-                  >
-                    <Table size="small" stickyHeader>
-                      <TableHead>
-                        <TableRow
+            {/* Modern Calculation Button for Lipidos Totales */}
+            {esExamenLipidosTotales() && (
+              <Grid size={12}>
+                <Button
+                  startIcon={<Calculate />}
+                  onClick={abrirModalLipidos}
+                  variant="contained"
+                  fullWidth
+                  sx={{
+                    mb: 2,
+                    py: 1.5,
+                    borderRadius: 2,
+                    background:
+                      "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
+                    boxShadow: "0 4px 16px rgba(245, 158, 11, 0.3)",
+                    textTransform: "none",
+                    fontSize: "1rem",
+                    fontWeight: 600,
+                    "&:hover": {
+                      background:
+                        "linear-gradient(135deg, #d97706 0%, #b45309 100%)",
+                      boxShadow: "0 6px 20px rgba(245, 158, 11, 0.4)",
+                      transform: "translateY(-2px)",
+                    },
+                    transition: "all 0.3s ease",
+                  }}
+                >
+                  Calcular Lípidos Totales
+                </Button>
+              </Grid>
+            )}
+
+            {/* Modern Exam Parameters Section - Agrupado por tipo de examen */}
+            <Grid size={12}>
+              {formData.tiposExamen.length > 0 ? (
+                formData.tiposExamen.map((tipoExamen, tipoIndex) => {
+                  const camposPorTipo = formData.campos.filter(
+                    (campo) => campo.tipoExamen === tipoExamen
+                  );
+
+                  if (camposPorTipo.length === 0) return null;
+
+                  return (
+                    <Box key={tipoExamen} sx={{ mb: 3 }}>
+                      <Box
+                        sx={{
+                          p: 2,
+                          borderRadius: 2,
+                          background:
+                            "linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, rgba(5, 150, 105, 0.05) 100%)",
+                          border: "2px solid",
+                          borderColor: "success.light",
+                          mb: 2,
+                        }}
+                      >
+                        <Typography
+                          variant="h6"
+                          fontWeight={700}
                           sx={{
                             background:
-                              "linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.1) 100%)",
-                            "& .MuiTableCell-root": {
-                              borderBottom: "2px solid",
-                              borderColor: "success.main",
-                              py: 2,
-                            },
+                              "linear-gradient(135deg, #10b981 0%, #059669 100%)",
+                            backgroundClip: "text",
+                            WebkitBackgroundClip: "text",
+                            WebkitTextFillColor: "transparent",
                           }}
                         >
-                          
-                          <TableCell
-                            sx={{
-                              color: "success.dark",
-                              fontWeight: 700,
-                              width: "30%",
-                              fontSize: "0.95rem",
-                            }}
-                          >
-                            PRUEBA
-                          </TableCell>
-                          <TableCell
-                            sx={{
-                              color: "success.dark",
-                              fontWeight: 700,
-                              width: "25%",
-                              fontSize: "0.95rem",
-                            }}
-                          >
-                            RESULTADO
-                          </TableCell>
-                          <TableCell
-                            sx={{
-                              color: "success.dark",
-                              fontWeight: 700,
-                              width: "15%",
-                              fontSize: "0.95rem",
-                            }}
-                          >
-                            VALOR REF.
-                          </TableCell>
-                          <TableCell
-                            sx={{
-                              color: "success.dark",
-                              fontWeight: 700,
-                              width: "5%",
-                              fontSize: "0.95rem",
-                            }}
-                          >
-                            Acción
-                          </TableCell>
-                        </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        {formData.campos.map((campo, index) => (
-                          <TableRow key={index} hover>
-                           
-                            <TableCell>
-                              <TextField
-                                fullWidth
-                                size="small"
-                                value={campo.nombre}
-                                onChange={(e) =>
-                                  handleCampoChange(
-                                    index,
-                                    "nombre",
-                                    e.target.value
-                                  )
-                                }
-                                placeholder="Nombre del parámetro"
+                          {tipoExamen}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          {camposPorTipo.length} parámetro(s)
+                        </Typography>
+                      </Box>
+
+                      <TableContainer
+                        component={Paper}
+                        elevation={0}
+                        sx={{
+                          borderRadius: 2,
+                          border: "2px solid",
+                          borderColor: "divider",
+                          maxHeight: 500,
+                          overflow: "auto",
+                        }}
+                      >
+                        <Table size="small">
+                          <TableHead>
+                            <TableRow
+                              sx={{
+                                background:
+                                  "linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.1) 100%)",
+                                "& .MuiTableCell-root": {
+                                  borderBottom: "2px solid",
+                                  borderColor: "success.main",
+                                  py: 2,
+                                },
+                              }}
+                            >
+                              <TableCell
                                 sx={{
-                                  "& .MuiInputBase-input": {
-                                    fontSize: "14px",
-                                    padding: "8px 12px",
-                                  },
+                                  color: "success.dark",
+                                  fontWeight: 700,
+                                  width: "30%",
+                                  fontSize: "0.95rem",
                                 }}
-                              />
-                            </TableCell>
-                            <TableCell>
-                              <TextField
-                                fullWidth
-                                size="small"
-                                value={campo.resultado}
-                                onChange={(e) =>
-                                  handleCampoChange(
-                                    index,
-                                    "resultado",
-                                    e.target.value
-                                  )
-                                }
-                                placeholder="Resultado obtenido"
-                                sx={{
-                                  "& .MuiInputBase-input": {
-                                    fontSize: "14px",
-                                    padding: "8px 12px",
-                                  },
-                                }}
-                              />
-                            </TableCell>
-                            <TableCell>
-                              <TextField
-                                fullWidth
-                                size="small"
-                                value={campo.valorReferencia}
-                                onChange={(e) =>
-                                  handleCampoChange(
-                                    index,
-                                    "valorReferencia",
-                                    e.target.value
-                                  )
-                                }
-                                placeholder="Valor de referencia"
-                                sx={{
-                                  "& .MuiInputBase-input": {
-                                    fontSize: "14px",
-                                    padding: "8px 12px",
-                                  },
-                                }}
-                              />
-                            </TableCell>
-                            <TableCell align="center">
-                              <IconButton
-                                size="small"
-                                color="error"
-                                onClick={() => eliminarCampo(index)}
                               >
-                                <Delete fontSize="small" />
-                              </IconButton>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
-                ) : (
-                  <Paper
-                    elevation={0}
-                    sx={{
-                      p: 4,
-                      textAlign: "center",
-                      border: "2px dashed",
-                      borderColor: "divider",
-                      borderRadius: 2,
-                      bgcolor: "grey.50",
-                    }}
-                  >
-                    <Typography color="text.secondary">
-                      Seleccione uno o más tipos de examen para ver los parámetros
-                    </Typography>
-                  </Paper>
-                )}
-              </Box>
+                                PRUEBA
+                              </TableCell>
+                              <TableCell
+                                sx={{
+                                  color: "success.dark",
+                                  fontWeight: 700,
+                                  width: "25%",
+                                  fontSize: "0.95rem",
+                                }}
+                              >
+                                RESULTADO
+                              </TableCell>
+                              <TableCell
+                                sx={{
+                                  color: "success.dark",
+                                  fontWeight: 700,
+                                  width: "35%",
+                                  fontSize: "0.95rem",
+                                }}
+                              >
+                                VALOR REF.
+                              </TableCell>
+                              <TableCell
+                                sx={{
+                                  color: "success.dark",
+                                  fontWeight: 700,
+                                  width: "10%",
+                                  fontSize: "0.95rem",
+                                }}
+                              >
+                                Acción
+                              </TableCell>
+                            </TableRow>
+                          </TableHead>
+                          <TableBody>
+                            {camposPorTipo.map((campo, campoIndex) => {
+                              const indexGlobal = formData.campos.findIndex(
+                                (c) =>
+                                  c.nombre === campo.nombre &&
+                                  c.tipoExamen === campo.tipoExamen
+                              );
+                              return (
+                                <TableRow key={campoIndex} hover>
+                                  <TableCell>
+                                    <TextField
+                                      fullWidth
+                                      size="small"
+                                      value={campo.nombre}
+                                      onChange={(e) =>
+                                        handleCampoChange(
+                                          indexGlobal,
+                                          "nombre",
+                                          e.target.value
+                                        )
+                                      }
+                                      placeholder="Nombre del parámetro"
+                                      sx={{
+                                        "& .MuiInputBase-input": {
+                                          fontSize: "14px",
+                                          padding: "8px 12px",
+                                        },
+                                      }}
+                                    />
+                                  </TableCell>
+                                  <TableCell>
+                                    <TextField
+                                      fullWidth
+                                      size="small"
+                                      value={campo.resultado}
+                                      onChange={(e) =>
+                                        handleCampoChange(
+                                          indexGlobal,
+                                          "resultado",
+                                          e.target.value
+                                        )
+                                      }
+                                      placeholder="Resultado obtenido"
+                                      sx={{
+                                        "& .MuiInputBase-input": {
+                                          fontSize: "14px",
+                                          padding: "8px 12px",
+                                        },
+                                      }}
+                                    />
+                                  </TableCell>
+                                  <TableCell>
+                                    <TextField
+                                      fullWidth
+                                      size="small"
+                                      value={campo.valorReferencia}
+                                      onChange={(e) =>
+                                        handleCampoChange(
+                                          indexGlobal,
+                                          "valorReferencia",
+                                          e.target.value
+                                        )
+                                      }
+                                      placeholder="Valor de referencia"
+                                      sx={{
+                                        "& .MuiInputBase-input": {
+                                          fontSize: "14px",
+                                          padding: "8px 12px",
+                                        },
+                                      }}
+                                    />
+                                  </TableCell>
+                                  <TableCell align="center">
+                                    <IconButton
+                                      size="small"
+                                      color="error"
+                                      onClick={() => eliminarCampo(indexGlobal)}
+                                    >
+                                      <Delete fontSize="small" />
+                                    </IconButton>
+                                  </TableCell>
+                                </TableRow>
+                              );
+                            })}
+                          </TableBody>
+                        </Table>
+                      </TableContainer>
+                    </Box>
+                  );
+                })
+              ) : (
+                <Paper
+                  elevation={0}
+                  sx={{
+                    p: 4,
+                    textAlign: "center",
+                    border: "2px dashed",
+                    borderColor: "divider",
+                    borderRadius: 2,
+                    bgcolor: "grey.50",
+                  }}
+                >
+                  <Typography color="text.secondary">
+                    Seleccione uno o más tipos de examen para ver los parámetros
+                  </Typography>
+                </Paper>
+              )}
             </Grid>
 
             {/* Observaciones */}
@@ -1360,6 +1539,207 @@ const RegistroExamen = () => {
                 !calculoData.colesterol ||
                 !calculoData.hdl
               }
+            >
+              Calcular y Aplicar
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        {/* Modal de Cálculo HOMA */}
+        <Dialog
+          open={modalHomaOpen}
+          onClose={() => setModalHomaOpen(false)}
+          maxWidth="sm"
+          fullWidth
+        >
+          <DialogTitle>
+            <Box display="flex" alignItems="center">
+              <Calculate sx={{ mr: 1, color: "success.main" }} />
+              <Typography variant="h6" fontWeight={600}>
+                Calcular Índice de HOMA
+              </Typography>
+            </Box>
+          </DialogTitle>
+          <DialogContent>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+              Ingrese los valores de Glicemia e Insulina para calcular automáticamente el Índice de HOMA:
+            </Typography>
+
+            <Grid container spacing={2}>
+              <Grid size={12}>
+                <TextField
+                  fullWidth
+                  label="Glicemia (mg/dL)"
+                  value={calculoData.glicemia}
+                  onChange={(e) =>
+                    setCalculoData((prev) => ({
+                      ...prev,
+                      glicemia: e.target.value,
+                    }))
+                  }
+                  type="number"
+                  size="small"
+                  placeholder="Ej: 95"
+                  helperText="Valor normal en ayunas: 70-100 mg/dL"
+                />
+              </Grid>
+              <Grid size={12}>
+                <TextField
+                  fullWidth
+                  label="Insulina (μU/mL)"
+                  value={calculoData.insulina}
+                  onChange={(e) =>
+                    setCalculoData((prev) => ({
+                      ...prev,
+                      insulina: e.target.value,
+                    }))
+                  }
+                  type="number"
+                  size="small"
+                  placeholder="Ej: 10"
+                  helperText="Valor normal: 2.6-24.9 μU/mL"
+                />
+              </Grid>
+            </Grid>
+
+            <Box
+              sx={{
+                mt: 3,
+                p: 2,
+                bgcolor: "success.50",
+                borderRadius: 2,
+                border: "1px solid",
+                borderColor: "success.light",
+              }}
+            >
+              <Typography variant="subtitle2" gutterBottom fontWeight={700}>
+                Fórmula aplicada:
+              </Typography>
+              <Typography variant="body2" sx={{ fontFamily: "monospace", mb: 1 }}>
+                HOMA-IR = (Glicemia × Insulina) / 405
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                Interpretación:
+                <br />
+                • ≤ 2.5: Normal (sin resistencia a la insulina)
+                <br />
+                • 2.5 - 3.8: Resistencia a la insulina leve
+                <br />
+                • &gt; 3.8: Resistencia a la insulina significativa
+              </Typography>
+            </Box>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setModalHomaOpen(false)}>Cancelar</Button>
+            <Button
+              onClick={calcularHoma}
+              variant="contained"
+              disabled={!calculoData.glicemia || !calculoData.insulina}
+              sx={{
+                background: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
+                "&:hover": {
+                  background: "linear-gradient(135deg, #059669 0%, #047857 100%)",
+                },
+              }}
+            >
+              Calcular y Aplicar
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        {/* Modal de Cálculo Lípidos Totales */}
+        <Dialog
+          open={modalLipidosOpen}
+          onClose={() => setModalLipidosOpen(false)}
+          maxWidth="sm"
+          fullWidth
+        >
+          <DialogTitle>
+            <Box display="flex" alignItems="center">
+              <Calculate sx={{ mr: 1, color: "warning.main" }} />
+              <Typography variant="h6" fontWeight={600}>
+                Calcular Lípidos Totales
+              </Typography>
+            </Box>
+          </DialogTitle>
+          <DialogContent>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+              Ingrese los valores de Colesterol y Triglicéridos para calcular automáticamente los Lípidos Totales:
+            </Typography>
+
+            <Grid container spacing={2}>
+              <Grid size={12}>
+                <TextField
+                  fullWidth
+                  label="Colesterol Total (mg/dL)"
+                  value={calculoData.colesterol}
+                  onChange={(e) =>
+                    setCalculoData((prev) => ({
+                      ...prev,
+                      colesterol: e.target.value,
+                    }))
+                  }
+                  type="number"
+                  size="small"
+                  placeholder="Ej: 180"
+                  helperText="Valor deseable: < 200 mg/dL"
+                />
+              </Grid>
+              <Grid size={12}>
+                <TextField
+                  fullWidth
+                  label="Triglicéridos (mg/dL)"
+                  value={calculoData.trigliceridos}
+                  onChange={(e) =>
+                    setCalculoData((prev) => ({
+                      ...prev,
+                      trigliceridos: e.target.value,
+                    }))
+                  }
+                  type="number"
+                  size="small"
+                  placeholder="Ej: 120"
+                  helperText="Valor deseable: < 150 mg/dL"
+                />
+              </Grid>
+            </Grid>
+
+            <Box
+              sx={{
+                mt: 3,
+                p: 2,
+                bgcolor: "warning.50",
+                borderRadius: 2,
+                border: "1px solid",
+                borderColor: "warning.light",
+              }}
+            >
+              <Typography variant="subtitle2" gutterBottom fontWeight={700}>
+                Fórmula aplicada:
+              </Typography>
+              <Typography variant="body2" sx={{ fontFamily: "monospace", mb: 1 }}>
+                Lípidos Totales = Colesterol × 2.5 + Triglicéridos
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                Interpretación:
+                <br />
+                • Valor deseable: &lt; 800 mg/dL
+                <br />• Valores elevados pueden indicar riesgo cardiovascular
+              </Typography>
+            </Box>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setModalLipidosOpen(false)}>Cancelar</Button>
+            <Button
+              onClick={calcularLipidosTotales}
+              variant="contained"
+              disabled={!calculoData.colesterol || !calculoData.trigliceridos}
+              sx={{
+                background: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
+                "&:hover": {
+                  background: "linear-gradient(135deg, #d97706 0%, #b45309 100%)",
+                },
+              }}
             >
               Calcular y Aplicar
             </Button>
