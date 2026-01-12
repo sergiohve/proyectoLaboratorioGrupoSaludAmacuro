@@ -350,6 +350,1186 @@ const plantillasExamenes: {
       },
     ],
   },
+  "GLICEMIA": {
+    area: "QUIMICA SANGUINEA",
+    campos: [
+      { nombre: "GLICEMIA", resultado: "", valorReferencia: "70 - 100 mg/dL" },
+    ],
+  },
+  "QUIMICA SANGUINEA 2": {
+    area: "QUIMICA SANGUINEA",
+    campos: [
+      { nombre: "UREA", resultado: "", valorReferencia: "15 - 45 mg/dL" },
+      {
+        nombre: "CREATININA",
+        resultado: "",
+        valorReferencia: "0.4 - 1.4 mg/dL",
+      },
+    ],
+  },
+  "QUIMICA SANGUINEA 4": {
+    area: "QUIMICA SANGUINEA",
+    campos: [
+      { nombre: "GLICEMIA", resultado: "", valorReferencia: "70 - 100 mg/dL" },
+      { nombre: "COLESTEROL", resultado: "", valorReferencia: "<200mg/dl" },
+      { nombre: "Triglicéridos", resultado: "", valorReferencia: "<150 mg/dl" },
+      {
+        nombre: "LIPIDOS TOTALES",
+        resultado: "",
+        valorReferencia: "<800mg/dl",
+      },
+    ],
+  },
+  "PERFIL LIPIDICO BASICO": {
+    area: "QUIMICA SANGUINEA",
+    campos: [
+      { nombre: "COLESTEROL", resultado: "", valorReferencia: "<200mg/dl" },
+      { nombre: "Triglicéridos", resultado: "", valorReferencia: "<150 mg/dl" },
+      {
+        nombre: "LIPIDOS TOTALES",
+        resultado: "",
+        valorReferencia: "<800mg/dl",
+      },
+    ],
+  },
+  "QUIMICA SANGUINEA 7": {
+    area: "QUIMICA SANGUINEA",
+    campos: [
+      { nombre: "GLICEMIA", resultado: "", valorReferencia: "70 - 100 mg/dL" },
+      { nombre: "UREA", resultado: "", valorReferencia: "15 - 45 mg/dL" },
+      {
+        nombre: "CREATININA",
+        resultado: "",
+        valorReferencia: "0.4 - 1.4 mg/dL",
+      },
+      { nombre: "COLESTEROL", resultado: "", valorReferencia: "<200mg/dl" },
+      {
+        nombre: "TRIGLICERIDOS",
+        resultado: "",
+        valorReferencia: "<150 mg/dl",
+      },
+      {
+        nombre: "LIPIDOS TOTALES",
+        resultado: "",
+        valorReferencia: "<800mg/dl",
+      },
+      {
+        nombre: "ACIDO URICO",
+        resultado: "",
+        valorReferencia: "Mujer: 2.5 - 5.0 mg/dL Hombre: 2.5 - 6.0 mg/dL",
+      },
+    ],
+  },
+  "HECES COMPLETO 2": {
+    area: "HECES",
+    campos: [
+      { nombre: "COLOR", resultado: "", valorReferencia: "MARRON" },
+      { nombre: "CONSISTENCIA", resultado: "", valorReferencia: "......" },
+      { nombre: "ASPECTO", resultado: "", valorReferencia: "......" },
+      { nombre: "SANGRE", resultado: "", valorReferencia: "AUSENTE" },
+      { nombre: "MOCO", resultado: "", valorReferencia: "AUSENTE" },
+      { nombre: "OLOR", resultado: "", valorReferencia: "FECAL" },
+      {
+        nombre: "RESTOS ALIMENTICIOS",
+        resultado: "",
+        valorReferencia: "AUSENTES",
+      },
+      {
+        nombre: "PROTOZOARIOS",
+        resultado: "",
+        valorReferencia: "NO SE OBSERVARON EN LA MUESTRA EXAMINADA",
+      },
+      {
+        nombre: "HELMINTOS",
+        resultado: "",
+        valorReferencia: "NO SE OBSERVARON EN LA MUESTRA EXAMINADA",
+      },
+      { nombre: "ERITROCITOS", resultado: "", valorReferencia: "x campo" },
+      { nombre: "LEUCOCITOS", resultado: "", valorReferencia: "x campo" },
+      { nombre: "OTROS", resultado: "", valorReferencia: "" },
+      { nombre: "PH", resultado: "", valorReferencia: "" },
+      { nombre: "REACCION", resultado: "", valorReferencia: "" },
+    ],
+  },
+  "ORINA COMPLETA 2": {
+    area: "ORINA",
+    campos: [
+      { nombre: "COLOR", resultado: "", valorReferencia: "AMARILLO" },
+      { nombre: "OLOR", resultado: "", valorReferencia: "SUGENERIS" },
+      { nombre: "ASPECTO", resultado: "", valorReferencia: "LIMPIDA" },
+      { nombre: "DENSIDAD", resultado: "", valorReferencia: "1015 - 1025" },
+      { nombre: "REACCION", resultado: "", valorReferencia: "" },
+      { nombre: "PH", resultado: "", valorReferencia: "4.6 - 8.0" },
+      { nombre: "CUERPO CETONICO", resultado: "", valorReferencia: "NEGATIVO" },
+      { nombre: "BILIRRUBINA", resultado: "", valorReferencia: "NEGATIVO" },
+      { nombre: "UROBILINOGENO", resultado: "", valorReferencia: "NEGATIVO" },
+      { nombre: "PROTEINAS", resultado: "", valorReferencia: "NEGATIVO" },
+      { nombre: "SANGRE", resultado: "", valorReferencia: "NEGATIVO" },
+      { nombre: "GLUCOSA", resultado: "", valorReferencia: "NEGATIVO" },
+      { nombre: "NITRITO", resultado: "", valorReferencia: "NEGATIVO" },
+      { nombre: "LEUCOCITOS", resultado: "", valorReferencia: "0 - 3 x campo" },
+      { nombre: "BACTERIAS", resultado: "", valorReferencia: "ESCASAS" },
+      { nombre: "CELULAS", resultado: "", valorReferencia: "1 - 2 x campo" },
+      {
+        nombre: "ERITROCITOS",
+        resultado: "",
+        valorReferencia: "0 - 3 x campo",
+      },
+      {
+        nombre: "ACUMULOS LEUCOCITARIOS",
+        resultado: "",
+        valorReferencia: "0 x campo",
+      },
+      { nombre: "CRISTALES", resultado: "", valorReferencia: "0" },
+      { nombre: "CILINDROS", resultado: "", valorReferencia: "0 x campo" },
+      { nombre: "MUCINA", resultado: "", valorReferencia: "" },
+      { nombre: "OBSERVACIONES", resultado: "", valorReferencia: "" },
+    ],
+  },
+  "ORINA COMPLETA 3": {
+    area: "ORINA",
+    campos: [
+      { nombre: "COLOR", resultado: "", valorReferencia: "AMARILLO" },
+      { nombre: "OLOR", resultado: "", valorReferencia: "SUGENERIS" },
+      { nombre: "ASPECTO", resultado: "", valorReferencia: "LIMPIDA" },
+      { nombre: "DENSIDAD", resultado: "", valorReferencia: "1015 - 1025" },
+      { nombre: "REACCION", resultado: "", valorReferencia: "" },
+      { nombre: "PH", resultado: "", valorReferencia: "4.6 - 8.0" },
+      { nombre: "LEUCOCITOS", resultado: "", valorReferencia: "0 - 3 x campo" },
+      { nombre: "BACTERIAS", resultado: "", valorReferencia: "ESCASAS" },
+      { nombre: "CELULAS", resultado: "", valorReferencia: "1 - 2 x campo" },
+      { nombre: "ERITROCITOS", resultado: "", valorReferencia: "0 - 3 x campo" },
+      { nombre: "LEUCOCITOS ACUM.", resultado: "", valorReferencia: "0 x campo" },
+      { nombre: "CUERPO CETONICO", resultado: "", valorReferencia: "NEGATIVO" },
+      { nombre: "BILIRRUBINA", resultado: "", valorReferencia: "NEGATIVO" },
+      { nombre: "UROBILINOGENO", resultado: "", valorReferencia: "NEGATIVO" },
+      { nombre: "PROTEINAS", resultado: "", valorReferencia: "NEGATIVO" },
+      { nombre: "SANGRE", resultado: "", valorReferencia: "NEGATIVO" },
+      { nombre: "GLUCOSA", resultado: "", valorReferencia: "NEGATIVO" },
+      { nombre: "NITRITO", resultado: "", valorReferencia: "NEGATIVO" },
+      { nombre: "CRISTALES", resultado: "", valorReferencia: "0 x campo" },
+      { nombre: "CILINDROS", resultado: "", valorReferencia: "0 x campo" },
+      { nombre: "MUCINA", resultado: "", valorReferencia: "" },
+      { nombre: "OBSERVACIONES", resultado: "", valorReferencia: "" },
+    ],
+  },
+  "PERFIL PROTEICO": {
+    area: "QUIMICA SANGUINEA",
+    campos: [
+      {
+        nombre: "PROTEINA TOTALES",
+        resultado: "",
+        valorReferencia: "ADULTOS 6.6 - 8.7 g/dL",
+      },
+      {
+        nombre: "ALBUMINAS",
+        resultado: "",
+        valorReferencia: "ADULTOS 3.81 - 4.65 g/dL",
+      },
+      { nombre: "GLOBULINAS", resultado: "", valorReferencia: "2.5 - 3.5 g/dL" },
+      {
+        nombre: "RELACION ALBUMINA /GLOBULINAS",
+        resultado: "",
+        valorReferencia: "1.40 - 1.76",
+      },
+    ],
+  },
+  "QUIMICA SANGUINEA CON LIPIDOGRAMA": {
+    area: "QUIMICA SANGUINEA",
+    campos: [
+      { nombre: "GLICEMIA", resultado: "", valorReferencia: "70 - 100 mg/dL" },
+      { nombre: "UREA", resultado: "", valorReferencia: "15 - 45 mg/dL" },
+      { nombre: "CREATININA", resultado: "", valorReferencia: "0.4 - 1.4 mg/dL" },
+      {
+        nombre: "ACIDO URICO",
+        resultado: "",
+        valorReferencia: "Mujer: 2.5 - 5.0 mg/dL Hombre: 2.5 - 6.0 mg/dL",
+      },
+      { nombre: "COLESTEROL", resultado: "", valorReferencia: "<200mg/dl" },
+      {
+        nombre: "H.D.L.",
+        resultado: "",
+        valorReferencia: "Mujeres 33-75mg/dl Hombres 26-63 mg/dl",
+      },
+      { nombre: "L.D.L.", resultado: "", valorReferencia: "66-178 mg/dl" },
+      { nombre: "V.L.D.L.", resultado: "", valorReferencia: "20-40 mg/dl" },
+      { nombre: "Triglicéridos", resultado: "", valorReferencia: "<150 mg/dl" },
+      { nombre: "LIPIDOS TOTALES", resultado: "", valorReferencia: "<800mg/dl" },
+      {
+        nombre: "RELACION COLESTEROL /HDL",
+        resultado: "",
+        valorReferencia: "2.5 - 4.5",
+      },
+      {
+        nombre: "RELACION LDL /HDL",
+        resultado: "",
+        valorReferencia: "1.5 - 3.5",
+      },
+    ],
+  },
+  "QUIMICA SANGUINEA COMPLETA 2": {
+    area: "QUIMICA SANGUINEA",
+    campos: [
+      { nombre: "GLICEMIA", resultado: "", valorReferencia: "70 - 100 mg/dL" },
+      { nombre: "UREA", resultado: "", valorReferencia: "15 - 45 mg/dL" },
+      { nombre: "CREATININA", resultado: "", valorReferencia: "0.4 - 1.4 mg/dL" },
+      { nombre: "COLESTEROL", resultado: "", valorReferencia: "<200mg/dl" },
+      {
+        nombre: "H.D.L.",
+        resultado: "",
+        valorReferencia: "Mujeres 33-75mg/dl Hombres 26-63 mg/dl",
+      },
+      { nombre: "L.D.L.", resultado: "", valorReferencia: "66-178 mg/dl" },
+      { nombre: "V.L.D.L.", resultado: "", valorReferencia: "20-40 mg/dl" },
+      { nombre: "Triglicéridos", resultado: "", valorReferencia: "<150mg/dl" },
+      { nombre: "LIPIDOS TOTALES", resultado: "", valorReferencia: "<800mg/dl" },
+      {
+        nombre: "RELACION COLESTEROL /HDL",
+        resultado: "",
+        valorReferencia: "2.5 - 4.5",
+      },
+      {
+        nombre: "RELACION LDL /HDL",
+        resultado: "",
+        valorReferencia: "1.5 - 3.5",
+      },
+      {
+        nombre: "ACIDO URICO",
+        resultado: "",
+        valorReferencia: "Mujer: 2.5 - 5.0 mg/dL Hombre: 2.5 - 6.0 mg/dL",
+      },
+      { nombre: "MAGNESIO", resultado: "", valorReferencia: "1.6 - 2.5 mg/dL" },
+      {
+        nombre: "TGO",
+        resultado: "",
+        valorReferencia: "Mujer Hasta 38UI/L Hombre hasta 32 UI/L",
+      },
+      {
+        nombre: "TGP",
+        resultado: "",
+        valorReferencia: "Mujer Hasta 31UI/L Hombre hasta 41 UI/L",
+      },
+      {
+        nombre: "PROTEINA TOTALES",
+        resultado: "",
+        valorReferencia: "6.2 - 8.5 g/dL",
+      },
+      { nombre: "ALBUMINAS", resultado: "", valorReferencia: "3.5 - 5.3 g/dL" },
+      { nombre: "GLOBULINAS", resultado: "", valorReferencia: "2.5 - 3.5 g/dL" },
+      {
+        nombre: "RELACION ALBUMINA /GLOBULINAS",
+        resultado: "",
+        valorReferencia: "1.40 - 1.76",
+      },
+      { nombre: "CALCIO", resultado: "", valorReferencia: "8.5 - 10.4 mg/dL" },
+      {
+        nombre: "FOSFORO",
+        resultado: "",
+        valorReferencia: "Niños 4 - 7 Adultos 2.5 - 4.8 mg/dL",
+      },
+      {
+        nombre: "BILIRRUBINA TOTAL",
+        resultado: "",
+        valorReferencia: "0.2 - 1.0 mg/dL",
+      },
+      {
+        nombre: "BILIRRUBINA DIRECTA",
+        resultado: "",
+        valorReferencia: "0.0 - 0.5 mg/dL",
+      },
+      { nombre: "BILIRRUBINA INDIRECTA", resultado: "", valorReferencia: "" },
+      {
+        nombre: "HIERRO",
+        resultado: "",
+        valorReferencia: "Hombres: 65 - 160 μg/dl Mujer 40 - 140 μg/dl",
+      },
+    ],
+  },
+  "QUIMICA SANGUINEA COMPLETA 3": {
+    area: "QUIMICA SANGUINEA",
+    campos: [
+      { nombre: "GLICEMIA", resultado: "", valorReferencia: "70 - 100 mg/dL" },
+      { nombre: "UREA", resultado: "", valorReferencia: "15 - 45 mg/dL" },
+      { nombre: "CREATININA", resultado: "", valorReferencia: "0.4 - 1.4 mg/dL" },
+      { nombre: "COLESTEROL", resultado: "", valorReferencia: "<200mg/dl" },
+      {
+        nombre: "H.D.L.",
+        resultado: "",
+        valorReferencia: "Mujeres 33-75mg/dl Hombres 26-63 mg/dl",
+      },
+      { nombre: "L.D.L.", resultado: "", valorReferencia: "66-178 mg/dl" },
+      { nombre: "V.L.D.L.", resultado: "", valorReferencia: "20-40 mg/dl" },
+      { nombre: "Triglicéridos", resultado: "", valorReferencia: "<150mg/dl" },
+      { nombre: "LIPIDOS TOTALES", resultado: "", valorReferencia: "<800mg/dl" },
+      {
+        nombre: "RELACION COLESTEROL /HDL",
+        resultado: "",
+        valorReferencia: "2.5 - 4.5",
+      },
+      {
+        nombre: "RELACION LDL /HDL",
+        resultado: "",
+        valorReferencia: "1.5 - 3.5",
+      },
+      {
+        nombre: "ACIDO URICO",
+        resultado: "",
+        valorReferencia: "Mujer: 2.5 - 5.0 mg/dL Hombre: 2.5 - 6.0 mg/dL",
+      },
+      {
+        nombre: "TGO",
+        resultado: "",
+        valorReferencia: "Mujer Hasta 38UI/L Hombre hasta 32 UI/L",
+      },
+      {
+        nombre: "TGP",
+        resultado: "",
+        valorReferencia: "Mujer Hasta 31UI/L Hombre hasta 41 UI/L",
+      },
+      {
+        nombre: "PROTEINA TOTALES",
+        resultado: "",
+        valorReferencia: "6.2 - 8.5 g/dL",
+      },
+      { nombre: "ALBUMINAS", resultado: "", valorReferencia: "3.5 - 5.3 g/dL" },
+      { nombre: "GLOBULINAS", resultado: "", valorReferencia: "2.5 - 3.5 g/dL" },
+      {
+        nombre: "RELACION ALBUMINA /GLOBULINAS",
+        resultado: "",
+        valorReferencia: "1.40 - 1.76",
+      },
+      { nombre: "CALCIO", resultado: "", valorReferencia: "8.5 - 10.4 mg/dL" },
+      {
+        nombre: "FOSFORO",
+        resultado: "",
+        valorReferencia: "Niños 4 - 7 Adultos 2.5 - 4.8 mg/dL",
+      },
+      {
+        nombre: "BILIRRUBINA TOTAL",
+        resultado: "",
+        valorReferencia: "0.2 - 1.0 mg/dL",
+      },
+      {
+        nombre: "BILIRRUBINA DIRECTA",
+        resultado: "",
+        valorReferencia: "0.0 - 0.5 mg/dL",
+      },
+      { nombre: "BILIRRUBINA INDIRECTA", resultado: "", valorReferencia: "" },
+    ],
+  },
+  "BCCG CUANTITATIVO": {
+    area: "MISCELANEOS",
+    campos: [
+      {
+        nombre: "BCCG CUANTITATIVO",
+        resultado: "",
+        valorReferencia: "0 - 5 mIU/ml (Mujeres no Embarazada)",
+      },
+    ],
+  },
+  "PERFIL ENZIMATICO": {
+    area: "QUIMICA SANGUINEA",
+    campos: [
+      { nombre: "LDH", resultado: "", valorReferencia: "230 - 460 IU/L" },
+      {
+        nombre: "FOSFATASA ALCALINA",
+        resultado: "",
+        valorReferencia: "ADULTOS 65 - 300 UI/L",
+      },
+      { nombre: "CPK", resultado: "", valorReferencia: "25 - 192 IU/L" },
+      { nombre: "AMILASA", resultado: "", valorReferencia: "< ó igual 125 UI/L" },
+      { nombre: "LIPASA", resultado: "", valorReferencia: "U/L" },
+    ],
+  },
+  "QUIMICA SANGUINEA CON ENZIMAS": {
+    area: "QUIMICA SANGUINEA",
+    campos: [
+      { nombre: "GLICEMIA", resultado: "", valorReferencia: "70 - 100 mg/dL" },
+      { nombre: "LDH", resultado: "", valorReferencia: "230 - 460 IU/L" },
+      { nombre: "MAGNESIO", resultado: "", valorReferencia: "1.6 - 2.5 mg/dl" },
+      {
+        nombre: "FOSFATASA ALCALINA",
+        resultado: "",
+        valorReferencia: "ADULTOS 65 - 300 UI/L",
+      },
+      { nombre: "CALCIO", resultado: "", valorReferencia: "8.5 - 10.4 mg/dL" },
+      {
+        nombre: "FOSFORO",
+        resultado: "",
+        valorReferencia: "Niños 4 - 7 Adultos 2.5 - 4.8 mg/dL",
+      },
+      { nombre: "CPK", resultado: "", valorReferencia: "25 - 192 IU/L" },
+      { nombre: "AMILASA", resultado: "", valorReferencia: "< ó igual 125 UI/L" },
+      { nombre: "LIPASA", resultado: "", valorReferencia: "U/L" },
+      { nombre: "UREA", resultado: "", valorReferencia: "15 - 45 mg/dL" },
+      { nombre: "CREATININA", resultado: "", valorReferencia: "0.4 - 1.4 mg/dL" },
+    ],
+  },
+  "HECES COMPLETO 3": {
+    area: "HECES",
+    campos: [
+      { nombre: "COLOR", resultado: "", valorReferencia: "MARRON" },
+      { nombre: "CONSISTENCIA", resultado: "", valorReferencia: "......" },
+      { nombre: "ASPECTO", resultado: "", valorReferencia: "......" },
+      { nombre: "SANGRE", resultado: "", valorReferencia: "AUSENTE" },
+      { nombre: "MOCO", resultado: "", valorReferencia: "AUSENTE" },
+      { nombre: "OLOR", resultado: "", valorReferencia: "FECAL" },
+      {
+        nombre: "RESTOS ALIMENTICIOS",
+        resultado: "",
+        valorReferencia: "AUSENTES",
+      },
+      {
+        nombre: "PROTOZOARIOS",
+        resultado: "",
+        valorReferencia: "NO SE OBSERVARON EN LA MUESTRA EXAMINADA",
+      },
+      {
+        nombre: "HELMINTOS",
+        resultado: "",
+        valorReferencia: "NO SE OBSERVARON EN LA MUESTRA EXAMINADA",
+      },
+      { nombre: "CROMISTA", resultado: "", valorReferencia: "" },
+      { nombre: "ERITROCITOS", resultado: "", valorReferencia: "x campo" },
+      { nombre: "LEUCOCITOS", resultado: "", valorReferencia: "x campo" },
+      { nombre: "OTROS", resultado: "", valorReferencia: "" },
+    ],
+  },
+  "ORINA 24 HORAS": {
+    area: "ORINA",
+    campos: [
+      { nombre: "CALCIO", resultado: "", valorReferencia: "2 - 17.5 mg/dl" },
+      { nombre: "FOSFORO", resultado: "", valorReferencia: "20 - 60 mg/dl" },
+      { nombre: "ACIDO URICO", resultado: "", valorReferencia: "7 - 58 mg/dl" },
+      { nombre: "CREATININA", resultado: "", valorReferencia: "90 - 155 mg/dl" },
+      {
+        nombre: "RELACION ACIDO URICO/CREATININA",
+        resultado: "",
+        valorReferencia: "0.47",
+      },
+      {
+        nombre: "RELACION FOSFORO/CREATININA",
+        resultado: "",
+        valorReferencia: "1.40",
+      },
+      {
+        nombre: "RELACION CALCIO/CREATININA",
+        resultado: "",
+        valorReferencia: "0.01",
+      },
+    ],
+  },
+  "ELECTROLITOS": {
+    area: "MISCELANEOS",
+    campos: [
+      { nombre: "SODIO (Na+)", resultado: "", valorReferencia: "135-155 mmol/L" },
+      { nombre: "POTASIO (K+)", resultado: "", valorReferencia: "3.5 - 5.3 mmol/L" },
+    ],
+  },
+  "HEMATOLOGIA COMPLETA 2": {
+    area: "HEMATOLOGIA COMPLETA",
+    campos: [
+      {
+        nombre: "Leucocitos",
+        resultado: "",
+        valorReferencia: "(5.0 - 10.00)x10³/mm³",
+      },
+      {
+        nombre: "Eritrocitos",
+        resultado: "",
+        valorReferencia: "3.5 - 5.00 x10⁶/uL",
+      },
+      {
+        nombre: "Hemoglobina",
+        resultado: "",
+        valorReferencia: "11 - 16 gr. %",
+      },
+      { nombre: "Hematocrito", resultado: "", valorReferencia: "35 - 54%" },
+      { nombre: "Segmentados", resultado: "", valorReferencia: "54 - 62%" },
+      { nombre: "Linfocitos", resultado: "", valorReferencia: "25 - 33%" },
+      { nombre: "Mononucleares", resultado: "", valorReferencia: "3 - 14%" },
+      { nombre: "VCM", resultado: "", valorReferencia: "80 - 100fl" },
+      {
+        nombre: "Plaquetas",
+        resultado: "",
+        valorReferencia: "150 - 450 x10³uL",
+      },
+      { nombre: "Otros", resultado: "", valorReferencia: "" },
+    ],
+  },
+  "ANTIGENOS FEBRILES": {
+    area: "INMUNOLOGIA",
+    campos: [
+      {
+        nombre: "SALMONELLA TYPHI 'O'",
+        resultado: "",
+        valorReferencia: "NEGATIVO",
+      },
+      {
+        nombre: "SALMONELLA TYPHI 'H'",
+        resultado: "",
+        valorReferencia: "NEGATIVO",
+      },
+      {
+        nombre: "SALMONELLA PARATYPHI 'AH'",
+        resultado: "",
+        valorReferencia: "NEGATIVO",
+      },
+      {
+        nombre: "SALMONELLA PARATYPHI 'BH'",
+        resultado: "",
+        valorReferencia: "NEGATIVO",
+      },
+      {
+        nombre: "SALMONELLA BRUCELLA ABORTUS",
+        resultado: "",
+        valorReferencia: "NEGATIVO",
+      },
+      {
+        nombre: "SALMONELLA PROTEUS OX19",
+        resultado: "",
+        valorReferencia: "NEGATIVO",
+      },
+    ],
+  },
+  "QUIMICA SANGUINEA 6": {
+    area: "QUIMICA SANGUINEA",
+    campos: [
+      { nombre: "GLICEMIA", resultado: "", valorReferencia: "70 - 105 mg/dL" },
+      { nombre: "UREA", resultado: "", valorReferencia: "17 - 46 mg/dL" },
+      { nombre: "CREATININA", resultado: "", valorReferencia: "0.6 - 1.4 mg/dL" },
+      { nombre: "CALCIO", resultado: "", valorReferencia: "8.5 - 10.4 mg/dL" },
+      {
+        nombre: "FOSFORO",
+        resultado: "",
+        valorReferencia: "Niños 4 - 7 Adultos 2.5 - 4.8 mg/dL",
+      },
+      {
+        nombre: "ACIDO URICO",
+        resultado: "",
+        valorReferencia: "Mujer: 2.4 - 5.7 Hombre: 2.4 - 7.0 mg/dL",
+      },
+    ],
+  },
+  "HEMATOLOGIA COMPLETA 3": {
+    area: "HEMATOLOGIA COMPLETA",
+    campos: [
+      {
+        nombre: "Leucocitos",
+        resultado: "",
+        valorReferencia: "(5.0 - 10.00)x10³/mm³",
+      },
+      {
+        nombre: "Eritrocitos",
+        resultado: "",
+        valorReferencia: "3.5 - 5.00 x10⁶/uL",
+      },
+      { nombre: "Hemoglobina", resultado: "", valorReferencia: "11 - 18 gr. %" },
+      { nombre: "Hematocrito", resultado: "", valorReferencia: "35 - 64%" },
+      { nombre: "Segmentados", resultado: "", valorReferencia: "64 - 82%" },
+      { nombre: "Linfocitos", resultado: "", valorReferencia: "25 - 33%" },
+      { nombre: "Mononucleares", resultado: "", valorReferencia: "3 - 14%" },
+      { nombre: "VCM", resultado: "", valorReferencia: "80 - 100fl" },
+      {
+        nombre: "Plaquetas",
+        resultado: "",
+        valorReferencia: "160 - 450 x10³uL",
+      },
+      { nombre: "Otros", resultado: "", valorReferencia: "" },
+      { nombre: "Observaciones", resultado: "", valorReferencia: "" },
+    ],
+  },
+  "QUIMICA SANGUINEA 5": {
+    area: "QUIMICA SANGUINEA",
+    campos: [
+      { nombre: "GLICEMIA", resultado: "", valorReferencia: "70 - 105 mg/dL" },
+      { nombre: "UREA", resultado: "", valorReferencia: "17 - 46 mg/dL" },
+      { nombre: "CREATININA", resultado: "", valorReferencia: "0.4 - 1.4 mg/dL" },
+      { nombre: "COLESTEROL", resultado: "", valorReferencia: "HASTA 180 mg/dL" },
+      { nombre: "TRIGLICERIDOS", resultado: "", valorReferencia: "35 - 185 mg/dL" },
+      {
+        nombre: "ACIDO URICO",
+        resultado: "",
+        valorReferencia: "Mujer: 2.4 - 6.7 Hombre: 3.4 - 7.0 mg/dL",
+      },
+    ],
+  },
+  "VDRL CUANTIFICADO": {
+    area: "SEROLOGIA",
+    campos: [
+      {
+        nombre: "VDRL (CUANTIFICADO)",
+        resultado: "",
+        valorReferencia: "NO REACTIVO",
+      },
+    ],
+  },
+  "COAGULACION": {
+    area: "COAGULACION",
+    campos: [
+      { nombre: "PT", resultado: "", valorReferencia: "CONTROL = 12 Seg" },
+      { nombre: "PTT", resultado: "", valorReferencia: "CONTROL = 31 Seg" },
+    ],
+  },
+  "COAGULACION COMPLETA": {
+    area: "COAGULACION",
+    campos: [
+      { nombre: "P.T. PACIENTE", resultado: "", valorReferencia: "Seg" },
+      { nombre: "P.T. CONTROL", resultado: "", valorReferencia: "Seg" },
+      { nombre: "DIFERENCIA C-P (PT)", resultado: "", valorReferencia: "0.8 - 1.2" },
+      { nombre: "P.T.T. PACIENTE", resultado: "", valorReferencia: "Seg" },
+      { nombre: "P.T.T. CONTROL", resultado: "", valorReferencia: "Seg" },
+      { nombre: "DIFERENCIA C-P (PTT)", resultado: "", valorReferencia: "Mas o menos 6" },
+    ],
+  },
+  "GRUPO SANGUINEO Y FACTOR RH": {
+    area: "HEMATOLOGIA COMPLETA",
+    campos: [
+      { nombre: "GRUPO SANGUINEO", resultado: "", valorReferencia: "....." },
+      { nombre: "FACTOR RH", resultado: "", valorReferencia: "...." },
+    ],
+  },
+  "QUIMICA SANGUINEA 3 (VAR)": {
+    area: "QUIMICA SANGUINEA",
+    campos: [
+      { nombre: "GLICEMIA", resultado: "", valorReferencia: "70 - 100 mg/dL" },
+      { nombre: "UREA", resultado: "", valorReferencia: "10 - 50 mg/dL" },
+      { nombre: "CREATININA", resultado: "", valorReferencia: "0.4 - 1.4 mg/dL" },
+    ],
+  },
+  "HEPATITIS 2": {
+    area: "MISCELANEOS",
+    campos: [
+      {
+        nombre: 'HEPATITIS "B" (Ag. SUPERF.)',
+        resultado: "",
+        valorReferencia: "NEGATIVO",
+      },
+      { nombre: 'HEPATITIS "C"', resultado: "", valorReferencia: "NEGATIVO" },
+    ],
+  },
+  "HEMATOLOGIA CON INDICES": {
+    area: "HEMATOLOGIA COMPLETA",
+    campos: [
+      {
+        nombre: "Leucocitos",
+        resultado: "",
+        valorReferencia: "(4.5 - 10.5)x10³/mm³",
+      },
+      {
+        nombre: "Eritrocitos",
+        resultado: "",
+        valorReferencia: "4 - 8.00 x10⁶/uL",
+      },
+      { nombre: "Hemoglobina", resultado: "", valorReferencia: "11 - 18 gr. %" },
+      { nombre: "Hematocrito", resultado: "", valorReferencia: "35 - 60%" },
+      { nombre: "Segmentados", resultado: "", valorReferencia: "42.2 - 75.2%" },
+      { nombre: "Linfocitos", resultado: "", valorReferencia: "20.5 - 51.1%" },
+      { nombre: "Mononucleares", resultado: "", valorReferencia: "1.7 - 9.3%" },
+      { nombre: "VCM", resultado: "", valorReferencia: "80 - 99.9fl" },
+      { nombre: "HCM", resultado: "", valorReferencia: "27.0 - 31.0pg" },
+      { nombre: "CHCM", resultado: "", valorReferencia: "33.0 - 37.0g/dl" },
+      {
+        nombre: "Plaquetas",
+        resultado: "",
+        valorReferencia: "160 - 400 x10³uL",
+      },
+      { nombre: "Otros", resultado: "", valorReferencia: "" },
+    ],
+  },
+  "HEMOGLOBINA GLICADA": {
+    area: "QUIMICA SANGUINEA",
+    campos: [
+      {
+        nombre: "HEMOGLOBINA GLICADA",
+        resultado: "",
+        valorReferencia: "4 - 6.3 % (Normal) | Prediabetes: 5.7-6.4% | Diabetes: ≥ 6.5%",
+      },
+    ],
+  },
+  "TEST DE O'SULLIVAN": {
+    area: "QUIMICA SANGUINEA",
+    campos: [
+      {
+        nombre: "GLICEMIA EN AYUNA",
+        resultado: "",
+        valorReferencia: "70 - 105 mg/dL",
+      },
+      { nombre: "GLICEMIA 60 MINUTOS", resultado: "", valorReferencia: "" },
+      {
+        nombre: "GLICEMIA 120 MINUTOS",
+        resultado: "",
+        valorReferencia: "70 - 120 mg/dL",
+      },
+    ],
+  },
+  "PROCALCITONINA": {
+    area: "MISCELANEOS",
+    campos: [
+      {
+        nombre: "PROCALCITONINA",
+        resultado: "",
+        valorReferencia: "< 0.5 ng/ml (Infección localizada) | 0.5 - 2.0 ng/ml (Infecciones) | > 10 ng/ml (Sepsis)",
+      },
+    ],
+  },
+  "PROGESTERONA": {
+    area: "HORMONAS",
+    campos: [
+      {
+        nombre: "PROGESTERONA",
+        resultado: "",
+        valorReferencia: "Hombres: 0.3 - 0.97 ng/ml | Mujeres Fase Luteal: 2.0 - 25.0 ng/ml | Folicular: 0.3 - 7.0 ng/ml | Ovulatoria: 0.6 - 4.50 | Post Menopausia: 0.3 - 1.60",
+      },
+    ],
+  },
+  "PCR Y RATEST": {
+    area: "INMUNOLOGIA",
+    campos: [
+      {
+        nombre: "PROTEINAS C REACTIVAS (PCR)",
+        resultado: "",
+        valorReferencia: "HASTA 6 mg/L",
+      },
+      { nombre: "RATEST", resultado: "", valorReferencia: "<8 IU/Ml" },
+    ],
+  },
+  "VSG": {
+    area: "HEMATOLOGIA",
+    campos: [
+      {
+        nombre: "VSG (WINTROBE)",
+        resultado: "",
+        valorReferencia: "HASTA 20 mm/HORA",
+      },
+    ],
+  },
+  "ANTIGENOS FEBRILES 2": {
+    area: "INMUNOLOGIA",
+    campos: [
+      {
+        nombre: "ANTIGENO S.P TYPHOID 'A(H)'",
+        resultado: "",
+        valorReferencia: "NEGATIVO",
+      },
+      {
+        nombre: "ANTIGENO S.P TYPHOID 'B(O)'",
+        resultado: "",
+        valorReferencia: "NEGATIVO",
+      },
+      {
+        nombre: "ANTIGENO S.P TYPHOID 'A(O)'",
+        resultado: "",
+        valorReferencia: "NEGATIVO",
+      },
+      {
+        nombre: "ANTIGENO S.P TYPHOID 'B(H)'",
+        resultado: "",
+        valorReferencia: "NEGATIVO",
+      },
+      {
+        nombre: "ANTIGENO S.P TYPHOID 'C(H)'",
+        resultado: "",
+        valorReferencia: "NEGATIVO",
+      },
+      {
+        nombre: "ANTIGENO S.P TYPHOID 'C(O)'",
+        resultado: "",
+        valorReferencia: "NEGATIVO",
+      },
+      {
+        nombre: "ANTIGENO S. TYPHOID 'O'",
+        resultado: "",
+        valorReferencia: "NEGATIVO",
+      },
+      {
+        nombre: "ANTIGENO S. TYPHOID 'H'",
+        resultado: "",
+        valorReferencia: "NEGATIVO",
+      },
+    ],
+  },
+  "FROTIS DE SANGRE PERIFERICA": {
+    area: "HEMATOLOGIA",
+    campos: [
+      { nombre: "GLOBULOS ROJOS", resultado: "", valorReferencia: "" },
+      { nombre: "GLOBULOS BLANCO", resultado: "", valorReferencia: "" },
+      { nombre: "PLAQUETAS", resultado: "", valorReferencia: "" },
+      { nombre: "OBSERVACION", resultado: "", valorReferencia: "" },
+    ],
+  },
+  "LEUCOGRAMA FECAL": {
+    area: "HECES",
+    campos: [
+      {
+        nombre: "LEUCOGRAMA FECAL",
+        resultado: "",
+        valorReferencia: "NO SE OBSERVARON POLIMORFONUCLEARES / NO SE OBSERVARON MONONUCLEARES",
+      },
+    ],
+  },
+  "TOXOPLASMA": {
+    area: "SEROLOGIA",
+    campos: [
+      { nombre: "TOXOPLASMA IgG (TEST PACK)", resultado: "", valorReferencia: "" },
+      { nombre: "TOXOPLASMA IgM (TEST PACK)", resultado: "", valorReferencia: "" },
+    ],
+  },
+  "TIEMPO DE PROTROMBINA": {
+    area: "COAGULACION",
+    campos: [
+      {
+        nombre: "TIEMPO DE PROTROMBINA (PT)",
+        resultado: "",
+        valorReferencia: "CONTROL: 12 Seg",
+      },
+      { nombre: "RAZON", resultado: "", valorReferencia: "" },
+      { nombre: "ISI", resultado: "", valorReferencia: "" },
+      { nombre: "INR", resultado: "", valorReferencia: "" },
+    ],
+  },
+  "PERFIL CARDIACO": {
+    area: "QUIMICA",
+    campos: [
+      { nombre: "CPK", resultado: "", valorReferencia: "25 - 192 IU/L" },
+      { nombre: "CK-MB", resultado: "", valorReferencia: "0 - 22 UI/L" },
+      {
+        nombre: "TEST PACK TROPONINA 'I'",
+        resultado: "",
+        valorReferencia: "NEGATIVO",
+      },
+    ],
+  },
+  "ORINA 24 HORAS 2": {
+    area: "ORINA",
+    campos: [
+      { nombre: "CALCIO", resultado: "", valorReferencia: "2 - 17.5 mg/dl" },
+      { nombre: "FOSFORO", resultado: "", valorReferencia: "20 - 60 mg/dl" },
+      { nombre: "ACIDO URICO", resultado: "", valorReferencia: "7 - 50 mg/dl" },
+      { nombre: "CREATININA", resultado: "", valorReferencia: "30 - 125 mg/dl" },
+      {
+        nombre: "RELACION ACIDO URICO / CREATININA",
+        resultado: "",
+        valorReferencia: "",
+      },
+      {
+        nombre: "RELACION FOSFORO / CREATININA",
+        resultado: "",
+        valorReferencia: "",
+      },
+      {
+        nombre: "RELACION CALCIO / CREATININA",
+        resultado: "",
+        valorReferencia: "",
+      },
+    ],
+  },
+  "TROPONINA I": {
+    area: "MISCELANEOS",
+    campos: [
+      {
+        nombre: "TROPONINA 'I'",
+        resultado: "",
+        valorReferencia: "< 1.0 ng/ml",
+      },
+    ],
+  },
+  "TIROIDES 2": {
+    area: "HORMONAS",
+    campos: [
+      { nombre: "T3", resultado: "", valorReferencia: "1.4 - 4.2 pg/ml" },
+      {
+        nombre: "T4 LIBRE",
+        resultado: "",
+        valorReferencia: "0.8 - 2.0 ng/dl (ADULTO) | 0.8 - 2.2 ng/dl (EMBARAZADA)",
+      },
+      { nombre: "TSH", resultado: "", valorReferencia: "0.40 - 4.90 IU/ml" },
+    ],
+  },
+  "HIV (TEST PACK)": {
+    area: "SEROLOGIA",
+    campos: [
+      { nombre: "HIV (TEST Pack)", resultado: "", valorReferencia: "NEGATIVO" },
+    ],
+  },
+  "SEROLOGIA COMPLETA": {
+    area: "SEROLOGIA",
+    campos: [
+      { nombre: "HIV (TEST Pack)", resultado: "", valorReferencia: "NEGATIVO" },
+      { nombre: "VDRL", resultado: "", valorReferencia: "NO REACTIVO" },
+    ],
+  },
+  "LH Y ESTRADIOL": {
+    area: "HORMONAS",
+    campos: [
+      { nombre: "LH", resultado: "", valorReferencia: "1.05 - 94.75 mIU/mL" },
+      {
+        nombre: "ESTRADIOL",
+        resultado: "",
+        valorReferencia: "Mujer: Folicular 100-400 pg/mL | Pre Ovulación 30-100 pg/mL | Fase Lutea 60-150 pg/mL | Post Menopausia <18 pg/mL",
+      },
+    ],
+  },
+  "SANGRE OCULTA EN HECES": {
+    area: "HECES",
+    campos: [
+      {
+        nombre: "SANGRE OCULTA EN HECES (SOH)",
+        resultado: "",
+        valorReferencia: "",
+      },
+    ],
+  },
+  "EOSINOFILOS EN SANGRE PERIFERICA": {
+    area: "HEMATOLOGIA",
+    campos: [
+      {
+        nombre: "EOSINOFILOS EN SANGRE PERIFERICA",
+        resultado: "",
+        valorReferencia: "50 - 200 Celulas xmm3",
+      },
+    ],
+  },
+  "ANTIGENO PROSTATICO (PSA)": {
+    area: "ANTIGENOS PROSTATICO",
+    campos: [
+      { nombre: "PSA TOTAL", resultado: "", valorReferencia: "< 4.0 ng/ml" },
+      { nombre: "PSA LIBRE", resultado: "", valorReferencia: "< 0.10 ng/ml" },
+      { nombre: "PSA L/PSAT", resultado: "", valorReferencia: "" },
+    ],
+  },
+  "ASTO": {
+    area: "SEROLOGIA",
+    campos: [
+      {
+        nombre: "TITULO DE ANTIESTREPTOLISINA 'O' (ASTO)",
+        resultado: "",
+        valorReferencia: "HASTA 200 UI/L",
+      },
+    ],
+  },
+  "HELICOBACTER PYLORI EN SANGRE": {
+    area: "MISCELANEOS",
+    campos: [
+      {
+        nombre: "HELICOBACTER PYLORI EN SANGRE (TEST PACK)",
+        resultado: "",
+        valorReferencia: "NEGATIVO",
+      },
+    ],
+  },
+  "HELICOBACTER PYLORI EN HECES": {
+    area: "MISCELANEOS",
+    campos: [
+      {
+        nombre: "HELICOBACTER PILORI EN HECES (TEST PACK)",
+        resultado: "",
+        valorReferencia: "NEGATIVO",
+      },
+    ],
+  },
+  "VITAMINA D": {
+    area: "MISCELANEOS",
+    campos: [
+      {
+        nombre: "VITAMINA D",
+        resultado: "",
+        valorReferencia: "Niños: 20 - 100 ng/mL | Adultos 30 - 100 ng/mL",
+      },
+    ],
+  },
+  "VITAMINA B12": {
+    area: "MISCELANEOS",
+    campos: [
+      {
+        nombre: "VITAMINA B12",
+        resultado: "",
+        valorReferencia: "197 - 771 pg/Ml",
+      },
+    ],
+  },
+  "DIMERO D": {
+    area: "MISCELANEOS",
+    campos: [
+      {
+        nombre: "DIMERO D",
+        resultado: "",
+        valorReferencia: "0.00 - 0.50 μg/mL",
+      },
+    ],
+  },
+  "VITAMINAS Y DIMERO D": {
+    area: "MISCELANEOS",
+    campos: [
+      {
+        nombre: "VITAMINA D",
+        resultado: "",
+        valorReferencia: "Niños: 20 - 100 ng/mL | Adultos 30 - 100 ng/mL",
+      },
+      {
+        nombre: "VITAMINA B12",
+        resultado: "",
+        valorReferencia: "197 - 771 pg/Ml",
+      },
+      {
+        nombre: "DIMERO D",
+        resultado: "",
+        valorReferencia: "0.00 - 0.50 μg/mL",
+      },
+    ],
+  },
+  "DENGUE": {
+    area: "MISCELANEOS",
+    campos: [
+      { nombre: "DENGUE Ig 'G'", resultado: "", valorReferencia: "NEGATIVO" },
+      { nombre: "DENGUE Ig 'M'", resultado: "", valorReferencia: "NEGATIVO" },
+    ],
+  },
+  "ELECTROLITOS 2": {
+    area: "MISCELANEOS",
+    campos: [
+      { nombre: "SODIO (Na)", resultado: "", valorReferencia: "135 - 155 mEq/L" },
+      { nombre: "POTASIO (K)", resultado: "", valorReferencia: "3.5 - 5.3 mEq/L" },
+      { nombre: "CLORO (Cl)", resultado: "", valorReferencia: "98 - 106 mEq/L" },
+    ],
+  },
+  "HEPATITIS 3": {
+    area: "MISCELANEOS",
+    campos: [
+      {
+        nombre: 'HEPATITIS "B" (CORE)',
+        resultado: "",
+        valorReferencia: "NEGATIVO",
+      },
+      {
+        nombre: 'HEPATITIS "B" (Ag. SUPERF.)',
+        resultado: "",
+        valorReferencia: "NEGATIVO",
+      },
+      { nombre: 'HEPATITIS "C"', resultado: "", valorReferencia: "NEGATIVO" },
+    ],
+  },
+  "ANTIDOPING": {
+    area: "MISCELANEOS",
+    campos: [
+      {
+        nombre: "ANTIDOPING COCAINA (TEST PACK)",
+        resultado: "",
+        valorReferencia: "NEGATIVO",
+      },
+      {
+        nombre: "ANTIDOPING MARIHUANA (TEST PACK)",
+        resultado: "",
+        valorReferencia: "NEGATIVO",
+      },
+    ],
+  },
+  "QUIMICA SANGUINEA 8": {
+    area: "QUIMICA SANGUINEA",
+    campos: [
+      { nombre: "GLICEMIA", resultado: "", valorReferencia: "70 - 105 mg/dL" },
+      { nombre: "UREA", resultado: "", valorReferencia: "10 - 50 mg/dL" },
+      { nombre: "CREATININA", resultado: "", valorReferencia: "0.4 - 1.4 mg/dL" },
+      { nombre: "COLESTEROL", resultado: "", valorReferencia: "<200mg/dl" },
+      { nombre: "Triglicéridos", resultado: "", valorReferencia: "36 - 165mg/dl" },
+      { nombre: "LIPIDOS TOTALES", resultado: "", valorReferencia: "<800mg/dl" },
+      {
+        nombre: "ACIDO URICO",
+        resultado: "",
+        valorReferencia: "Mujer: 1.5 - 6 mg/dL Hombre: 2.5 - 7.0 mg/dL",
+      },
+    ],
+  },
+  "INSULINA": {
+    area: "HORMONAS",
+    campos: [
+      {
+        nombre: "INSULINA BASAL",
+        resultado: "",
+        valorReferencia: "2 - 25 IU/Ml",
+      },
+      {
+        nombre: "INSULINA POSTPRANDRIAL",
+        resultado: "",
+        valorReferencia: "",
+      },
+    ],
+  },
+  "NT-proBNP": {
+    area: "HORMONAS",
+    campos: [
+      {
+        nombre: "NT-proBNP (Péptido Natriurético)",
+        resultado: "",
+        valorReferencia: "<300 pg/ml",
+      },
+    ],
+  },
+  "INSULINA CON HOMA": {
+    area: "HORMONAS",
+    campos: [
+      {
+        nombre: "INSULINA BASAL",
+        resultado: "",
+        valorReferencia: "2.60 - 24.90 μIU/ml",
+      },
+      {
+        nombre: "INDICE DE HOMA",
+        resultado: "",
+        valorReferencia: "<1.96 Sin Resistencia | 1.96-3.0 Sospecha | >3.0 Elevada posibilidad",
+      },
+    ],
+  },
+  "INSULINA CON HOMA 2": {
+    area: "HORMONAS",
+    campos: [
+      {
+        nombre: "INSULINA BASAL",
+        resultado: "",
+        valorReferencia: "2 - 25 IU/Ml",
+      },
+      {
+        nombre: "INDICE DE HOMA",
+        resultado: "",
+        valorReferencia: "<1.96 Sin Resistencia | 1.96-3.0 Sospecha | >3.0 Elevada posibilidad",
+      },
+      {
+        nombre: "INSULINA POSTPRANDRIAL",
+        resultado: "",
+        valorReferencia: "",
+      },
+      {
+        nombre: "GLICEMIA BASAL",
+        resultado: "",
+        valorReferencia: "70 - 105 mg/dL",
+      },
+    ],
+  },
+  "FERRITINA": {
+    area: "MISCELANEOS",
+    campos: [
+      {
+        nombre: "FERRITINA",
+        resultado: "",
+        valorReferencia: "10 - 220 ng/mL",
+      },
+    ],
+  },
+  "FERRITINA Y DIMERO D": {
+    area: "MISCELANEOS",
+    campos: [
+      {
+        nombre: "FERRITINA",
+        resultado: "",
+        valorReferencia: "10 - 220 ng/mL",
+      },
+      {
+        nombre: "DIMERO D",
+        resultado: "",
+        valorReferencia: "0 - 0.5 μg/mL",
+      },
+    ],
+  },
 };
 
 const obtenerFechaVenezuela = () => {
@@ -745,16 +1925,16 @@ const RegistroExamen = () => {
   };
 
   // Agregar campo personalizado
-  const agregarCampoPersonalizado = () => {
+  const agregarCampoPersonalizado = (tipoExamen: string) => {
     setFormData((prev) => ({
       ...prev,
       campos: [
         ...prev.campos,
-        { 
-          nombre: "", 
-          resultado: "", 
+        {
+          nombre: "",
+          resultado: "",
           valorReferencia: "",
-          tipoExamen: "Personalizado"
+          tipoExamen: tipoExamen
         },
       ],
     }));
@@ -1368,6 +2548,28 @@ const RegistroExamen = () => {
                           </TableBody>
                         </Table>
                       </TableContainer>
+
+                      {/* Botón Agregar Campo */}
+                      <Button
+                        startIcon={<Add />}
+                        onClick={() => agregarCampoPersonalizado(tipoExamen)}
+                        variant="outlined"
+                        color="success"
+                        size="small"
+                        sx={{
+                          mt: 2,
+                          textTransform: "none",
+                          fontWeight: 600,
+                          borderRadius: 2,
+                          borderWidth: 2,
+                          "&:hover": {
+                            borderWidth: 2,
+                            backgroundColor: "rgba(16, 185, 129, 0.1)",
+                          },
+                        }}
+                      >
+                        Agregar Campo
+                      </Button>
                     </Box>
                   );
                 })

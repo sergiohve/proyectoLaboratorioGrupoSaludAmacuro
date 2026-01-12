@@ -45,7 +45,6 @@ import {
 import DashboardCard from "@/app/(DashboardLayout)/components/shared/DashboardCard";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
-import Image from "next/image";
 
 interface Cliente {
   _id: string;
@@ -1090,13 +1089,13 @@ const ListaExamenes = () => {
                     </Typography>
                   </Box>
                   <Box sx={{ textAlign: "center", flex: 1 }}>
-                    <Image
+                    <img
                       src="/images/logos/back.png"
                       alt="logo"
                       height={120}
                       width={300}
-                      priority
-                      style={{ margin: "0 auto" }}
+                      crossOrigin="anonymous"
+                      style={{ margin: "0 auto", display: "block" }}
                     />
                   </Box>
                   <Box sx={{ flex: 1, textAlign: "right" }}>
@@ -1112,6 +1111,25 @@ const ListaExamenes = () => {
                       Página 1 de 1
                     </Typography>
                   </Box>
+                </Box>
+
+                {/* Información de Contacto - Arriba */}
+                <Box
+                  sx={{
+                    textAlign: "center",
+                    pt: 1,
+                    mb: -2,
+                    borderTop: "1px solid #e5e7eb",
+                  }}
+                >
+                  <Typography
+                    variant="body2"
+                    fontWeight="600"
+                    sx={{ fontSize: "11px", color: "#000" }}
+                  >
+                    Calle Tucupita, Local 16, Nro 2, Centro, Tucupita, Edo. Delta
+                    Amacuro. | Teléfonos: +58 424-9016271
+                  </Typography>
                 </Box>
               </Box>
 
@@ -1564,27 +1582,6 @@ const ListaExamenes = () => {
                   </Box>
                 </Box>
               ))}
-
-              {/* Información de Contacto */}
-              <Box
-                sx={{
-                  mt: 2,
-                  pt: 2,
-                  pb: 2,
-                  textAlign: "center",
-
-                  borderTop: "1px solid #efeaeaff",
-                  borderBottom: "1px solid #efeaeaff",
-                }}
-              >
-                <Typography variant="body2" fontWeight="bold">
-                  Calle Tucupita, Local 16, Nro 2, Centro, Tucupita, Edo. Delta
-                  Amacuro.
-                </Typography>
-                <Typography variant="body2">
-                  Teléfonos: +58 424-9016271
-                </Typography>
-              </Box>
 
               {/* Observaciones */}
               {examenSeleccionado.observaciones && (
