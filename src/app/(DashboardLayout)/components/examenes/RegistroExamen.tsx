@@ -1985,6 +1985,7 @@ const RegistroExamen = () => {
                 acc[campo.nombre] = {
                   resultado: campo.resultado,
                   valorReferencia: campo.valorReferencia,
+                  tipoExamen: campo.tipoExamen, // Incluir el tipo de examen
                 };
               }
               return acc;

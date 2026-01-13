@@ -18,7 +18,8 @@ import { useRouter } from "next/navigation";
 interface ClienteForm {
   nombre: string;
   cedula: string;
-  edad: string;
+  edadAnios: string;
+  edadMeses: string;
   sexo: string;
   direccion: string;
   fecha: string;
@@ -37,7 +38,8 @@ const AgregarCliente = () => {
   const [formData, setFormData] = useState<ClienteForm>({
     nombre: "",
     cedula: "",
-    edad: "",
+    edadAnios: "",
+    edadMeses: "",
     sexo: "Masculino",
     direccion: "",
     fecha: obtenerFechaVenezuela(),
@@ -64,7 +66,6 @@ const AgregarCliente = () => {
     if (
       !formData.nombre ||
       !formData.cedula ||
-      !formData.edad ||
       !formData.sexo ||
       !formData.direccion
     ) {
@@ -73,14 +74,39 @@ const AgregarCliente = () => {
       return;
     }
 
-    if (parseInt(formData.edad) < 1 || parseInt(formData.edad) > 120) {
+    // Validar que al menos años o meses estén ingresados
+    if (!formData.edadAnios && !formData.edadMeses) {
       setMessage({
         type: "error",
-        text: "La edad debe estar entre 1 y 120 años",
+        text: "Debe ingresar al menos años o meses de edad",
       });
       setLoading(false);
       return;
     }
+
+    const anios = parseInt(formData.edadAnios) || 0;
+    const meses = parseInt(formData.edadMeses) || 0;
+
+    if (anios < 0 || anios > 120) {
+      setMessage({
+        type: "error",
+        text: "Los años deben estar entre 0 y 120",
+      });
+      setLoading(false);
+      return;
+    }
+
+    if (meses < 0 || meses > 11) {
+      setMessage({
+        type: "error",
+        text: "Los meses deben estar entre 0 y 11",
+      });
+      setLoading(false);
+      return;
+    }
+
+    // Calcular edad total en años (con decimales)
+    const edadTotal = anios + (meses / 12);
 
     try {
       const response = await fetch(
@@ -91,8 +117,14 @@ const AgregarCliente = () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            ...formData,
-            edad: parseInt(formData.edad),
+            nombre: formData.nombre,
+            cedula: formData.cedula,
+            edad: edadTotal,
+            edadAnios: anios,
+            edadMeses: meses,
+            sexo: formData.sexo,
+            direccion: formData.direccion,
+            fecha: formData.fecha,
           }),
         }
       );
@@ -107,7 +139,8 @@ const AgregarCliente = () => {
         setFormData({
           nombre: "",
           cedula: "",
-          edad: "",
+          edadAnios: "",
+          edadMeses: "",
           sexo: "Masculino",
           direccion: "",
           fecha: obtenerFechaVenezuela(),
@@ -213,20 +246,34 @@ const AgregarCliente = () => {
               />
             </Grid>
             
-            <Grid size={6}>
+            <Grid size={4}>
               <TextField
                 fullWidth
-                label="Edad"
-                name="edad"
+                label="Años"
+                name="edadAnios"
                 type="number"
-                value={formData.edad}
+                value={formData.edadAnios}
                 onChange={handleChange}
-                required
                 size="small"
-                inputProps={{ min: 1, max: 120 }}
+                placeholder="0-120"
+                inputProps={{ min: 0, max: 120 }}
               />
             </Grid>
-            
+
+            <Grid size={2}>
+              <TextField
+                fullWidth
+                label="Meses"
+                name="edadMeses"
+                type="number"
+                value={formData.edadMeses}
+                onChange={handleChange}
+                size="small"
+                placeholder="0-11"
+                inputProps={{ min: 0, max: 11 }}
+              />
+            </Grid>
+
             <Grid size={6}>
               <TextField
                 fullWidth

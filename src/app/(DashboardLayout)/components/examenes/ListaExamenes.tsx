@@ -60,7 +60,7 @@ interface Examen {
   cliente: Cliente;
   tipoExamen: string;
   area: string;
-  resultados: { [key: string]: { resultado: string; valorReferencia: string } };
+  resultados: { [key: string]: { resultado: string; valorReferencia: string; tipoExamen?: string } };
   observaciones: string;
   fechaExamen: string;
   estado: string;
@@ -100,7 +100,7 @@ const ListaExamenes = () => {
   // Función para agrupar resultados por tipo de examen (si hay múltiples tipos)
   const agruparResultadosPorTipo = (
     tipoExamen: string,
-    resultados: { [key: string]: { resultado: string; valorReferencia: string } }
+    resultados: { [key: string]: { resultado: string; valorReferencia: string; tipoExamen?: string } }
   ) => {
     const tipos = obtenerTiposExamen(tipoExamen);
 
@@ -109,23 +109,35 @@ const ListaExamenes = () => {
       return [{ tipo: tipos[0], resultados: resultados }];
     }
 
-    // Si hay múltiples tipos, intentar agruparlos (por ahora, dividir equitativamente)
-    // En una implementación más robusta, usarías las plantillas para determinar la pertenencia
-    const resultadosArray = Object.entries(resultados);
+    // Si hay múltiples tipos, agrupar por el campo tipoExamen guardado
     const grupos: { tipo: string; resultados: any }[] = [];
 
-    // Por ahora, simplemente dividir los resultados equitativamente entre los tipos
-    const resultadosPorTipo = Math.ceil(resultadosArray.length / tipos.length);
+    tipos.forEach((tipo) => {
+      const resultadosTipo: any = {};
 
-    tipos.forEach((tipo, index) => {
-      const inicio = index * resultadosPorTipo;
-      const fin = Math.min((index + 1) * resultadosPorTipo, resultadosArray.length);
-      const resultadosTipo = Object.fromEntries(resultadosArray.slice(inicio, fin));
+      Object.entries(resultados).forEach(([prueba, datos]) => {
+        // Si el campo tiene tipoExamen guardado, usar eso para agrupar
+        if (datos.tipoExamen === tipo) {
+          resultadosTipo[prueba] = datos;
+        }
+      });
 
       if (Object.keys(resultadosTipo).length > 0) {
         grupos.push({ tipo, resultados: resultadosTipo });
       }
     });
+
+    // Si algún resultado no tiene tipoExamen asignado (datos antiguos), agregarlo al primer grupo
+    const resultadosSinTipo: any = {};
+    Object.entries(resultados).forEach(([prueba, datos]) => {
+      if (!datos.tipoExamen) {
+        resultadosSinTipo[prueba] = datos;
+      }
+    });
+
+    if (Object.keys(resultadosSinTipo).length > 0 && grupos.length > 0) {
+      grupos[0].resultados = { ...grupos[0].resultados, ...resultadosSinTipo };
+    }
 
     return grupos;
   };
@@ -392,6 +404,20 @@ const ListaExamenes = () => {
       month: "2-digit",
       year: "numeric",
     });
+  };
+
+  // Función para formatear la edad desde decimal a años y meses
+  const formatEdad = (edadDecimal: number) => {
+    const anios = Math.floor(edadDecimal);
+    const meses = Math.round((edadDecimal - anios) * 12);
+
+    if (anios === 0) {
+      return `${meses} ${meses === 1 ? 'mes' : 'meses'}`;
+    } else if (meses === 0) {
+      return `${anios} ${anios === 1 ? 'año' : 'años'}`;
+    } else {
+      return `${anios} ${anios === 1 ? 'año' : 'años'} ${meses} ${meses === 1 ? 'mes' : 'meses'}`;
+    }
   };
 
   // Función para determinar las unidades basadas en los valores de referencia
@@ -790,7 +816,7 @@ const ListaExamenes = () => {
                           </Typography>
                           <Typography color="textSecondary" fontSize="13px">
                             CI: {examen.cliente?.cedula ?? "Dato eliminado"} |{" "}
-                            {examen.cliente?.edad ?? ""} años
+                            {examen.cliente?.edad ? formatEdad(examen.cliente.edad) : ""}
                           </Typography>
                         </Box>
                       </Box>
@@ -1029,7 +1055,7 @@ const ListaExamenes = () => {
             <Box
               ref={pdfRef}
               sx={{
-                p: 3,
+                p: 1.5,
                 backgroundColor: "white",
                 fontFamily: "'Helvetica Neue', Arial, sans-serif",
               }}
@@ -1037,8 +1063,8 @@ const ListaExamenes = () => {
               {/* Modern PDF Header */}
               <Box
                 sx={{
-                  pb: 2,
-                  mb: 3,
+                  pb: 1,
+                  mb: 1.5,
                 }}
               >
                 <Box
@@ -1046,7 +1072,7 @@ const ListaExamenes = () => {
                     display: "flex",
                     justifyContent: "space-between",
                     alignItems: "flex-start",
-                    mb: 2,
+                    mb: 1,
                   }}
                 >
                   <Box sx={{ flex: 1 }}>
@@ -1054,7 +1080,7 @@ const ListaExamenes = () => {
                       variant="h6"
                       fontWeight="700"
                       sx={{
-                        fontSize: "14px",
+                        fontSize: "16px",
                         lineHeight: 1.4,
                         color: "#374151",
                         mb: 0.5,
@@ -1066,7 +1092,7 @@ const ListaExamenes = () => {
                       variant="h4"
                       fontWeight="800"
                       sx={{
-                        fontSize: "22px",
+                        fontSize: "26px",
                         lineHeight: 1.2,
                         WebkitBackgroundClip: "text",
 
@@ -1080,7 +1106,7 @@ const ListaExamenes = () => {
                       variant="h6"
                       fontWeight="600"
                       sx={{
-                        fontSize: "14px",
+                        fontSize: "16px",
                         lineHeight: 1.4,
                         color: "#6b7280",
                       }}
@@ -1102,7 +1128,7 @@ const ListaExamenes = () => {
                     <Typography
                       variant="body2"
                       sx={{
-                        fontSize: "11px",
+                        fontSize: "13px",
                         lineHeight: 1.4,
                         color: "#9ca3af",
                         fontWeight: 500,
@@ -1117,15 +1143,15 @@ const ListaExamenes = () => {
                 <Box
                   sx={{
                     textAlign: "center",
-                    pt: 1,
-                    mb: -2,
+                    pt: 0.5,
+                    mb: -1,
                     borderTop: "1px solid #e5e7eb",
                   }}
                 >
                   <Typography
                     variant="body2"
                     fontWeight="600"
-                    sx={{ fontSize: "11px", color: "#000" }}
+                    sx={{ fontSize: "13px", color: "#000" }}
                   >
                     Calle Tucupita, Local 16, Nro 2, Centro, Tucupita, Edo. Delta
                     Amacuro. | Teléfonos: +58 424-9016271
@@ -1136,8 +1162,8 @@ const ListaExamenes = () => {
               {/* Modern Patient Information */}
               <Box
                 sx={{
-                  mb: 3,
-                  p: 2,
+                  mb: 1.5,
+                  p: 1.5,
                   borderRadius: 2,
 
                   border: "1px solid #000",
@@ -1147,7 +1173,7 @@ const ListaExamenes = () => {
                   size="small"
                   sx={{
                     whiteSpace: "nowrap",
-                    "& .MuiTableCell-root": { borderBottom: "none", py: 0.5 },
+                    "& .MuiTableCell-root": { borderBottom: "none", py: 0.3 },
                   }}
                 >
                   <TableBody>
@@ -1158,7 +1184,7 @@ const ListaExamenes = () => {
                           p: 0,
                           width: "15%",
                           fontWeight: "700",
-                          fontSize: "11px",
+                          fontSize: "14px",
                           color: "#000",
                         }}
                       >
@@ -1169,7 +1195,7 @@ const ListaExamenes = () => {
                           border: "none",
                           p: 0,
                           width: "35%",
-                          fontSize: "11px",
+                          fontSize: "14px",
                           fontWeight: "600",
                           color: "#1f2937",
                         }}
@@ -1183,7 +1209,7 @@ const ListaExamenes = () => {
                           p: 0,
                           width: "10%",
                           fontWeight: "700",
-                          fontSize: "11px",
+                          fontSize: "14px",
                           color: "#000",
                         }}
                       >
@@ -1194,7 +1220,7 @@ const ListaExamenes = () => {
                           border: "none",
                           p: 0,
                           width: "40%",
-                          fontSize: "11px",
+                          fontSize: "14px",
                           fontWeight: "600",
                           color: "#1f2937",
                         }}
@@ -1208,7 +1234,7 @@ const ListaExamenes = () => {
                           border: "none",
                           p: 0,
                           fontWeight: "700",
-                          fontSize: "11px",
+                          fontSize: "14px",
                           color: "#000",
                         }}
                       >
@@ -1218,20 +1244,21 @@ const ListaExamenes = () => {
                         sx={{
                           border: "none",
                           p: 0,
-                          fontSize: "11px",
+                          fontSize: "14px",
                           fontWeight: "600",
                           color: "#1f2937",
                         }}
                       >
-                        {examenSeleccionado.cliente?.edad ?? "Dato eliminado"}{" "}
-                        años
+                        {examenSeleccionado.cliente?.edad
+                          ? formatEdad(examenSeleccionado.cliente.edad)
+                          : "Dato eliminado"}
                       </TableCell>
                       <TableCell
                         sx={{
                           border: "none",
                           p: 0,
                           fontWeight: "700",
-                          fontSize: "11px",
+                          fontSize: "14px",
                           color: "#000",
                         }}
                       >
@@ -1241,7 +1268,7 @@ const ListaExamenes = () => {
                         sx={{
                           border: "none",
                           p: 0,
-                          fontSize: "11px",
+                          fontSize: "14px",
                           fontWeight: "600",
                           color: "#1f2937",
                         }}
@@ -1255,7 +1282,7 @@ const ListaExamenes = () => {
                           border: "none",
                           p: 0,
                           fontWeight: "700",
-                          fontSize: "11px",
+                          fontSize: "14px",
                           color: "#000",
                         }}
                       >
@@ -1265,7 +1292,7 @@ const ListaExamenes = () => {
                         sx={{
                           border: "none",
                           p: 0,
-                          fontSize: "11px",
+                          fontSize: "14px",
                           fontWeight: "600",
                           color: "#1f2937",
                         }}
@@ -1281,7 +1308,7 @@ const ListaExamenes = () => {
                           border: "none",
                           p: 0,
                           fontWeight: "700",
-                          fontSize: "11px",
+                          fontSize: "14px",
                           color: "#000",
                         }}
                       >
@@ -1291,7 +1318,7 @@ const ListaExamenes = () => {
                         sx={{
                           border: "none",
                           p: 0,
-                          fontSize: "11px",
+                          fontSize: "14px",
                           fontWeight: "600",
                           color: "#1f2937",
                         }}
@@ -1306,7 +1333,7 @@ const ListaExamenes = () => {
                           border: "none",
                           p: 0,
                           fontWeight: "700",
-                          fontSize: "11px",
+                          fontSize: "14px",
                           color: "#000",
                         }}
                       >
@@ -1316,7 +1343,7 @@ const ListaExamenes = () => {
                         sx={{
                           border: "none",
                           p: 0,
-                          fontSize: "11px",
+                          fontSize: "14px",
                           fontWeight: "600",
                           color: "#1f2937",
                         }}
@@ -1328,7 +1355,7 @@ const ListaExamenes = () => {
                           border: "none",
                           p: 0,
                           fontWeight: "700",
-                          fontSize: "11px",
+                          fontSize: "14px",
                           color: "#000",
                         }}
                       >
@@ -1338,7 +1365,7 @@ const ListaExamenes = () => {
                         sx={{
                           border: "none",
                           p: 0,
-                          fontSize: "11px",
+                          fontSize: "14px",
                           fontWeight: "600",
                           color: "#1f2937",
                         }}
@@ -1352,7 +1379,7 @@ const ListaExamenes = () => {
                           border: "none",
                           p: 0,
                           fontWeight: "700",
-                          fontSize: "11px",
+                          fontSize: "14px",
                           color: "#000",
                         }}
                       >
@@ -1362,7 +1389,7 @@ const ListaExamenes = () => {
                         sx={{
                           border: "none",
                           p: 0,
-                          fontSize: "11px",
+                          fontSize: "14px",
                           fontWeight: "600",
                           color: "#1f2937",
                         }}
@@ -1380,8 +1407,8 @@ const ListaExamenes = () => {
               <Box
                 sx={{
                   textAlign: "center",
-                  mb: 2,
-                  py: 1.5,
+                  mb: 1.5,
+                  py: 1,
                   borderRadius: 2,
                   borderColor: "black",
                   border: 1,
@@ -1391,7 +1418,7 @@ const ListaExamenes = () => {
                   variant="h5"
                   fontWeight="800"
                   sx={{
-                    fontSize: "18px",
+                    fontSize: "20px",
                     color: "black",
                     letterSpacing: 1,
                   }}
@@ -1405,20 +1432,20 @@ const ListaExamenes = () => {
                 examenSeleccionado.tipoExamen,
                 examenSeleccionado.resultados
               ).map((grupo, grupoIndex) => (
-                <Box key={grupoIndex} sx={{ mb: 3 }}>
+                <Box key={grupoIndex} sx={{ mb: 2 }}>
                   {/* Título del tipo de examen (solo si hay múltiples tipos) */}
                   {obtenerTiposExamen(examenSeleccionado.tipoExamen).length > 1 && (
                     <Typography
                       variant="h5"
                       fontWeight="900"
                       sx={{
-                        fontSize: "14px",
+                        fontSize: "16px",
                         color: "#111413ff",
                         fontWeight: "bold",
-                        mb: 1.5,
+                        mb: 1,
                         textAlign: "left",
                         textTransform: "uppercase",
-                        pl: 1,
+                        pl: 0.5,
                       }}
                     >
                       {grupo.tipo}
@@ -1455,10 +1482,10 @@ const ListaExamenes = () => {
                               textAlign: "left",
                               width: "10%",
                               border: "none",
-                              fontSize: "12px",
+                              fontSize: "15px",
                               color: "#000",
-                              py: 1.5,
-                              px: 2,
+                              py: 1,
+                              px: 1.5,
                             }}
                           >
                             DESCRIPCIÓN DE EXAMEN
@@ -1469,9 +1496,9 @@ const ListaExamenes = () => {
                               textAlign: "center",
                               width: "10%",
                               border: "none",
-                              fontSize: "12px",
+                              fontSize: "15px",
                               color: "#000",
-                              py: 1.5,
+                              py: 1,
                             }}
                           >
                             RESULTADO
@@ -1483,9 +1510,9 @@ const ListaExamenes = () => {
                                 textAlign: "center",
                                 width: "10%",
                                 border: "none",
-                                fontSize: "12px",
+                                fontSize: "15px",
                                 color: "#000",
-                                py: 1.5,
+                                py: 1,
                               }}
                             >
                               UNIDADES
@@ -1497,9 +1524,9 @@ const ListaExamenes = () => {
                               textAlign: "center",
                               width: "10%",
                               border: "none",
-                              fontSize: "12px",
+                              fontSize: "15px",
                               color: "#000",
-                              py: 1.5,
+                              py: 1,
                             }}
                           >
                             VALORES DE REFERENCIA
@@ -1518,8 +1545,8 @@ const ListaExamenes = () => {
                             >
                               <TableCell
                                 sx={{
-                                  px: 2,
-                                  py: 1,
+                                  px: 1.5,
+                                  py: 0.7,
                                   border: "none",
                                   borderBottom: "none",
                                   color: "#000",
@@ -1528,7 +1555,7 @@ const ListaExamenes = () => {
                                 <Typography
                                   variant="body2"
                                   fontWeight="700"
-                                  sx={{ fontSize: "12px", color: "#000" }}
+                                  sx={{ fontSize: "14px", color: "#000" }}
                                 >
                                   {prueba}
                                 </Typography>
@@ -1539,9 +1566,9 @@ const ListaExamenes = () => {
                                   fontWeight: "900",
                                   border: "none",
                                   borderBottom: "none",
-                                  fontSize: "12px",
+                                  fontSize: "15px",
                                   color: "#000",
-                                  py: 1,
+                                  py: 0.7,
                                 }}
                               >
                                 {datos.resultado || "No registrado"}
@@ -1552,10 +1579,10 @@ const ListaExamenes = () => {
                                     textAlign: "center",
                                     border: "none",
                                     borderBottom: "none",
-                                    fontSize: "11px",
+                                    fontSize: "14px",
                                     color: "#000",
                                     fontWeight: "500",
-                                    py: 1,
+                                    py: 0.7,
                                   }}
                                 >
                                   {determinarUnidad(datos.valorReferencia)}
@@ -1566,10 +1593,10 @@ const ListaExamenes = () => {
                                   textAlign: "center",
                                   border: "none",
                                   borderBottom: "none",
-                                  fontSize: "11px",
+                                  fontSize: "14px",
                                   color: "#000",
                                   fontWeight: "500",
-                                  py: 1,
+                                  py: 0.7,
                                 }}
                               >
                                 {datos.valorReferencia}
@@ -1587,12 +1614,12 @@ const ListaExamenes = () => {
               {examenSeleccionado.observaciones && (
                 <Box
                   sx={{
-                    mt: 2,
+                    mt: 1.5,
                     p: 1,
-                    minHeight: "60px",
+                    minHeight: "50px",
                   }}
                 >
-                  <Typography variant="body2" fontWeight="bold" gutterBottom>
+                  <Typography variant="body2" fontWeight="bold" gutterBottom sx={{ fontSize: "15px" }}>
                     OBSERVACIONES:
                   </Typography>
                   <Box
@@ -1609,6 +1636,7 @@ const ListaExamenes = () => {
                         fontStyle: "italic",
                         lineHeight: 1.4,
                         wordBreak: "break-word",
+                        fontSize: "14px",
                       }}
                     >
                       {examenSeleccionado.observaciones}

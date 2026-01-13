@@ -243,6 +243,20 @@ const ClientesTable = () => {
     }
   };
 
+  // Función para formatear la edad desde decimal a años y meses
+  const formatEdad = (edadDecimal: number) => {
+    const anios = Math.floor(edadDecimal);
+    const meses = Math.round((edadDecimal - anios) * 12);
+
+    if (anios === 0) {
+      return `${meses} ${meses === 1 ? 'mes' : 'meses'}`;
+    } else if (meses === 0) {
+      return `${anios} ${anios === 1 ? 'año' : 'años'}`;
+    } else {
+      return `${anios} ${anios === 1 ? 'año' : 'años'} ${meses} ${meses === 1 ? 'mes' : 'meses'}`;
+    }
+  };
+
   // Calcular clientes para la página actual
   const clientesPaginados = clientesFiltrados.slice(
     pagina * filasPorPagina,
@@ -599,14 +613,7 @@ const ClientesTable = () => {
                           color="success.main"
                           fontSize="13px"
                         >
-                          {cliente.edad}
-                        </Typography>
-                        <Typography
-                          variant="caption"
-                          color="success.dark"
-                          fontSize="11px"
-                        >
-                          años
+                          {formatEdad(cliente.edad)}
                         </Typography>
                       </Box>
                     </TableCell>
