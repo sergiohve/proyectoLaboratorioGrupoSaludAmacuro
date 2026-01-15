@@ -446,8 +446,16 @@ const ListaExamenes = () => {
 
     // Extraer unidades específicas del valor de referencia
     // Buscar patrones de unidades comunes
+    // IMPORTANTE: Los patrones más específicos deben ir PRIMERO
     const unidadesPatrones = [
+      // Patrones compuestos primero (más específicos)
+      { patron: /pg\/ml/i, unidad: "pg/ml" },
       { patron: /ng\/ml/i, unidad: "ng/ml" },
+      { patron: /μg\/dl/i, unidad: "μg/dL" },
+      { patron: /ug\/dl/i, unidad: "μg/dL" },
+      { patron: /μui\/ml/i, unidad: "μUI/mL" },
+      { patron: /uui\/ml/i, unidad: "μUI/mL" },
+      { patron: /miu\/ml/i, unidad: "mIU/ml" },
       { patron: /meq\/l/i, unidad: "mEq/L" },
       { patron: /mg\/dl/i, unidad: "mg/dL" },
       { patron: /mg\/l/i, unidad: "mg/L" },
@@ -458,24 +466,19 @@ const ListaExamenes = () => {
       { patron: /ui\/l/i, unidad: "UI/L" },
       { patron: /u\/l/i, unidad: "U/L" },
       { patron: /u\/ml/i, unidad: "U/mL" },
-      { patron: /μl|ul/i, unidad: "μL" },
       { patron: /cel\/μl/i, unidad: "cel/μL" },
       { patron: /cel\/ul/i, unidad: "cel/μL" },
       { patron: /cel\/mm3/i, unidad: "cel/mm³" },
       { patron: /x 10\^3\/μl/i, unidad: "x 10³/μL" },
       { patron: /x 10\^6\/μl/i, unidad: "x 10⁶/μL" },
+      { patron: /mm\/h/i, unidad: "mm/h" },
+      // Patrones simples al final (menos específicos)
+      { patron: /μl|ul/i, unidad: "μL" },
       { patron: /fl/i, unidad: "fL" },
       { patron: /pg/i, unidad: "pg" },
       { patron: /%/i, unidad: "%" },
-      { patron: /mm\/h/i, unidad: "mm/h" },
       { patron: /seg|sec/i, unidad: "seg" },
       { patron: /min/i, unidad: "min" },
-      { patron: /μg\/dl/i, unidad: "μg/dL" },
-      { patron: /ug\/dl/i, unidad: "μg/dL" },
-      { patron: /pg\/ml/i, unidad: "pg/mL" },
-      { patron: /μui\/ml/i, unidad: "μUI/mL" },
-      { patron: /uui\/ml/i, unidad: "μUI/mL" },
-      { patron: /miu\/ml/i, unidad: "mIU/ml" },
     ];
 
     // Buscar coincidencias con los patrones
