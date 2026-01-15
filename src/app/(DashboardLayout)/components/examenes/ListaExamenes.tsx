@@ -447,6 +447,8 @@ const ListaExamenes = () => {
     // Extraer unidades específicas del valor de referencia
     // Buscar patrones de unidades comunes
     const unidadesPatrones = [
+      { patron: /ng\/ml/i, unidad: "ng/ml" },
+      { patron: /meq\/l/i, unidad: "mEq/L" },
       { patron: /mg\/dl/i, unidad: "mg/dL" },
       { patron: /mg\/l/i, unidad: "mg/L" },
       { patron: /mmol\/l/i, unidad: "mmol/L" },
@@ -468,6 +470,12 @@ const ListaExamenes = () => {
       { patron: /mm\/h/i, unidad: "mm/h" },
       { patron: /seg|sec/i, unidad: "seg" },
       { patron: /min/i, unidad: "min" },
+      { patron: /μg\/dl/i, unidad: "μg/dL" },
+      { patron: /ug\/dl/i, unidad: "μg/dL" },
+      { patron: /pg\/ml/i, unidad: "pg/mL" },
+      { patron: /μui\/ml/i, unidad: "μUI/mL" },
+      { patron: /uui\/ml/i, unidad: "μUI/mL" },
+      { patron: /miu\/ml/i, unidad: "mIU/ml" },
     ];
 
     // Buscar coincidencias con los patrones
