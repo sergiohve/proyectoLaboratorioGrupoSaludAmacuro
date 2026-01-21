@@ -1846,8 +1846,12 @@ const RegistroExamen = () => {
     tiposUnicos.forEach((tipo: string) => {
       const plantilla = plantillasExamenes[tipo];
       if (plantilla) {
+        // Para ORINA COMPLETA y HECES COMPLETO, prellenar resultado con valor de referencia
+        const debePrelllenar = tipo === "ORINA COMPLETA" || tipo.includes("HECES");
+
         const camposConTipo = plantilla.campos.map(campo => ({
           ...campo,
+          resultado: debePrelllenar ? campo.valorReferencia : campo.resultado,
           tipoExamen: tipo
         }));
         nuevosCampos = [...nuevosCampos, ...camposConTipo];
@@ -1873,8 +1877,12 @@ const RegistroExamen = () => {
     nuevosTipos.forEach((tipo: string) => {
       const plantilla = plantillasExamenes[tipo];
       if (plantilla) {
+        // Para ORINA COMPLETA y HECES COMPLETO, prellenar resultado con valor de referencia
+        const debePrelllenar = tipo === "ORINA COMPLETA" || tipo.includes("HECES");
+
         const camposConTipo = plantilla.campos.map(campo => ({
           ...campo,
+          resultado: debePrelllenar ? campo.valorReferencia : campo.resultado,
           tipoExamen: tipo
         }));
         nuevosCampos = [...nuevosCampos, ...camposConTipo];
