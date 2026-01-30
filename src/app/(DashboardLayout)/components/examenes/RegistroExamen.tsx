@@ -1539,7 +1539,7 @@ const obtenerFechaVenezuela = () => {
   return fechaVenezuela.toISOString().split("T")[0];
 };
 
-const tiposExamen = Object.keys(plantillasExamenes);
+const tiposExamen = Object.keys(plantillasExamenes).sort((a, b) => a.localeCompare(b));
 
 // Interfaz para el modal de cálculo
 interface CalculoModalData {
@@ -1855,6 +1855,14 @@ const RegistroExamen = () => {
           tipoExamen: tipo
         }));
         nuevosCampos = [...nuevosCampos, ...camposConTipo];
+      } else {
+        // Para tipos personalizados sin plantilla, agregar un campo vacío
+        nuevosCampos = [...nuevosCampos, {
+          nombre: "",
+          resultado: "",
+          valorReferencia: "",
+          tipoExamen: tipo
+        }];
       }
     });
 
@@ -1870,42 +1878,35 @@ const RegistroExamen = () => {
   // Eliminar un tipo de examen específico
   const eliminarTipoExamen = (tipoAEliminar: string) => {
     const nuevosTipos = formData.tiposExamen.filter(tipo => tipo !== tipoAEliminar);
-    
-    // Recalcular campos manteniendo solo los de los tipos restantes
-    let nuevosCampos: CampoExamen[] = [];
-    
-    nuevosTipos.forEach((tipo: string) => {
-      const plantilla = plantillasExamenes[tipo];
-      if (plantilla) {
-        // Para ORINA COMPLETA y HECES COMPLETO, prellenar resultado con valor de referencia
-        const debePrelllenar = tipo === "ORINA COMPLETA" || tipo.includes("HECES");
 
-        const camposConTipo = plantilla.campos.map(campo => ({
-          ...campo,
-          resultado: debePrelllenar ? campo.valorReferencia : campo.resultado,
-          tipoExamen: tipo
-        }));
-        nuevosCampos = [...nuevosCampos, ...camposConTipo];
-      }
-    });
-    
+    // Filtrar campos eliminando solo los del tipo que se está quitando
+    const nuevosCampos = formData.campos.filter(campo => campo.tipoExamen !== tipoAEliminar);
+
     setFormData((prev) => ({
       ...prev,
       tiposExamen: nuevosTipos,
       area: nuevosTipos.length > 0 ? combinarAreas(nuevosTipos) : "",
-      campos: nuevosCampos.length > 0 ? nuevosCampos : []
+      campos: nuevosCampos
     }));
   };
 
   // Agregar un tipo de examen personalizado
   const agregarTipoPersonalizado = (tipo: string) => {
     if (!tipo || formData.tiposExamen.includes(tipo)) return;
-    
+
     const nuevosTipos = [...formData.tiposExamen, tipo];
+
+    // Si no existe plantilla para este tipo, agregar un campo vacío
+    const tieneTemplate = plantillasExamenes[tipo];
+    const nuevosCampos = tieneTemplate
+      ? [...formData.campos, ...plantillasExamenes[tipo].campos.map(c => ({ ...c, tipoExamen: tipo }))]
+      : [...formData.campos, { nombre: "", resultado: "", valorReferencia: "", tipoExamen: tipo }];
+
     setFormData((prev) => ({
       ...prev,
       tiposExamen: nuevosTipos,
-      area: combinarAreas(nuevosTipos)
+      area: combinarAreas(nuevosTipos),
+      campos: nuevosCampos
     }));
   };
 
@@ -2117,95 +2118,86 @@ const RegistroExamen = () => {
 
         <form onSubmit={handleSubmit}>
           <Grid container spacing={3}>
-            {/* Selección de Cliente */}
-            <Grid size={12}>
-              <FormControl fullWidth size="small">
-                <InputLabel>Seleccionar Paciente</InputLabel>
-                <Select
-                  name="cliente"
-                  value={formData.cliente}
-                  label="Seleccionar Paciente"
-                  onChange={handleChange}
-                  required
-                >
-                  {clientes.map((cliente) => (
-                    <MenuItem key={cliente._id} value={cliente._id}>
-                      {cliente.nombre} - {cliente.cedula} ({cliente.edad} años,{" "}
-                      {cliente.sexo})
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Grid>
-
-            {/* Selección MÚLTIPLE de Tipo de Examen */}
-            <Grid size={12}>
-              <FormControl fullWidth size="small">
-                <InputLabel>Tipos de Examen</InputLabel>
-                <Select
-                  multiple
-                  name="tiposExamen"
-                  value={formData.tiposExamen}
-                  onChange={handleTiposExamenChange}
-                  label="Tipos de Examen"
-                  required
-                  renderValue={(selected) => (
-                    <Stack direction="row" spacing={1} flexWrap="wrap">
-                      {selected.map((value) => (
-                        <Chip 
-                          key={value} 
-                          label={value} 
-                          size="small"
-                          color={getColorPorTipo(value)}
-                          onDelete={(e) => {
-                            e.stopPropagation();
-                            eliminarTipoExamen(value);
-                          }}
-                          deleteIcon={<Close />}
-                        />
-                      ))}
-                    </Stack>
-                  )}
-                >
-                  {tiposExamen.map((tipo) => (
-                    <MenuItem key={tipo} value={tipo}>
-                      <Checkbox checked={formData.tiposExamen.indexOf(tipo) > -1} />
-                      <ListItemText primary={tipo} />
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-              <Typography variant="caption" color="text.secondary" sx={{ mt: 1 }}>
-                Seleccione uno o más tipos de examen. Se combinarán automáticamente.
-              </Typography>
-            </Grid>
-
-            {/* Autocomplete para tipo personalizado */}
+            {/* Selección de Cliente con Buscador */}
             <Grid size={12}>
               <Autocomplete
-                freeSolo
-                options={tiposExamen.filter(tipo => !formData.tiposExamen.includes(tipo))}
-                value=""
-                onChange={(event: any, newValue: any) => {
-                  if (newValue && !formData.tiposExamen.includes(newValue)) {
-                    const nuevosTipos = [...formData.tiposExamen, newValue];
-                    handleTiposExamenChange({ target: { value: nuevosTipos } });
-                  }
+                size="small"
+                options={clientes}
+                getOptionLabel={(option) =>
+                  option ? `${option.nombre} - ${option.cedula} (${option.edad} años, ${option.sexo})` : ""
+                }
+                value={clientes.find(c => c._id === formData.cliente) || null}
+                onChange={(event, newValue) => {
+                  setFormData(prev => ({
+                    ...prev,
+                    cliente: newValue ? newValue._id : ""
+                  }));
                 }}
-                onInputChange={(event: any, newInputValue: any) => {
-                  if (newInputValue && event.type === 'keydown' && event.key === 'Enter') {
-                    agregarTipoPersonalizado(newInputValue);
-                  }
+                filterOptions={(options, { inputValue }) => {
+                  const searchTerm = inputValue.toLowerCase();
+                  return options.filter(option =>
+                    option.nombre.toLowerCase().includes(searchTerm) ||
+                    option.cedula.toLowerCase().includes(searchTerm)
+                  );
                 }}
-                renderInput={(params: any) => (
+                renderInput={(params) => (
                   <TextField
                     {...params}
-                    label="Agregar tipo personalizado"
-                    size="small"
-                    placeholder="Escriba y presione Enter para agregar"
+                    label="Buscar Paciente"
+                    placeholder="Escriba nombre o cédula..."
+                    required
                   />
                 )}
+                noOptionsText="No se encontraron pacientes"
+                isOptionEqualToValue={(option, value) => option._id === value._id}
               />
+            </Grid>
+
+            {/* Selección MÚLTIPLE de Tipo de Examen con Buscador */}
+            <Grid size={12}>
+              <Autocomplete
+                multiple
+                freeSolo
+                size="small"
+                options={tiposExamen}
+                value={formData.tiposExamen}
+                onChange={(event, newValue) => {
+                  handleTiposExamenChange({ target: { value: newValue } });
+                }}
+                filterOptions={(options, { inputValue }) => {
+                  const filtered = options.filter(option =>
+                    option.toLowerCase().includes(inputValue.toLowerCase())
+                  );
+                  // Si el usuario escribe algo que no existe, permitir agregarlo
+                  if (inputValue !== '' && !options.some(opt => opt.toLowerCase() === inputValue.toLowerCase())) {
+                    filtered.push(inputValue);
+                  }
+                  return filtered;
+                }}
+                renderTags={(value, getTagProps) =>
+                  value.map((option, index) => (
+                    <Chip
+                      {...getTagProps({ index })}
+                      key={option}
+                      label={option}
+                      size="small"
+                      color={getColorPorTipo(option)}
+                      deleteIcon={<Close />}
+                    />
+                  ))
+                }
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Buscar Tipos de Examen"
+                    placeholder="Escriba para buscar o agregar nuevo..."
+                  />
+                )}
+                noOptionsText="No se encontraron tipos de examen"
+              />
+              <Typography variant="caption" color="text.secondary" sx={{ mt: 1 }}>
+                Busque y seleccione uno o más tipos de examen, o escriba uno nuevo para agregarlo.
+              </Typography>
             </Grid>
 
             {/* Fecha del Examen */}
@@ -2367,9 +2359,10 @@ const RegistroExamen = () => {
             <Grid size={12}>
               {formData.tiposExamen.length > 0 ? (
                 formData.tiposExamen.map((tipoExamen, tipoIndex) => {
-                  const camposPorTipo = formData.campos.filter(
-                    (campo) => campo.tipoExamen === tipoExamen
-                  );
+                  // Obtener campos con sus índices globales
+                  const camposPorTipo = formData.campos
+                    .map((campo, index) => ({ ...campo, indexGlobal: index }))
+                    .filter((campo) => campo.tipoExamen === tipoExamen);
 
                   if (camposPorTipo.length === 0) return null;
 
@@ -2472,11 +2465,6 @@ const RegistroExamen = () => {
                           </TableHead>
                           <TableBody>
                             {camposPorTipo.map((campo, campoIndex) => {
-                              const indexGlobal = formData.campos.findIndex(
-                                (c) =>
-                                  c.nombre === campo.nombre &&
-                                  c.tipoExamen === campo.tipoExamen
-                              );
                               return (
                                 <TableRow key={campoIndex} hover>
                                   <TableCell>
@@ -2486,7 +2474,7 @@ const RegistroExamen = () => {
                                       value={campo.nombre}
                                       onChange={(e) =>
                                         handleCampoChange(
-                                          indexGlobal,
+                                          campo.indexGlobal,
                                           "nombre",
                                           e.target.value
                                         )
@@ -2507,7 +2495,7 @@ const RegistroExamen = () => {
                                       value={campo.resultado}
                                       onChange={(e) =>
                                         handleCampoChange(
-                                          indexGlobal,
+                                          campo.indexGlobal,
                                           "resultado",
                                           e.target.value
                                         )
@@ -2528,7 +2516,7 @@ const RegistroExamen = () => {
                                       value={campo.valorReferencia}
                                       onChange={(e) =>
                                         handleCampoChange(
-                                          indexGlobal,
+                                          campo.indexGlobal,
                                           "valorReferencia",
                                           e.target.value
                                         )
@@ -2546,7 +2534,7 @@ const RegistroExamen = () => {
                                     <IconButton
                                       size="small"
                                       color="error"
-                                      onClick={() => eliminarCampo(indexGlobal)}
+                                      onClick={() => eliminarCampo(campo.indexGlobal)}
                                     >
                                       <Delete fontSize="small" />
                                     </IconButton>
