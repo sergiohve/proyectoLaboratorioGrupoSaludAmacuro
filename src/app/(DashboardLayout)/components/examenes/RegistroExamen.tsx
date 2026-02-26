@@ -1200,7 +1200,7 @@ const plantillasExamenes: {
       },
     ],
   },
-  "ORINA 24 HORAS 2": {
+  "2da Orina": {
     area: "ORINA",
     campos: [
       { nombre: "CALCIO", resultado: "", valorReferencia: "2 - 17.5 mg/dl" },
