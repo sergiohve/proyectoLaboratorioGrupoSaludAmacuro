@@ -110,7 +110,7 @@ const AgregarCliente = () => {
 
     try {
       const response = await fetch(
-        "https://backinvent.onrender.com/api/clientes",
+        "http://localhost:4000/api/clientes",
         {
           method: "POST",
           headers: {

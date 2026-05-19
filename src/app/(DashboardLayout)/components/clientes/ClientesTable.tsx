@@ -1,5 +1,5 @@
 "use client";
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import {
   Typography,
   Box,
@@ -60,8 +60,20 @@ interface FormData {
 }
 
 const ClientesTable = () => {
-  const { clientes, loading, error, deleteCliente, updateCliente } =
-    useClientes() as any;
+  const {
+    clientes,
+    loading,
+    error,
+    deleteCliente,
+    updateCliente,
+    page: pagina,
+    rowsPerPage: filasPorPagina,
+    total,
+    searchTerm: terminoBusqueda,
+    setPage: setPagina,
+    setRowsPerPage: setFilasPorPagina,
+    setSearchTerm: setTerminoBusqueda,
+  } = useClientes() as any;
   const [modalAbierto, setModalAbierto] = useState(false) as any;
   const [modalEliminarAbierto, setModalEliminarAbierto] = useState(
     false
@@ -77,31 +89,10 @@ const ClientesTable = () => {
     fecha: "",
   }) as any;
   const [guardando, setGuardando] = useState(false) as any;
-  const [pagina, setPagina] = useState(0) as any;
-  const [filasPorPagina, setFilasPorPagina] = useState(5) as any;
-  const [terminoBusqueda, setTerminoBusqueda] = useState("") as any;
 
-  // Función para manejar la búsqueda
   const handleBusquedaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTerminoBusqueda(e.target.value);
-    setPagina(0);
   };
-
-  // Filtrar clientes basado en el término de búsqueda
-  const clientesFiltrados = useMemo(() => {
-    if (!terminoBusqueda) return clientes;
-
-    const termino = terminoBusqueda.toLowerCase();
-    return clientes.filter(
-      (cliente: any) =>
-        cliente.nombre.toLowerCase().includes(termino) ||
-        cliente.cedula.toLowerCase().includes(termino) ||
-        cliente.sexo.toLowerCase().includes(termino) ||
-        cliente.direccion.toLowerCase().includes(termino) ||
-        cliente.edad.toString().includes(termino) ||
-        cliente._id.toLowerCase().includes(termino)
-    );
-  }, [clientes, terminoBusqueda]);
 
   const handleChangePagina = (_event: unknown, nuevaPagina: number) => {
     setPagina(nuevaPagina);
@@ -111,7 +102,6 @@ const ClientesTable = () => {
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     setFilasPorPagina(parseInt(event.target.value, 10));
-    setPagina(0);
   };
 
   const handleOpenEliminar = (cliente: Cliente) => {
@@ -257,11 +247,7 @@ const ClientesTable = () => {
     }
   };
 
-  // Calcular clientes para la página actual
-  const clientesPaginados = clientesFiltrados.slice(
-    pagina * filasPorPagina,
-    pagina * filasPorPagina + filasPorPagina
-  );
+  const clientesPaginados = clientes;
 
   if (loading) {
     return (
@@ -285,7 +271,7 @@ const ClientesTable = () => {
         action={
           <Box display="flex" alignItems="center" gap={2}>
             <Typography variant="body2" color="textSecondary">
-              Total: {clientesFiltrados.length}
+              Total: {total}
               {terminoBusqueda && ` (filtrados)`}
             </Typography>
           </Box>
@@ -761,11 +747,11 @@ const ClientesTable = () => {
           </Table>
 
           {/* Paginación */}
-          {clientesFiltrados.length > 0 && (
+          {total > 0 && (
             <TablePagination
               rowsPerPageOptions={[5, 10, 25, 50]}
               component="div"
-              count={clientesFiltrados.length}
+              count={total}
               rowsPerPage={filasPorPagina}
               page={pagina}
               onPageChange={handleChangePagina}

@@ -4,8 +4,11 @@ import React, {
   useContext,
   useState,
   useEffect,
+  useCallback,
   ReactNode,
 } from "react";
+
+const API = "http://localhost:4000/api/clientes";
 
 interface Cliente {
   _id: string;
@@ -13,8 +16,16 @@ interface Cliente {
   cedula: string;
   edad: number;
   sexo: string;
+  direccion: string;
   fecha: string;
   createdAt: string;
+}
+
+interface Stats {
+  totalClientes: number;
+  nuevosHoy: number;
+  clientesActivos: number;
+  registrosMes: number;
 }
 
 interface ClientesContextType {
@@ -25,170 +36,111 @@ interface ClientesContextType {
   addCliente: (cliente: Omit<Cliente, "_id" | "createdAt">) => Promise<void>;
   deleteCliente: (id: string) => Promise<void>;
   updateCliente: (id: string, cliente: Partial<Cliente>) => Promise<void>;
-  stats: {
-    totalClientes: number;
-    nuevosHoy: number;
-    clientesActivos: number;
-    registrosMes: number;
-  };
+  stats: Stats;
+  page: number;
+  rowsPerPage: number;
+  total: number;
+  searchTerm: string;
+  setPage: (p: number) => void;
+  setRowsPerPage: (r: number) => void;
+  setSearchTerm: (s: string) => void;
 }
 
-const ClientesContext = createContext<ClientesContextType | undefined>(
-  undefined
-);
+const ClientesContext = createContext<ClientesContextType | undefined>(undefined);
 
-// Función para convertir a hora de Venezuela (UTC-4)
-const toVenezuelaTime = (date: Date): Date => {
-  // Venezuela está en UTC-4, así que restamos 4 horas del offset
-  const venezuelaOffset = -4 * 60; // -4 horas en minutos
-  return new Date(date.getTime() + (date.getTimezoneOffset() - venezuelaOffset) * 60000);
-};
+const DEFAULT_STATS: Stats = { totalClientes: 0, nuevosHoy: 0, clientesActivos: 0, registrosMes: 0 };
 
-// Función para obtener fecha actual en Venezuela (sin horas)
-const getTodayVenezuela = (): Date => {
-  const now = new Date();
-  const venezuelaTime = toVenezuelaTime(now);
-  venezuelaTime.setHours(0, 0, 0, 0);
-  return venezuelaTime;
-};
-
-// Función para obtener inicio del mes en Venezuela
-const getStartOfMonthVenezuela = (): Date => {
-  const today = getTodayVenezuela();
-  const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-  startOfMonth.setHours(0, 0, 0, 0);
-  return startOfMonth;
-};
-
-// Función para convertir fecha del cliente a hora de Venezuela
-const parseClienteDate = (dateString: string): Date => {
-  const date = new Date(dateString);
-  return toVenezuelaTime(date);
-};
-
-export const ClientesProvider: React.FC<{ children: ReactNode }> = ({
-  children,
-}) => {
+export const ClientesProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [stats, setStats] = useState<Stats>(DEFAULT_STATS);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [total, setTotal] = useState(0);
+  const [searchTerm, setSearchTerm] = useState("");
 
-  const fetchClientes = async () => {
+  const fetchStats = useCallback(async () => {
+    try {
+      const res = await fetch(`${API}/stats`);
+      if (res.ok) setStats(await res.json());
+    } catch {}
+  }, []);
+
+  const fetchClientes = useCallback(async (
+    pageNum = page,
+    limitNum = rowsPerPage,
+    search = searchTerm
+  ) => {
     try {
       setLoading(true);
       setError(null);
-      const response = await fetch("https://backinvent.onrender.com/api/clientes");
-      if (!response.ok) throw new Error("Error al cargar clientes");
-      const data = await response.json();
-      setClientes(data);
-      console.log("Clientes cargados:", data);
+      const params = new URLSearchParams({
+        page: String(pageNum + 1), // MUI 0-indexed → API 1-indexed
+        limit: String(limitNum),
+        ...(search && { search }),
+      });
+      const res = await fetch(`${API}?${params}`);
+      if (!res.ok) throw new Error("Error al cargar clientes");
+      const data = await res.json();
+      setClientes(data.data);
+      setTotal(data.total);
     } catch (err) {
       setError("Error al cargar los clientes");
-      console.error("Error fetching clientes:", err);
     } finally {
       setLoading(false);
     }
+  }, [page, rowsPerPage, searchTerm]);
+
+  // Refetch when pagination or search changes
+  useEffect(() => {
+    fetchClientes(page, rowsPerPage, searchTerm);
+  }, [page, rowsPerPage, searchTerm]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    fetchStats();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleSetSearchTerm = (s: string) => {
+    setSearchTerm(s);
+    setPage(0); // reset to first page on new search
   };
 
-  const addCliente = async (
-    clienteData: Omit<Cliente, "_id" | "createdAt">
-  ) => {
-    try {
-      const response = await fetch("https://backinvent.onrender.com/api/clientes", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(clienteData),
-      });
+  const handleSetRowsPerPage = (r: number) => {
+    setRowsPerPage(r);
+    setPage(0);
+  };
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Error al crear cliente");
-      }
-
-      await fetchClientes(); // Refrescar la lista
-    } catch (error) {
-      throw error;
+  const addCliente = async (clienteData: Omit<Cliente, "_id" | "createdAt">) => {
+    const res = await fetch(API, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(clienteData),
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.message || "Error al crear cliente");
     }
+    await Promise.all([fetchClientes(page, rowsPerPage, searchTerm), fetchStats()]);
   };
 
   const deleteCliente = async (id: string) => {
-    try {
-      const response = await fetch(`https://backinvent.onrender.com/api/clientes/${id}`, {
-        method: "DELETE",
-      });
-
-      if (!response.ok) throw new Error("Error al eliminar cliente");
-
-      await fetchClientes(); // Refrescar la lista
-    } catch (error) {
-      throw error;
-    }
+    const res = await fetch(`${API}/${id}`, { method: "DELETE" });
+    if (!res.ok) throw new Error("Error al eliminar cliente");
+    await Promise.all([fetchClientes(page, rowsPerPage, searchTerm), fetchStats()]);
   };
 
   const updateCliente = async (id: string, clienteData: Partial<Cliente>) => {
-    try {
-      const response = await fetch(`https://backinvent.onrender.com/api/clientes/${id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(clienteData),
-      });
-
-      if (!response.ok) throw new Error("Error al actualizar cliente");
-
-      await fetchClientes(); // Refrescar la lista
-    } catch (error) {
-      throw error;
-    }
+    const res = await fetch(`${API}/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(clienteData),
+    });
+    if (!res.ok) throw new Error("Error al actualizar cliente");
+    await fetchClientes(page, rowsPerPage, searchTerm);
   };
 
-  // Calcular estadísticas basadas en hora de Venezuela
-  const calcularStats = () => {
-    const hoyVenezuela = getTodayVenezuela();
-    const inicioDelMesVenezuela = getStartOfMonthVenezuela();
-
-    const totalClientes = clientes.length;
-
-    const nuevosHoy = clientes.filter((cliente) => {
-      const fechaCliente = parseClienteDate(cliente.fecha);
-      fechaCliente.setHours(0, 0, 0, 0);
-      
-      console.log('Fecha cliente (Venezuela):', fechaCliente);
-      console.log('Hoy (Venezuela):', hoyVenezuela);
-      console.log('¿Son iguales?', fechaCliente.getTime() === hoyVenezuela.getTime());
-      
-      return fechaCliente.getTime() === hoyVenezuela.getTime();
-    }).length;
-
-    const registrosMes = clientes.filter((cliente) => {
-      const fechaCliente = parseClienteDate(cliente.fecha);
-      fechaCliente.setHours(0, 0, 0, 0);
-      
-      return fechaCliente >= inicioDelMesVenezuela;
-    }).length;
-
-    console.log('--- ESTADÍSTICAS (HORA VENEZUELA) ---');
-    console.log('Hoy Venezuela:', hoyVenezuela.toISOString());
-    console.log('Inicio del mes Venezuela:', inicioDelMesVenezuela.toISOString());
-    console.log('Nuevos hoy:', nuevosHoy);
-    console.log('Registros mes:', registrosMes);
-
-    return {
-      totalClientes,
-      nuevosHoy,
-      clientesActivos: totalClientes,
-      registrosMes,
-    };
-  };
-
-  const stats = calcularStats();
-
-  useEffect(() => {
-    fetchClientes();
-  }, []);
+  const refreshClientes = () => fetchClientes(page, rowsPerPage, searchTerm);
 
   return (
     <ClientesContext.Provider
@@ -196,11 +148,18 @@ export const ClientesProvider: React.FC<{ children: ReactNode }> = ({
         clientes,
         loading,
         error,
-        refreshClientes: fetchClientes,
+        refreshClientes,
         addCliente,
         deleteCliente,
         updateCliente,
         stats,
+        page,
+        rowsPerPage,
+        total,
+        searchTerm,
+        setPage,
+        setRowsPerPage: handleSetRowsPerPage,
+        setSearchTerm: handleSetSearchTerm,
       }}
     >
       {children}
@@ -216,14 +175,15 @@ export const useClientes = () => {
   return context;
 };
 
-// Función auxiliar para formatear fechas en hora de Venezuela
+// Keep for backward compat with any component that imports it
 export const formatVenezuelaDate = (dateString: string): string => {
-  const date = parseClienteDate(dateString);
-  const day = date.getDate().toString().padStart(2, '0');
-  const month = (date.getMonth() + 1).toString().padStart(2, '0');
-  const year = date.getFullYear();
-  const hours = date.getHours().toString().padStart(2, '0');
-  const minutes = date.getMinutes().toString().padStart(2, '0');
-  
+  const date = new Date(dateString);
+  const venezuelaOffset = -4 * 60;
+  const venezDate = new Date(date.getTime() + (date.getTimezoneOffset() - venezuelaOffset) * 60000);
+  const day = venezDate.getDate().toString().padStart(2, "0");
+  const month = (venezDate.getMonth() + 1).toString().padStart(2, "0");
+  const year = venezDate.getFullYear();
+  const hours = venezDate.getHours().toString().padStart(2, "0");
+  const minutes = venezDate.getMinutes().toString().padStart(2, "0");
   return `${day}/${month}/${year} ${hours}:${minutes}`;
 };

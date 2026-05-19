@@ -69,7 +69,7 @@ interface Examen {
 
 const ListaExamenes = () => {
   const [examenes, setExamenes] = useState<Examen[]>([]);
-  const [examenesFiltrados, setExamenesFiltrados] = useState<Examen[]>([]);
+  const [total, setTotal] = useState(0);
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -142,16 +142,23 @@ const ListaExamenes = () => {
     return grupos;
   };
 
-  const fetchExamenes = async () => {
+  const fetchExamenes = async (
+    pageNum = pagina,
+    limitNum = filasPorPagina,
+    search = terminoBusqueda
+  ) => {
     try {
       setLoading(true);
-      const response = await fetch(
-        "https://backinvent.onrender.com/api/examenes"
-      );
+      const params = new URLSearchParams({
+        page: String(pageNum + 1),
+        limit: String(limitNum),
+        ...(search && { search }),
+      });
+      const response = await fetch(`http://localhost:4000/api/examenes?${params}`);
       if (!response.ok) throw new Error("Error al cargar exámenes");
       const data = await response.json();
-      setExamenes(data);
-      setExamenesFiltrados(data);
+      setExamenes(data.data);
+      setTotal(data.total);
     } catch (err) {
       setError("Error al cargar los exámenes");
     } finally {
@@ -161,12 +168,10 @@ const ListaExamenes = () => {
 
   const fetchClientes = async () => {
     try {
-      const response = await fetch(
-        "https://backinvent.onrender.com/api/clientes"
-      );
+      const response = await fetch("http://localhost:4000/api/clientes?all=true");
       if (response.ok) {
         const data = await response.json();
-        setClientes(data);
+        setClientes(data.data);
       }
     } catch (error) {
       console.error("Error cargando clientes:", error);
@@ -174,35 +179,30 @@ const ListaExamenes = () => {
   };
 
   useEffect(() => {
-    fetchExamenes();
+    fetchExamenes(pagina, filasPorPagina, terminoBusqueda);
     fetchClientes();
 
-    const handleExamenAdded = () => fetchExamenes();
+    const handleExamenAdded = () => fetchExamenes(0, filasPorPagina, "");
     window.addEventListener("examenAdded", handleExamenAdded);
 
     return () => {
       window.removeEventListener("examenAdded", handleExamenAdded);
     };
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Función de búsqueda
+  // Refetch on page or rowsPerPage change
   useEffect(() => {
-    if (terminoBusqueda.trim() === "") {
-      setExamenesFiltrados(examenes);
-    } else {
-      const termino = terminoBusqueda.toLowerCase();
-      const filtrados = examenes.filter(
-        (examen) =>
-          examen.cliente.nombre.toLowerCase().includes(termino) ||
-          examen.cliente.cedula.toLowerCase().includes(termino) ||
-          examen.cliente.direccion.toLowerCase().includes(termino) ||
-          examen.tipoExamen.toLowerCase().includes(termino) ||
-          examen.area.toLowerCase().includes(termino)
-      );
-      setExamenesFiltrados(filtrados);
-    }
-    setPagina(0);
-  }, [terminoBusqueda, examenes]);
+    fetchExamenes(pagina, filasPorPagina, terminoBusqueda);
+  }, [pagina, filasPorPagina]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Debounced search refetch
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setPagina(0);
+      fetchExamenes(0, filasPorPagina, terminoBusqueda);
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [terminoBusqueda]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleChangePagina = (_event: unknown, nuevaPagina: number) => {
     setPagina(nuevaPagina);
@@ -229,16 +229,14 @@ const ListaExamenes = () => {
 
     try {
       const response = await fetch(
-        `https://backinvent.onrender.com/api/examenes/${examenAEliminar}`,
+        `http://localhost:4000/api/examenes/${examenAEliminar}`,
         {
           method: "DELETE",
         }
       );
 
       if (response.ok) {
-        setExamenes(
-          examenes.filter((examen) => examen._id !== examenAEliminar)
-        );
+        await fetchExamenes(pagina, filasPorPagina, terminoBusqueda);
         setMensajeExito("Examen eliminado exitosamente");
         setModalExitoAbierto(true);
       } else {
@@ -285,7 +283,7 @@ const ListaExamenes = () => {
 
     try {
       const response = await fetch(
-        `https://backinvent.onrender.com/api/examenes/${examenId}`,
+        `http://localhost:4000/api/examenes/${examenId}`,
         {
           method: "PUT",
           headers: {
@@ -328,7 +326,7 @@ const ListaExamenes = () => {
     setEditando(true);
     try {
       const response = await fetch(
-        `https://backinvent.onrender.com/api/examenes/${examenSeleccionado._id}`,
+        `http://localhost:4000/api/examenes/${examenSeleccionado._id}`,
         {
           method: "PUT",
           headers: {
@@ -601,11 +599,7 @@ const ListaExamenes = () => {
     }
   };
 
-  // Calcular exámenes para la página actual
-  const examenesPaginados = examenesFiltrados.slice(
-    pagina * filasPorPagina,
-    pagina * filasPorPagina + filasPorPagina
-  );
+  const examenesPaginados = examenes;
 
   if (loading) {
     return (
@@ -629,11 +623,11 @@ const ListaExamenes = () => {
         action={
           <Box display="flex" alignItems="center" gap={2}>
             <Typography variant="body2" color="textSecondary">
-              Total: {examenesFiltrados.length}
+              Total: {total}
             </Typography>
-            {examenesFiltrados.length !== examenes.length && (
+            {terminoBusqueda && (
               <Chip
-                label={`Filtrados: ${examenesFiltrados.length}`}
+                label={`Filtrados: ${total}`}
                 color="primary"
                 variant="outlined"
                 size="small"
@@ -694,9 +688,9 @@ const ListaExamenes = () => {
               color="textSecondary"
               sx={{ mt: 1, display: "block" }}
             >
-              {examenesFiltrados.length === 0
+              {total === 0
                 ? "No se encontraron exámenes"
-                : `Mostrando ${examenesFiltrados.length} de ${examenes.length} exámenes`}
+                : `${total} exámenes encontrados`}
             </Typography>
           )}
         </Box>
@@ -965,11 +959,11 @@ const ListaExamenes = () => {
           </Table>
 
           {/* Paginación */}
-          {examenesFiltrados.length > 0 && (
+          {total > 0 && (
             <TablePagination
               rowsPerPageOptions={[5, 10, 25, 50]}
               component="div"
-              count={examenesFiltrados.length}
+              count={total}
               rowsPerPage={filasPorPagina}
               page={pagina}
               onPageChange={handleChangePagina}
@@ -1405,7 +1399,7 @@ const ListaExamenes = () => {
                           color: "#1f2937",
                         }}
                       >
-                        {examenesFiltrados.length + 1}
+                        {total + 1}
                       </TableCell>
                       <TableCell sx={{ border: "none", p: 0 }}></TableCell>
                       <TableCell sx={{ border: "none", p: 0 }}></TableCell>
