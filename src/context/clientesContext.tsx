@@ -92,10 +92,18 @@ export const ClientesProvider: React.FC<{ children: ReactNode }> = ({ children }
     }
   }, [page, rowsPerPage, searchTerm]);
 
-  // Refetch when pagination or search changes
+  // Immediate refetch on page or rowsPerPage change
   useEffect(() => {
     fetchClientes(page, rowsPerPage, searchTerm);
-  }, [page, rowsPerPage, searchTerm]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [page, rowsPerPage]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Debounced refetch on search change (3s pause)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      fetchClientes(page, rowsPerPage, searchTerm);
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, [searchTerm]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     fetchStats();

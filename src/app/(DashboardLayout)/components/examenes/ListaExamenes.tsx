@@ -195,12 +195,12 @@ const ListaExamenes = () => {
     fetchExamenes(pagina, filasPorPagina, terminoBusqueda);
   }, [pagina, filasPorPagina]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Debounced search refetch
+  // Debounced search refetch (3s pause)
   useEffect(() => {
     const timer = setTimeout(() => {
       setPagina(0);
       fetchExamenes(0, filasPorPagina, terminoBusqueda);
-    }, 400);
+    }, 3000);
     return () => clearTimeout(timer);
   }, [terminoBusqueda]); // eslint-disable-line react-hooks/exhaustive-deps
 
