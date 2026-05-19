@@ -1584,7 +1584,7 @@ const RegistroExamen = () => {
     const fetchClientes = async () => {
       try {
         const response = await fetch(
-          "http://localhost:4000/api/clientes?all=true"
+          "https://backinvent.onrender.com/api/clientes?all=true"
         );
         if (response.ok) {
           const data = await response.json();
@@ -1977,7 +1977,7 @@ const RegistroExamen = () => {
       const tiposExamenCombinados = formData.tiposExamen.join(" + ");
       
       const response = await fetch(
-        "http://localhost:4000/api/examenes",
+        "https://backinvent.onrender.com/api/examenes",
         {
           method: "POST",
           headers: {

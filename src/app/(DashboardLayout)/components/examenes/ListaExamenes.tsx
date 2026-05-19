@@ -154,7 +154,7 @@ const ListaExamenes = () => {
         limit: String(limitNum),
         ...(search && { search }),
       });
-      const response = await fetch(`http://localhost:4000/api/examenes?${params}`);
+      const response = await fetch(`https://backinvent.onrender.com/api/examenes?${params}`);
       if (!response.ok) throw new Error("Error al cargar exámenes");
       const data = await response.json();
       setExamenes(data.data);
@@ -168,7 +168,7 @@ const ListaExamenes = () => {
 
   const fetchClientes = async () => {
     try {
-      const response = await fetch("http://localhost:4000/api/clientes?all=true");
+      const response = await fetch("https://backinvent.onrender.com/api/clientes?all=true");
       if (response.ok) {
         const data = await response.json();
         setClientes(data.data);
@@ -229,7 +229,7 @@ const ListaExamenes = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:4000/api/examenes/${examenAEliminar}`,
+        `https://backinvent.onrender.com/api/examenes/${examenAEliminar}`,
         {
           method: "DELETE",
         }
@@ -283,7 +283,7 @@ const ListaExamenes = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:4000/api/examenes/${examenId}`,
+        `https://backinvent.onrender.com/api/examenes/${examenId}`,
         {
           method: "PUT",
           headers: {
@@ -297,13 +297,6 @@ const ListaExamenes = () => {
 
       if (response.ok) {
         setExamenes((prevExamenes) =>
-          prevExamenes.map((examen) =>
-            examen._id === examenId
-              ? { ...examen, estado: nuevoEstado }
-              : examen
-          )
-        );
-        setExamenesFiltrados((prevExamenes) =>
           prevExamenes.map((examen) =>
             examen._id === examenId
               ? { ...examen, estado: nuevoEstado }
@@ -326,7 +319,7 @@ const ListaExamenes = () => {
     setEditando(true);
     try {
       const response = await fetch(
-        `http://localhost:4000/api/examenes/${examenSeleccionado._id}`,
+        `https://backinvent.onrender.com/api/examenes/${examenSeleccionado._id}`,
         {
           method: "PUT",
           headers: {
