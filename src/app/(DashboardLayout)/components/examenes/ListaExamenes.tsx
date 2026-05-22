@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import {
   Typography,
   Box,
@@ -41,6 +42,7 @@ import {
   Warning,
   CheckCircle,
   LocationOn,
+  Add,
 } from "@mui/icons-material";
 import DashboardCard from "@/app/(DashboardLayout)/components/shared/DashboardCard";
 import jsPDF from "jspdf";
@@ -68,6 +70,7 @@ interface Examen {
 }
 
 const ListaExamenes = () => {
+  const router = useRouter();
   const [examenes, setExamenes] = useState<Examen[]>([]);
   const [total, setTotal] = useState(0);
   const [clientes, setClientes] = useState<Cliente[]>([]);
@@ -145,10 +148,11 @@ const ListaExamenes = () => {
   const fetchExamenes = async (
     pageNum = pagina,
     limitNum = filasPorPagina,
-    search = terminoBusqueda
+    search = terminoBusqueda,
+    showSpinner = true
   ) => {
     try {
-      setLoading(true);
+      if (showSpinner) setLoading(true);
       const params = new URLSearchParams({
         page: String(pageNum + 1),
         limit: String(limitNum),
@@ -157,8 +161,10 @@ const ListaExamenes = () => {
       const response = await fetch(`https://backinvent.onrender.com/api/examenes?${params}`);
       if (!response.ok) throw new Error("Error al cargar exámenes");
       const data = await response.json();
-      setExamenes(data.data);
-      setTotal(data.total);
+      const items = Array.isArray(data) ? data : (data.data ?? []);
+      const count = Array.isArray(data) ? data.length : (data.total ?? data.length ?? 0);
+      setExamenes(items);
+      setTotal(count);
     } catch (err) {
       setError("Error al cargar los exámenes");
     } finally {
@@ -171,32 +177,35 @@ const ListaExamenes = () => {
       const response = await fetch("https://backinvent.onrender.com/api/clientes?all=true");
       if (response.ok) {
         const data = await response.json();
-        setClientes(data.data);
+        setClientes(Array.isArray(data) ? data : (data.data ?? []));
       }
     } catch (error) {
       console.error("Error cargando clientes:", error);
     }
   };
 
+  const searchMounted = useRef(false);
+
   useEffect(() => {
-    fetchExamenes(pagina, filasPorPagina, terminoBusqueda);
     fetchClientes();
-
-    const handleExamenAdded = () => fetchExamenes(0, filasPorPagina, "");
+    const handleExamenAdded = () => fetchExamenes(0, filasPorPagina, "", false);
     window.addEventListener("examenAdded", handleExamenAdded);
-
     return () => {
       window.removeEventListener("examenAdded", handleExamenAdded);
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Refetch on page or rowsPerPage change
+  // Carga inicial + cambios de página/filasPorPagina
   useEffect(() => {
     fetchExamenes(pagina, filasPorPagina, terminoBusqueda);
   }, [pagina, filasPorPagina]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Debounced search refetch (3s pause)
+  // Búsqueda con debounce — se salta el primer render
   useEffect(() => {
+    if (!searchMounted.current) {
+      searchMounted.current = true;
+      return;
+    }
     const timer = setTimeout(() => {
       setPagina(0);
       fetchExamenes(0, filasPorPagina, terminoBusqueda);
@@ -236,7 +245,7 @@ const ListaExamenes = () => {
       );
 
       if (response.ok) {
-        await fetchExamenes(pagina, filasPorPagina, terminoBusqueda);
+        await fetchExamenes(pagina, filasPorPagina, terminoBusqueda, false);
         setMensajeExito("Examen eliminado exitosamente");
         setModalExitoAbierto(true);
       } else {
@@ -334,7 +343,7 @@ const ListaExamenes = () => {
       );
 
       if (response.ok) {
-        await fetchExamenes();
+        await fetchExamenes(pagina, filasPorPagina, terminoBusqueda, false);
         handleCerrarModal();
         setMensajeExito("Examen actualizado exitosamente");
         setModalExitoAbierto(true);
@@ -608,7 +617,6 @@ const ListaExamenes = () => {
       </DashboardCard>
     );
   }
-  console.log(examenSeleccionado);
   return (
     <>
       <DashboardCard
@@ -626,6 +634,22 @@ const ListaExamenes = () => {
                 size="small"
               />
             )}
+            <Button
+              variant="contained"
+              startIcon={<Add />}
+              onClick={() => router.push("/examenes")}
+              sx={{
+                background: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
+                textTransform: "none",
+                fontWeight: 600,
+                borderRadius: 2,
+                "&:hover": {
+                  background: "linear-gradient(135deg, #059669 0%, #047857 100%)",
+                },
+              }}
+            >
+              Nuevo Examen
+            </Button>
           </Box>
         }
       >
@@ -1299,7 +1323,7 @@ const ListaExamenes = () => {
                           ? "MASCULINO"
                           : examenSeleccionado.cliente?.sexo === "Femenino"
                           ? "FEMENINO"
-                          : examenSeleccionado.cliente?.sexo.toUpperCase()}
+                          : examenSeleccionado.cliente?.sexo?.toUpperCase() ?? "Dato eliminado"}
                       </TableCell>
                       <TableCell
                         sx={{

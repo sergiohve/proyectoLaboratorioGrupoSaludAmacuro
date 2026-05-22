@@ -5,6 +5,7 @@ import React, {
   useState,
   useEffect,
   useCallback,
+  useRef,
   ReactNode,
 } from "react";
 
@@ -59,6 +60,7 @@ export const ClientesProvider: React.FC<{ children: ReactNode }> = ({ children }
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [total, setTotal] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
+  const searchMounted = useRef(false);
 
   const fetchStats = useCallback(async () => {
     try {
@@ -83,8 +85,10 @@ export const ClientesProvider: React.FC<{ children: ReactNode }> = ({ children }
       const res = await fetch(`${API}?${params}`);
       if (!res.ok) throw new Error("Error al cargar clientes");
       const data = await res.json();
-      setClientes(data.data);
-      setTotal(data.total);
+      const items = Array.isArray(data) ? data : (data.data ?? []);
+      const count = Array.isArray(data) ? data.length : (data.total ?? data.length ?? 0);
+      setClientes(items);
+      setTotal(count);
     } catch (err) {
       setError("Error al cargar los clientes");
     } finally {
@@ -97,8 +101,12 @@ export const ClientesProvider: React.FC<{ children: ReactNode }> = ({ children }
     fetchClientes(page, rowsPerPage, searchTerm);
   }, [page, rowsPerPage]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Debounced refetch on search change (3s pause)
+  // Debounced refetch on search change — salta el primer render
   useEffect(() => {
+    if (!searchMounted.current) {
+      searchMounted.current = true;
+      return;
+    }
     const timer = setTimeout(() => {
       fetchClientes(page, rowsPerPage, searchTerm);
     }, 3000);

@@ -38,6 +38,7 @@ import {
   Delete,
   Calculate,
   Close,
+  Warning,
 } from "@mui/icons-material";
 import { useRouter } from "next/navigation";
 
@@ -1539,7 +1540,7 @@ const obtenerFechaVenezuela = () => {
   return fechaVenezuela.toISOString().split("T")[0];
 };
 
-const tiposExamen = Object.keys(plantillasExamenes).sort((a, b) => a.localeCompare(b));
+type PlantillasMap = { [key: string]: { area: string; campos: CampoExamen[] } };
 
 // Interfaz para el modal de cálculo
 interface CalculoModalData {
@@ -1553,6 +1554,9 @@ interface CalculoModalData {
 const RegistroExamen = () => {
   const router = useRouter();
   const [clientes, setClientes] = useState<Cliente[]>([]);
+  const [plantillasCustom, setPlantillasCustom] = useState<PlantillasMap>({});
+  const [plantillasCustomIds, setPlantillasCustomIds] = useState<Record<string, string>>({});
+  const [tipoAEliminar, setTipoAEliminar] = useState<string | null>(null);
   const [formData, setFormData] = useState<ExamenForm>({
     cliente: "",
     tiposExamen: [], // Ahora es un array vacío
@@ -1579,7 +1583,7 @@ const RegistroExamen = () => {
     insulina: "",
   });
 
-  // Cargar clientes al montar el componente
+  // Cargar clientes y plantillas custom al montar
   useEffect(() => {
     const fetchClientes = async () => {
       try {
@@ -1588,20 +1592,84 @@ const RegistroExamen = () => {
         );
         if (response.ok) {
           const data = await response.json();
-          setClientes(data.data);
+          setClientes(Array.isArray(data) ? data : (data.data ?? []));
         }
       } catch (error) {
         console.error("Error cargando clientes:", error);
       }
     };
+
+    const fetchPlantillas = async () => {
+      try {
+        const response = await fetch(
+          "https://backinvent.onrender.com/api/tipos-examen"
+        );
+        if (response.ok) {
+          const data: Array<{ _id: string; nombre: string; area: string; campos: Array<{ nombre: string; valorReferencia: string }> }> = await response.json();
+          const mapa: PlantillasMap = {};
+          const ids: Record<string, string> = {};
+          data.forEach((item) => {
+            mapa[item.nombre] = {
+              area: item.area || item.nombre,
+              campos: (item.campos || []).map((c) => ({
+                nombre: c.nombre,
+                resultado: "",
+                valorReferencia: c.valorReferencia || "",
+                tipoExamen: item.nombre,
+              })),
+            };
+            ids[item.nombre] = item._id;
+          });
+          setPlantillasCustom(mapa);
+          setPlantillasCustomIds(ids);
+        }
+      } catch (error) {
+        console.error("Error cargando plantillas:", error);
+      }
+    };
+
     fetchClientes();
+    fetchPlantillas();
   }, []);
+
+  // Todas las plantillas: predefinidas + guardadas en BD
+  const todasLasPlantillas: PlantillasMap = { ...plantillasExamenes, ...plantillasCustom };
+  const todosLosTipos = Object.keys(todasLasPlantillas).sort((a, b) => a.localeCompare(b));
 
   // Función para combinar áreas cuando hay múltiples exámenes
   const combinarAreas = (tipos: string[]): string => {
-    const areas = tipos.map((tipo) => plantillasExamenes[tipo]?.area || tipo);
+    const areas = tipos.map((tipo) => todasLasPlantillas[tipo]?.area || tipo);
     const areasUnicas = Array.from(new Set(areas));
     return areasUnicas.join(" + ");
+  };
+
+  const handleEliminarTipoCustom = async () => {
+    if (!tipoAEliminar) return;
+    const id = plantillasCustomIds[tipoAEliminar];
+    if (!id) { setTipoAEliminar(null); return; }
+    try {
+      const res = await fetch(`https://backinvent.onrender.com/api/tipos-examen/${id}`, { method: "DELETE" });
+      if (res.ok) {
+        setPlantillasCustom((prev) => {
+          const next = { ...prev };
+          delete next[tipoAEliminar];
+          return next;
+        });
+        setPlantillasCustomIds((prev) => {
+          const next = { ...prev };
+          delete next[tipoAEliminar];
+          return next;
+        });
+        // Si estaba seleccionado, quitarlo
+        if (formData.tiposExamen.includes(tipoAEliminar)) {
+          eliminarTipoExamen(tipoAEliminar);
+        }
+      }
+    } catch (e) {
+      console.error("Error eliminando tipo:", e);
+    } finally {
+      setTipoAEliminar(null);
+    }
   };
 
   // Determinar si algún examen seleccionado requiere cálculos lipídicos
@@ -1610,7 +1678,7 @@ const RegistroExamen = () => {
       (tipo) =>
         tipo.includes("LIPIDICO") ||
         tipo.includes("QUIMICA SANGUINEA COMPLETA") ||
-        plantillasExamenes[tipo]?.area === "QUIMICA SANGUINEA"
+        todasLasPlantillas[tipo]?.area === "QUIMICA SANGUINEA"
     );
   };
 
@@ -1632,7 +1700,7 @@ const RegistroExamen = () => {
         tipo.includes("QUIMICA SANGUINEA COMPLETA") ||
         tipo.includes("LIPIDOS TOTALES") ||
         tipo.includes("INDICE DE HOMA") ||
-        plantillasExamenes[tipo]?.area === "QUIMICA SANGUINEA"
+        todasLasPlantillas[tipo]?.area === "QUIMICA SANGUINEA"
     );
   };
 
@@ -1844,7 +1912,7 @@ const RegistroExamen = () => {
     let nuevosCampos: CampoExamen[] = [];
 
     tiposUnicos.forEach((tipo: string) => {
-      const plantilla = plantillasExamenes[tipo];
+      const plantilla = todasLasPlantillas[tipo];
       if (plantilla) {
         // Para ORINA COMPLETA y HECES COMPLETO, prellenar resultado con valor de referencia
         const debePrelllenar = tipo === "ORINA COMPLETA" || tipo.includes("HECES");
@@ -1897,9 +1965,9 @@ const RegistroExamen = () => {
     const nuevosTipos = [...formData.tiposExamen, tipo];
 
     // Si no existe plantilla para este tipo, agregar un campo vacío
-    const tieneTemplate = plantillasExamenes[tipo];
+    const tieneTemplate = todasLasPlantillas[tipo];
     const nuevosCampos = tieneTemplate
-      ? [...formData.campos, ...plantillasExamenes[tipo].campos.map(c => ({ ...c, tipoExamen: tipo }))]
+      ? [...formData.campos, ...todasLasPlantillas[tipo].campos.map(c => ({ ...c, tipoExamen: tipo }))]
       : [...formData.campos, { nombre: "", resultado: "", valorReferencia: "", tipoExamen: tipo }];
 
     setFormData((prev) => ({
@@ -2033,6 +2101,40 @@ const RegistroExamen = () => {
     }
   };
 
+  const handleGuardarPlantilla = async (tipo: string) => {
+    const camposDeTipo = formData.campos
+      .filter((c) => c.tipoExamen === tipo)
+      .map((c) => ({ nombre: c.nombre, valorReferencia: c.valorReferencia }));
+    const area = todasLasPlantillas[tipo]?.area || tipo;
+    try {
+      const res = await fetch("https://backinvent.onrender.com/api/tipos-examen", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nombre: tipo, area, campos: camposDeTipo }),
+      });
+      if (res.ok) {
+        const updated = await res.json();
+        setPlantillasCustom((prev) => ({
+          ...prev,
+          [tipo]: {
+            area: updated.area,
+            campos: updated.campos.map((c: { nombre: string; valorReferencia: string }) => ({
+              nombre: c.nombre,
+              resultado: "",
+              valorReferencia: c.valorReferencia,
+              tipoExamen: tipo,
+            })),
+          },
+        }));
+        if (!plantillasCustomIds[tipo]) {
+          setPlantillasCustomIds((prev) => ({ ...prev, [tipo]: updated._id }));
+        }
+      }
+    } catch (e) {
+      console.error("Error guardando plantilla:", e);
+    }
+  };
+
   // Función para obtener color basado en el tipo de examen
   const getColorPorTipo = (tipo: string) => {
     const colores = {
@@ -2159,7 +2261,7 @@ const RegistroExamen = () => {
                 multiple
                 freeSolo
                 size="small"
-                options={tiposExamen}
+                options={todosLosTipos}
                 value={formData.tiposExamen}
                 onChange={(event, newValue) => {
                   handleTiposExamenChange({ target: { value: newValue } });
@@ -2186,6 +2288,33 @@ const RegistroExamen = () => {
                     />
                   ))
                 }
+                renderOption={(props, option) => {
+                  const isCustom = !!plantillasCustomIds[option];
+                  return (
+                    <Box
+                      component="li"
+                      {...props}
+                      sx={{ display: "flex", alignItems: "center", width: "100%", pr: 0.5 }}
+                    >
+                      <Box sx={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                        {option}
+                      </Box>
+                      {isCustom && (
+                        <IconButton
+                          size="small"
+                          color="error"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setTipoAEliminar(option);
+                          }}
+                          sx={{ ml: "auto", flexShrink: 0, p: 0.5 }}
+                        >
+                          <Delete fontSize="small" />
+                        </IconButton>
+                      )}
+                    </Box>
+                  );
+                }}
                 renderInput={(params) => (
                   <TextField
                     {...params}
@@ -2546,27 +2675,47 @@ const RegistroExamen = () => {
                         </Table>
                       </TableContainer>
 
-                      {/* Botón Agregar Campo */}
-                      <Button
-                        startIcon={<Add />}
-                        onClick={() => agregarCampoPersonalizado(tipoExamen)}
-                        variant="outlined"
-                        color="success"
-                        size="small"
-                        sx={{
-                          mt: 2,
-                          textTransform: "none",
-                          fontWeight: 600,
-                          borderRadius: 2,
-                          borderWidth: 2,
-                          "&:hover": {
+                      {/* Botones Agregar Campo / Guardar Plantilla */}
+                      <Box sx={{ display: "flex", gap: 1, mt: 2 }}>
+                        <Button
+                          startIcon={<Add />}
+                          onClick={() => agregarCampoPersonalizado(tipoExamen)}
+                          variant="outlined"
+                          color="success"
+                          size="small"
+                          sx={{
+                            textTransform: "none",
+                            fontWeight: 600,
+                            borderRadius: 2,
                             borderWidth: 2,
-                            backgroundColor: "rgba(16, 185, 129, 0.1)",
-                          },
-                        }}
-                      >
-                        Agregar Campo
-                      </Button>
+                            "&:hover": {
+                              borderWidth: 2,
+                              backgroundColor: "rgba(16, 185, 129, 0.1)",
+                            },
+                          }}
+                        >
+                          Agregar Campo
+                        </Button>
+                        <Button
+                          startIcon={<Save />}
+                          onClick={() => handleGuardarPlantilla(tipoExamen)}
+                          variant="outlined"
+                          color="primary"
+                          size="small"
+                          sx={{
+                            textTransform: "none",
+                            fontWeight: 600,
+                            borderRadius: 2,
+                            borderWidth: 2,
+                            "&:hover": {
+                              borderWidth: 2,
+                              backgroundColor: "rgba(25, 118, 210, 0.08)",
+                            },
+                          }}
+                        >
+                          Guardar plantilla
+                        </Button>
+                      </Box>
                     </Box>
                   );
                 })
@@ -2941,6 +3090,32 @@ const RegistroExamen = () => {
               }}
             >
               Calcular y Aplicar
+            </Button>
+          </DialogActions>
+        </Dialog>
+        {/* Modal Confirmar Eliminación Tipo Custom */}
+        <Dialog
+          open={!!tipoAEliminar}
+          onClose={() => setTipoAEliminar(null)}
+          maxWidth="xs"
+          fullWidth
+        >
+          <DialogTitle>
+            <Box display="flex" alignItems="center" gap={1}>
+              <Warning color="error" />
+              Confirmar Eliminación
+            </Box>
+          </DialogTitle>
+          <DialogContent>
+            <Typography>
+              ¿Está seguro que desea eliminar el tipo de examen{" "}
+              <strong>{tipoAEliminar}</strong>? Esta acción no se puede deshacer.
+            </Typography>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setTipoAEliminar(null)}>Cancelar</Button>
+            <Button onClick={handleEliminarTipoCustom} variant="contained" color="error">
+              Eliminar
             </Button>
           </DialogActions>
         </Dialog>
