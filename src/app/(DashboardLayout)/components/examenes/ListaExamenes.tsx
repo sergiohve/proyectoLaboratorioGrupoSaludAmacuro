@@ -523,69 +523,30 @@ const ListaExamenes = () => {
     return "-";
   };
 
-  const capturarContenidoPDF = async (): Promise<string> => {
-    const element = pdfRef.current!;
-    // Clonar fuera del scroll para capturar contenido completo
-    const tempContainer = document.createElement("div");
-    tempContainer.style.cssText =
-      "position:absolute;left:-9999px;top:0;background:#ffffff;width:" +
-      element.offsetWidth + "px";
-    document.body.appendChild(tempContainer);
-    const clone = element.cloneNode(true) as HTMLElement;
-    clone.style.height = "auto";
-    clone.style.overflow = "visible";
-    tempContainer.appendChild(clone);
-
-    const canvas = await html2canvas(tempContainer, {
-      scale: 2,
-      useCORS: true,
-      logging: false,
-      backgroundColor: "#ffffff",
-    });
-    document.body.removeChild(tempContainer);
-    return canvas.toDataURL("image/png");
-  };
-
-  const construirPDF = (imgData: string): jsPDF => {
-    const pdf = new jsPDF("p", "mm", "a4");
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = pdf.internal.pageSize.getHeight();
-    const margin = 10;
-    const usableWidth = pdfWidth - margin * 2;
-
-    // Calcular dimensiones reales de la imagen
-    const img = new Image();
-    img.src = imgData;
-    const naturalW = img.naturalWidth || 1;
-    const naturalH = img.naturalHeight || 1;
-    const imgRenderedHeight = (naturalH / naturalW) * usableWidth;
-
-    const usableHeight = pdfHeight - margin * 2;
-    let heightLeft = imgRenderedHeight;
-    let positionY = margin;
-
-    // Primera página
-    pdf.addImage(imgData, "PNG", margin, positionY, usableWidth, imgRenderedHeight);
-    heightLeft -= usableHeight;
-
-    // Páginas adicionales si el contenido es largo
-    while (heightLeft > 0) {
-      pdf.addPage();
-      positionY = -(imgRenderedHeight - heightLeft) - margin;
-      pdf.addImage(imgData, "PNG", margin, positionY, usableWidth, imgRenderedHeight);
-      heightLeft -= usableHeight;
-    }
-
-    return pdf;
-  };
-
   const descargarPDF = async () => {
     if (!pdfRef.current || !examenSeleccionado) return;
 
     setGenerandoPDF(true);
     try {
-      const imgData = await capturarContenidoPDF();
-      const pdf = construirPDF(imgData);
+      const canvas = await html2canvas(pdfRef.current, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: "#ffffff",
+      });
+
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF("p", "mm", "a4");
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+
+      const imgWidth = canvas.width;
+      const imgHeight = canvas.height;
+      const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
+      const imgX = (pdfWidth - imgWidth * ratio) / 2;
+      const imgY = 10;
+
+      pdf.addImage(imgData, "PNG", imgX, imgY, imgWidth * ratio, imgHeight * ratio);
 
       const fileName = `Examen_${examenSeleccionado.cliente?.nombre?.replace(
         /\s+/g,
@@ -609,8 +570,25 @@ const ListaExamenes = () => {
 
     setGenerandoPDF(true);
     try {
-      const imgData = await capturarContenidoPDF();
-      const pdf = construirPDF(imgData);
+      const canvas = await html2canvas(pdfRef.current, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: "#ffffff",
+      });
+
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF("p", "mm", "a4");
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+
+      const imgWidth = canvas.width;
+      const imgHeight = canvas.height;
+      const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
+      const imgX = (pdfWidth - imgWidth * ratio) / 2;
+      const imgY = 10;
+
+      pdf.addImage(imgData, "PNG", imgX, imgY, imgWidth * ratio, imgHeight * ratio);
 
       const pdfBlob = pdf.output("blob");
       const pdfUrl = URL.createObjectURL(pdfBlob);

@@ -10,13 +10,18 @@ import {
 } from "@mui/material";
 import DashboardCard from "@/app/(DashboardLayout)/components/shared/DashboardCard";
 import dynamic from "next/dynamic";
-import { useClientes } from "@/context/clientesContext";
 import { IconChartBar, IconCalendar } from "@tabler/icons-react";
 
 const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
 const ClientesOverview = () => {
-  const { clientes } = useClientes();
+  const [clientes, setClientes] = React.useState<any[]>([]);
+  React.useEffect(() => {
+    fetch("https://backinvent.onrender.com/api/clientes?all=true")
+      .then((r) => r.json())
+      .then((data) => setClientes(Array.isArray(data) ? data : (data.data ?? [])))
+      .catch(() => {});
+  }, []);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const isTablet = useMediaQuery(theme.breakpoints.down("md"));
