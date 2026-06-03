@@ -1541,6 +1541,23 @@ const plantillasExamenes: {
       },
     ],
   },
+  "QUIMICA, SEROLOGIA Y TIPIAJE": {
+    area: "QUIMICA SANGUINEA",
+    campos: [
+      { nombre: "GLICEMIA", resultado: "", valorReferencia: "70 - 100 mg/dL" },
+      { nombre: "UREA", resultado: "", valorReferencia: "10 - 50 mg/dL" },
+      { nombre: "CREATININA", resultado: "", valorReferencia: "0.4 - 1.4 mg/dL" },
+      { nombre: "HIV (TEST Pack)", resultado: "", valorReferencia: "NEGATIVO" },
+      { nombre: "VDRL", resultado: "", valorReferencia: "NO REACTIVO" },
+      { nombre: 'HEPATITIS "B" (CORE)', resultado: "", valorReferencia: "NEGATIVO" },
+      { nombre: 'HEPATITIS "B" (Ag. SUPERF.)', resultado: "", valorReferencia: "NEGATIVO" },
+      { nombre: 'HEPATITIS "C"', resultado: "", valorReferencia: "NEGATIVO" },
+      { nombre: "GRUPO SANGUINEO", resultado: "", valorReferencia: "....." },
+      { nombre: "FACTOR RH", resultado: "", valorReferencia: "...." },
+      { nombre: "TOXOPLASMA IgG (TEST PACK)", resultado: "", valorReferencia: "" },
+      { nombre: "TOXOPLASMA IgM (TEST PACK)", resultado: "", valorReferencia: "" },
+    ],
+  },
 };
 
 const obtenerFechaVenezuela = () => {
