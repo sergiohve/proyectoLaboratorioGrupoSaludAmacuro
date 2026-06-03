@@ -1531,6 +1531,16 @@ const plantillasExamenes: {
       },
     ],
   },
+  "IgE TOTAL": {
+    area: "MISCELANEOS",
+    campos: [
+      {
+        nombre: "IgE TOTAL",
+        resultado: "",
+        valorReferencia: "1-5 Años ≤ 144 ng/mL | 6-9 Años ≤ 216 ng/mL | 10-15 Años ≤ 480 ng/mL | Adultos ≤ 240 ng/mL",
+      },
+    ],
+  },
 };
 
 const obtenerFechaVenezuela = () => {
@@ -1557,6 +1567,8 @@ const RegistroExamen = () => {
   const [plantillasCustom, setPlantillasCustom] = useState<PlantillasMap>({});
   const [plantillasCustomIds, setPlantillasCustomIds] = useState<Record<string, string>>({});
   const [tipoAEliminar, setTipoAEliminar] = useState<string | null>(null);
+  const [confirmarGuardarPlantilla, setConfirmarGuardarPlantilla] = useState<string | null>(null);
+  const [mensajePlantilla, setMensajePlantilla] = useState<{ tipo: "success" | "error"; texto: string } | null>(null);
   const [formData, setFormData] = useState<ExamenForm>({
     cliente: "",
     tiposExamen: [], // Ahora es un array vacío
@@ -1609,6 +1621,8 @@ const RegistroExamen = () => {
           const mapa: PlantillasMap = {};
           const ids: Record<string, string> = {};
           data.forEach((item) => {
+            // Predefinidos siempre usan template hardcodeado — solo cargar tipos realmente custom
+            if (plantillasExamenes[item.nombre]) return;
             mapa[item.nombre] = {
               area: item.area || item.nombre,
               campos: (item.campos || []).map((c) => ({
@@ -1633,7 +1647,8 @@ const RegistroExamen = () => {
   }, []);
 
   // Todas las plantillas: predefinidas + guardadas en BD
-  const todasLasPlantillas: PlantillasMap = { ...plantillasExamenes, ...plantillasCustom };
+  // Custom primero, predefinidos encima — predefinidos siempre ganan
+  const todasLasPlantillas: PlantillasMap = { ...plantillasCustom, ...plantillasExamenes };
   const todosLosTipos = Object.keys(todasLasPlantillas).sort((a, b) => a.localeCompare(b));
 
   // Función para combinar áreas cuando hay múltiples exámenes
@@ -1861,28 +1876,42 @@ const RegistroExamen = () => {
     const ldlHdl = hdlVal > 0 ? ldl / hdlVal : 0;
 
     const nuevosCampos = formData.campos.map((campo) => {
+      const n = campo.nombre.toLowerCase();
+      // Valores base ingresados
       if (
-        campo.nombre.toLowerCase().includes("v.l.d.l.") ||
-        campo.nombre.toLowerCase().includes("vldl")
+        (n.includes("triglicéridos") || n.includes("trigliceridos")) &&
+        !n.includes("relacion")
       ) {
+        return { ...campo, resultado: calculoData.trigliceridos };
+      }
+      if (
+        n.includes("colesterol") &&
+        !n.includes("hdl") &&
+        !n.includes("ldl") &&
+        !n.includes("relacion")
+      ) {
+        return { ...campo, resultado: calculoData.colesterol };
+      }
+      if (
+        (n.includes("h.d.l.") || n === "hdl") &&
+        !n.includes("relacion")
+      ) {
+        return { ...campo, resultado: calculoData.hdl };
+      }
+      // Valores calculados
+      if (n.includes("v.l.d.l.") || n.includes("vldl")) {
         return { ...campo, resultado: vldl.toFixed(2) };
       }
       if (
-        campo.nombre.toLowerCase().includes("l.d.l.") ||
-        campo.nombre.toLowerCase().includes("ldl")
+        (n.includes("l.d.l.") || n.includes("ldl")) &&
+        !n.includes("relacion")
       ) {
         return { ...campo, resultado: ldl.toFixed(2) };
       }
-      if (
-        campo.nombre.toLowerCase().includes("relacion colesterol /hdl") ||
-        campo.nombre.toLowerCase().includes("colest/hdl")
-      ) {
+      if (n.includes("relacion colesterol /hdl") || n.includes("colest/hdl")) {
         return { ...campo, resultado: colHdl.toFixed(2) };
       }
-      if (
-        campo.nombre.toLowerCase().includes("relacion ldl /hdl") ||
-        campo.nombre.toLowerCase().includes("ldl/hdl")
-      ) {
+      if (n.includes("relacion ldl /hdl") || n.includes("ldl/hdl")) {
         return { ...campo, resultado: ldlHdl.toFixed(2) };
       }
       return campo;
@@ -2101,7 +2130,11 @@ const RegistroExamen = () => {
     }
   };
 
-  const handleGuardarPlantilla = async (tipo: string) => {
+  const handleGuardarPlantilla = async () => {
+    const tipo = confirmarGuardarPlantilla;
+    if (!tipo) return;
+    setConfirmarGuardarPlantilla(null);
+
     const camposDeTipo = formData.campos
       .filter((c) => c.tipoExamen === tipo)
       .map((c) => ({ nombre: c.nombre, valorReferencia: c.valorReferencia }));
@@ -2129,9 +2162,13 @@ const RegistroExamen = () => {
         if (!plantillasCustomIds[tipo]) {
           setPlantillasCustomIds((prev) => ({ ...prev, [tipo]: updated._id }));
         }
+        setMensajePlantilla({ tipo: "success", texto: `Plantilla "${tipo}" guardada con ${camposDeTipo.length} campo(s).` });
+      } else {
+        setMensajePlantilla({ tipo: "error", texto: `Error al guardar la plantilla "${tipo}".` });
       }
     } catch (e) {
       console.error("Error guardando plantilla:", e);
+      setMensajePlantilla({ tipo: "error", texto: "Error de conexión al guardar la plantilla." });
     }
   };
 
@@ -2289,7 +2326,7 @@ const RegistroExamen = () => {
                   ))
                 }
                 renderOption={(props, option) => {
-                  const isCustom = !!plantillasCustomIds[option];
+                  const isCustom = !!plantillasCustomIds[option] && !plantillasExamenes[option];
                   return (
                     <Box
                       component="li"
@@ -2676,7 +2713,7 @@ const RegistroExamen = () => {
                       </TableContainer>
 
                       {/* Botones Agregar Campo / Guardar Plantilla */}
-                      <Box sx={{ display: "flex", gap: 1, mt: 2 }}>
+                      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mt: 2 }}>
                         <Button
                           startIcon={<Add />}
                           onClick={() => agregarCampoPersonalizado(tipoExamen)}
@@ -2696,25 +2733,27 @@ const RegistroExamen = () => {
                         >
                           Agregar Campo
                         </Button>
-                        <Button
-                          startIcon={<Save />}
-                          onClick={() => handleGuardarPlantilla(tipoExamen)}
-                          variant="outlined"
-                          color="primary"
-                          size="small"
-                          sx={{
-                            textTransform: "none",
-                            fontWeight: 600,
-                            borderRadius: 2,
-                            borderWidth: 2,
-                            "&:hover": {
+                        {!plantillasExamenes[tipoExamen] && (
+                          <Button
+                            startIcon={<Save />}
+                            onClick={() => setConfirmarGuardarPlantilla(tipoExamen)}
+                            variant="outlined"
+                            color="primary"
+                            size="small"
+                            sx={{
+                              textTransform: "none",
+                              fontWeight: 600,
+                              borderRadius: 2,
                               borderWidth: 2,
-                              backgroundColor: "rgba(25, 118, 210, 0.08)",
-                            },
-                          }}
-                        >
-                          Guardar plantilla
-                        </Button>
+                              "&:hover": {
+                                borderWidth: 2,
+                                backgroundColor: "rgba(25, 118, 210, 0.08)",
+                              },
+                            }}
+                          >
+                            Guardar plantilla
+                          </Button>
+                        )}
                       </Box>
                     </Box>
                   );
@@ -3093,6 +3132,46 @@ const RegistroExamen = () => {
             </Button>
           </DialogActions>
         </Dialog>
+        {/* Alerta éxito/error guardado de plantilla */}
+        {mensajePlantilla && (
+          <Alert
+            severity={mensajePlantilla.tipo}
+            onClose={() => setMensajePlantilla(null)}
+            sx={{ mb: 2, borderRadius: 2 }}
+          >
+            {mensajePlantilla.texto}
+          </Alert>
+        )}
+
+        {/* Modal Confirmar Guardar Plantilla */}
+        <Dialog
+          open={!!confirmarGuardarPlantilla}
+          onClose={() => setConfirmarGuardarPlantilla(null)}
+          maxWidth="xs"
+          fullWidth
+        >
+          <DialogTitle>
+            <Box display="flex" alignItems="center" gap={1}>
+              <Save color="primary" />
+              Guardar Plantilla
+            </Box>
+          </DialogTitle>
+          <DialogContent>
+            <Typography>
+              ¿Confirma guardar la plantilla <strong>{confirmarGuardarPlantilla}</strong> con los campos actuales?
+            </Typography>
+            <Typography variant="body2" color="warning.main" sx={{ mt: 1 }}>
+              Atención: los campos actuales (agregados o eliminados) reemplazarán la plantilla guardada anteriormente.
+            </Typography>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setConfirmarGuardarPlantilla(null)}>Cancelar</Button>
+            <Button onClick={handleGuardarPlantilla} variant="contained" color="primary">
+              Guardar
+            </Button>
+          </DialogActions>
+        </Dialog>
+
         {/* Modal Confirmar Eliminación Tipo Custom */}
         <Dialog
           open={!!tipoAEliminar}

@@ -92,6 +92,7 @@ const ListaExamenes = () => {
     [key: string]: boolean;
   }>({});
   const [mensajeExito, setMensajeExito] = useState("");
+  const [editCamposArray, setEditCamposArray] = useState<Array<{ nombre: string; resultado: string; valorReferencia: string; tipoExamen?: string }>>([]);
 
   const pdfRef = useRef<HTMLDivElement>(null);
 
@@ -266,6 +267,13 @@ const ListaExamenes = () => {
 
   const handleEditarExamen = (examen: Examen) => {
     setExamenSeleccionado(examen);
+    const arr = Object.entries(examen.resultados || {}).map(([nombre, v]) => ({
+      nombre,
+      resultado: v.resultado || "",
+      valorReferencia: v.valorReferencia || "",
+      tipoExamen: v.tipoExamen,
+    }));
+    setEditCamposArray(arr);
     setModalEditarAbierto(true);
   };
 
@@ -292,9 +300,9 @@ const ListaExamenes = () => {
 
     try {
       const response = await fetch(
-        `https://backinvent.onrender.com/api/examenes/${examenId}`,
+        `https://backinvent.onrender.com/api/examenes/${examenId}/estado`,
         {
-          method: "PUT",
+          method: "PATCH",
           headers: {
             "Content-Type": "application/json",
           },
@@ -327,6 +335,17 @@ const ListaExamenes = () => {
 
     setEditando(true);
     try {
+      const resultadosObj = editCamposArray
+        .filter((c) => c.nombre.trim())
+        .reduce((acc, c) => {
+          acc[c.nombre] = {
+            resultado: c.resultado,
+            valorReferencia: c.valorReferencia,
+            ...(c.tipoExamen ? { tipoExamen: c.tipoExamen } : {}),
+          };
+          return acc;
+        }, {} as Examen["resultados"]);
+
       const response = await fetch(
         `https://backinvent.onrender.com/api/examenes/${examenSeleccionado._id}`,
         {
@@ -335,7 +354,7 @@ const ListaExamenes = () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            resultados: examenSeleccionado.resultados,
+            resultados: resultadosObj,
             observaciones: examenSeleccionado.observaciones,
             estado: examenSeleccionado.estado,
           }),
@@ -370,6 +389,18 @@ const ListaExamenes = () => {
         },
       });
     }
+  };
+
+  const handleCampoEdicionChange = (index: number, field: string, value: string) => {
+    setEditCamposArray((prev) => prev.map((c, i) => (i === index ? { ...c, [field]: value } : c)));
+  };
+
+  const handleEliminarCampoEdicion = (index: number) => {
+    setEditCamposArray((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleAgregarCampoEdicion = () => {
+    setEditCamposArray((prev) => [...prev, { nombre: "", resultado: "", valorReferencia: "" }]);
   };
 
   const getEstadoColor = (estado: string) => {
@@ -492,37 +523,69 @@ const ListaExamenes = () => {
     return "-";
   };
 
+  const capturarContenidoPDF = async (): Promise<string> => {
+    const element = pdfRef.current!;
+    // Clonar fuera del scroll para capturar contenido completo
+    const tempContainer = document.createElement("div");
+    tempContainer.style.cssText =
+      "position:absolute;left:-9999px;top:0;background:#ffffff;width:" +
+      element.offsetWidth + "px";
+    document.body.appendChild(tempContainer);
+    const clone = element.cloneNode(true) as HTMLElement;
+    clone.style.height = "auto";
+    clone.style.overflow = "visible";
+    tempContainer.appendChild(clone);
+
+    const canvas = await html2canvas(tempContainer, {
+      scale: 2,
+      useCORS: true,
+      logging: false,
+      backgroundColor: "#ffffff",
+    });
+    document.body.removeChild(tempContainer);
+    return canvas.toDataURL("image/png");
+  };
+
+  const construirPDF = (imgData: string): jsPDF => {
+    const pdf = new jsPDF("p", "mm", "a4");
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = pdf.internal.pageSize.getHeight();
+    const margin = 10;
+    const usableWidth = pdfWidth - margin * 2;
+
+    // Calcular dimensiones reales de la imagen
+    const img = new Image();
+    img.src = imgData;
+    const naturalW = img.naturalWidth || 1;
+    const naturalH = img.naturalHeight || 1;
+    const imgRenderedHeight = (naturalH / naturalW) * usableWidth;
+
+    const usableHeight = pdfHeight - margin * 2;
+    let heightLeft = imgRenderedHeight;
+    let positionY = margin;
+
+    // Primera página
+    pdf.addImage(imgData, "PNG", margin, positionY, usableWidth, imgRenderedHeight);
+    heightLeft -= usableHeight;
+
+    // Páginas adicionales si el contenido es largo
+    while (heightLeft > 0) {
+      pdf.addPage();
+      positionY = -(imgRenderedHeight - heightLeft) - margin;
+      pdf.addImage(imgData, "PNG", margin, positionY, usableWidth, imgRenderedHeight);
+      heightLeft -= usableHeight;
+    }
+
+    return pdf;
+  };
+
   const descargarPDF = async () => {
     if (!pdfRef.current || !examenSeleccionado) return;
 
     setGenerandoPDF(true);
     try {
-      const canvas = await html2canvas(pdfRef.current, {
-        scale: 2,
-        useCORS: true,
-        logging: false,
-        backgroundColor: "#ffffff",
-      });
-
-      const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF("p", "mm", "a4");
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
-
-      const imgWidth = canvas.width;
-      const imgHeight = canvas.height;
-      const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
-      const imgX = (pdfWidth - imgWidth * ratio) / 2;
-      const imgY = 10;
-
-      pdf.addImage(
-        imgData,
-        "PNG",
-        imgX,
-        imgY,
-        imgWidth * ratio,
-        imgHeight * ratio
-      );
+      const imgData = await capturarContenidoPDF();
+      const pdf = construirPDF(imgData);
 
       const fileName = `Examen_${examenSeleccionado.cliente?.nombre?.replace(
         /\s+/g,
@@ -546,50 +609,19 @@ const ListaExamenes = () => {
 
     setGenerandoPDF(true);
     try {
-      const canvas = await html2canvas(pdfRef.current, {
-        scale: 2,
-        useCORS: true,
-        logging: false,
-        backgroundColor: "#ffffff",
-      });
+      const imgData = await capturarContenidoPDF();
+      const pdf = construirPDF(imgData);
 
-      const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF("p", "mm", "a4");
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
-
-      const imgWidth = canvas.width;
-      const imgHeight = canvas.height;
-      const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
-      const imgX = (pdfWidth - imgWidth * ratio) / 2;
-      const imgY = 10;
-
-      pdf.addImage(
-        imgData,
-        "PNG",
-        imgX,
-        imgY,
-        imgWidth * ratio,
-        imgHeight * ratio
-      );
-
-      // Crear un Blob del PDF
       const pdfBlob = pdf.output("blob");
       const pdfUrl = URL.createObjectURL(pdfBlob);
 
-      // Abrir en nueva ventana para imprimir
       const printWindow = window.open(pdfUrl, "_blank");
-
       if (printWindow) {
         printWindow.addEventListener("load", () => {
           printWindow.print();
-          // Liberar el objeto URL después de un tiempo
-          setTimeout(() => {
-            URL.revokeObjectURL(pdfUrl);
-          }, 1000);
+          setTimeout(() => URL.revokeObjectURL(pdfUrl), 1000);
         });
       } else {
-        // Si el popup fue bloqueado, mostrar mensaje de error
         setError("Por favor, permite ventanas emergentes para imprimir el PDF");
         URL.revokeObjectURL(pdfUrl);
       }
@@ -1455,24 +1487,22 @@ const ListaExamenes = () => {
                 examenSeleccionado.resultados
               ).map((grupo, grupoIndex) => (
                 <Box key={grupoIndex} sx={{ mb: 2 }}>
-                  {/* Título del tipo de examen (solo si hay múltiples tipos) */}
-                  {obtenerTiposExamen(examenSeleccionado.tipoExamen).length > 1 && (
-                    <Typography
-                      variant="h5"
-                      fontWeight="900"
-                      sx={{
-                        fontSize: "16px",
-                        color: "#111413ff",
-                        fontWeight: "bold",
-                        mb: 1,
-                        textAlign: "left",
-                        textTransform: "uppercase",
-                        pl: 0.5,
-                      }}
-                    >
-                      {grupo.tipo}
-                    </Typography>
-                  )}
+                  {/* Título del tipo de examen */}
+                  <Typography
+                    variant="h5"
+                    fontWeight="900"
+                    sx={{
+                      fontSize: "16px",
+                      color: "#111413ff",
+                      fontWeight: "bold",
+                      mb: 1,
+                      textAlign: "left",
+                      textTransform: "uppercase",
+                      pl: 0.5,
+                    }}
+                  >
+                    {grupo.tipo}
+                  </Typography>
 
                   {/* Tabla de resultados para este tipo */}
                   <Box
@@ -1892,67 +1922,83 @@ const ListaExamenes = () => {
                         >
                           VALOR DE REFERENCIA
                         </TableCell>
+                        <TableCell
+                          sx={{
+                            color: "success.dark",
+                            fontWeight: 700,
+                            width: "10%",
+                            borderBottom: "none",
+                            fontSize: "0.95rem",
+                          }}
+                        >
+                          ACCIÓN
+                        </TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {Object.entries(examenSeleccionado.resultados).map(
-                        ([prueba, datos]: any, index: number) => (
-                          <TableRow
-                            key={prueba}
-                            sx={{
-                              borderBottom: "none",
-                              backgroundColor:
-                                index % 2 === 0
-                                  ? "background.paper"
-                                  : "action.hover",
-                              transition: "all 0.2s ease",
-                            }}
-                          >
-                            <TableCell sx={{ borderBottom: "none", py: 2 }}>
-                              <Typography
-                                variant="subtitle2"
-                                fontWeight={700}
-                                color="text.primary"
-                              >
-                                {prueba}
-                              </Typography>
-                            </TableCell>
-                            <TableCell sx={{ borderBottom: "none", py: 2 }}>
-                              <TextField
-                                fullWidth
-                                size="small"
-                                value={datos.resultado}
-                                onChange={(e) =>
-                                  handleResultadoChange(prueba, e.target.value)
-                                }
-                                placeholder="Ingrese resultado"
-                                variant="outlined"
-                                sx={{
-                                  "& .MuiOutlinedInput-root": {
-                                    borderRadius: 2,
-                                    "&.Mui-focused fieldset": {
-                                      borderColor: "#000",
-                                      borderWidth: 2,
-                                    },
-                                  },
-                                }}
-                              />
-                            </TableCell>
-                            <TableCell sx={{ borderBottom: "none", py: 2 }}>
-                              <Typography
-                                variant="body2"
-                                color="text.secondary"
-                                fontWeight={500}
-                              >
-                                {datos.valorReferencia}
-                              </Typography>
-                            </TableCell>
-                          </TableRow>
-                        )
-                      )}
+                      {editCamposArray.map((campo, index) => (
+                        <TableRow
+                          key={index}
+                          sx={{
+                            borderBottom: "none",
+                            backgroundColor: index % 2 === 0 ? "background.paper" : "action.hover",
+                            transition: "all 0.2s ease",
+                          }}
+                        >
+                          <TableCell sx={{ borderBottom: "none", py: 1 }}>
+                            <TextField
+                              fullWidth
+                              size="small"
+                              value={campo.nombre}
+                              onChange={(e) => handleCampoEdicionChange(index, "nombre", e.target.value)}
+                              placeholder="Nombre del parámetro"
+                              variant="outlined"
+                            />
+                          </TableCell>
+                          <TableCell sx={{ borderBottom: "none", py: 1 }}>
+                            <TextField
+                              fullWidth
+                              size="small"
+                              value={campo.resultado}
+                              onChange={(e) => handleCampoEdicionChange(index, "resultado", e.target.value)}
+                              placeholder="Resultado"
+                              variant="outlined"
+                            />
+                          </TableCell>
+                          <TableCell sx={{ borderBottom: "none", py: 1 }}>
+                            <TextField
+                              fullWidth
+                              size="small"
+                              value={campo.valorReferencia}
+                              onChange={(e) => handleCampoEdicionChange(index, "valorReferencia", e.target.value)}
+                              placeholder="Valor de referencia"
+                              variant="outlined"
+                            />
+                          </TableCell>
+                          <TableCell align="center" sx={{ borderBottom: "none", py: 1 }}>
+                            <IconButton
+                              size="small"
+                              color="error"
+                              onClick={() => handleEliminarCampoEdicion(index)}
+                            >
+                              <Delete fontSize="small" />
+                            </IconButton>
+                          </TableCell>
+                        </TableRow>
+                      ))}
                     </TableBody>
                   </Table>
                 </TableContainer>
+                <Button
+                  startIcon={<Add />}
+                  onClick={handleAgregarCampoEdicion}
+                  variant="outlined"
+                  color="success"
+                  size="small"
+                  sx={{ mt: 2, textTransform: "none", fontWeight: 600, borderRadius: 2, borderWidth: 2 }}
+                >
+                  Agregar Campo
+                </Button>
               </Paper>
 
               {/* Observaciones Editables */}
