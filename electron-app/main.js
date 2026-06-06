@@ -9,8 +9,7 @@ const os = require('os');
 
 // ── Ports ──────────────────────────────────────────────────────────────────
 const BACKEND_PORT = 4000;
-const FRONTEND_PORT = 3000;
-const MONGO_PORT    = 27017;
+const MONGO_PORT   = 27017;
 
 // ── Persistent data directory (survives reinstall) ─────────────────────────
 const APP_DATA_DIR  = path.join(process.env.APPDATA || path.join(os.homedir(), '.config'), 'SistemaLaboratorio');
@@ -18,11 +17,10 @@ const MONGO_DB_DIR  = path.join(APP_DATA_DIR, 'db');
 const MONGO_LOG     = path.join(APP_DATA_DIR, 'mongod.log');
 
 // ── State ──────────────────────────────────────────────────────────────────
-let mainWindow   = null;
-let tray         = null;
-let mongodProc   = null;
-let httpServer   = null;
-let isQuitting   = false;
+let mainWindow  = null;
+let tray        = null;
+let mongodProc  = null;
+let isQuitting  = false;
 
 // ── Path helpers ───────────────────────────────────────────────────────────
 // With asar:false, __dirname == resources/app/ in packaged mode.
@@ -140,27 +138,6 @@ async function startBackend() {
   console.log('[Backend] listo (HTTP + DB)');
 }
 
-// ── Static frontend server ─────────────────────────────────────────────────
-function startFrontend() {
-  const express   = require('express');
-  const staticApp = express();
-  const dir       = appPath('frontend');
-
-  // extensions:['html'] → /authentication/login → authentication/login.html
-  staticApp.use(express.static(dir, { extensions: ['html'] }));
-  staticApp.get('*', (_req, res) => {
-    const idx = path.join(dir, 'index.html');
-    fs.existsSync(idx) ? res.sendFile(idx) : res.status(404).send('Not found');
-  });
-
-  return new Promise((resolve, reject) => {
-    httpServer = staticApp.listen(FRONTEND_PORT, err => {
-      if (err) reject(err);
-      else { console.log('[Frontend] listo en puerto', FRONTEND_PORT); resolve(); }
-    });
-  });
-}
-
 // ── Electron UI ────────────────────────────────────────────────────────────
 function createSplash() {
   const w = new BrowserWindow({
@@ -178,11 +155,15 @@ function createMainWindow() {
     width: 1280, height: 800,
     minWidth: 960, minHeight: 640,
     show: false,
-    webPreferences: { nodeIntegration: false, contextIsolation: true },
+    webPreferences: {
+      nodeIntegration: false,
+      contextIsolation: true,
+      webSecurity: false,        // permite fetch a localhost desde file://
+    },
     title: 'Sistema de Laboratorio',
   });
 
-  mainWindow.loadURL(`http://127.0.0.1:${FRONTEND_PORT}`);
+  mainWindow.loadFile(appPath('frontend', 'index.html'));
   mainWindow.setMenuBarVisibility(false);
   mainWindow.once('ready-to-show', () => mainWindow.show());
   mainWindow.on('close', e => {
@@ -213,7 +194,6 @@ app.whenReady().then(async () => {
   try {
     await startMongoDB();
     await startBackend();
-    await startFrontend();
     createMainWindow();
     setupTray();
     splash.close();
@@ -228,8 +208,7 @@ app.whenReady().then(async () => {
 app.on('before-quit', () => { isQuitting = true; });
 
 app.on('will-quit', () => {
-  if (httpServer)  httpServer.close();
-  if (mongodProc)  mongodProc.kill('SIGTERM');
+  if (mongodProc) mongodProc.kill('SIGTERM');
 });
 
 // Keep running in tray when all windows are closed
