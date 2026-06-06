@@ -1617,7 +1617,7 @@ const RegistroExamen = () => {
     const fetchClientes = async () => {
       try {
         const response = await fetch(
-          "https://backinvent.onrender.com/api/clientes?all=true"
+          "http://localhost:4000/api/clientes?all=true"
         );
         if (response.ok) {
           const data = await response.json();
@@ -1631,7 +1631,7 @@ const RegistroExamen = () => {
     const fetchPlantillas = async () => {
       try {
         const response = await fetch(
-          "https://backinvent.onrender.com/api/tipos-examen"
+          "http://localhost:4000/api/tipos-examen"
         );
         if (response.ok) {
           const data: Array<{ _id: string; nombre: string; area: string; campos: Array<{ nombre: string; valorReferencia: string }> }> = await response.json();
@@ -1680,7 +1680,7 @@ const RegistroExamen = () => {
     const id = plantillasCustomIds[tipoAEliminar];
     if (!id) { setTipoAEliminar(null); return; }
     try {
-      const res = await fetch(`https://backinvent.onrender.com/api/tipos-examen/${id}`, { method: "DELETE" });
+      const res = await fetch(`http://localhost:4000/api/tipos-examen/${id}`, { method: "DELETE" });
       if (res.ok) {
         setPlantillasCustom((prev) => {
           const next = { ...prev };
@@ -2091,7 +2091,7 @@ const RegistroExamen = () => {
       const tiposExamenCombinados = formData.tiposExamen.join(" + ");
       
       const response = await fetch(
-        "https://backinvent.onrender.com/api/examenes",
+        "http://localhost:4000/api/examenes",
         {
           method: "POST",
           headers: {
@@ -2157,7 +2157,7 @@ const RegistroExamen = () => {
       .map((c) => ({ nombre: c.nombre, valorReferencia: c.valorReferencia }));
     const area = todasLasPlantillas[tipo]?.area || tipo;
     try {
-      const res = await fetch("https://backinvent.onrender.com/api/tipos-examen", {
+      const res = await fetch("http://localhost:4000/api/tipos-examen", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ nombre: tipo, area, campos: camposDeTipo }),

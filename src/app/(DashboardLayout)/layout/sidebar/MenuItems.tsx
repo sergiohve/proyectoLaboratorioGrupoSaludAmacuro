@@ -9,7 +9,8 @@ import {
   IconMicroscope,
   IconClipboardList,
   IconUsers,
-  IconList // Si está disponible en tu versión
+  IconList,
+  IconDownload,
 } from "@tabler/icons-react";
 
 import { uniqueId } from "lodash";
@@ -54,8 +55,18 @@ const Menuitems = [
   {
     id: uniqueId(),
     title: "Lista de examenes",
-    icon: IconClipboardList, 
+    icon: IconClipboardList,
     href: "/lista-examenes",
+  },
+  {
+    navlabel: true,
+    subheader: "Aplicación",
+  },
+  {
+    id: uniqueId(),
+    title: "Descargar instalador",
+    icon: IconDownload,
+    href: "/instalador",
   },
 ];
 

@@ -9,7 +9,7 @@ import React, {
   ReactNode,
 } from "react";
 
-const API = "https://backinvent.onrender.com/api/clientes";
+const API = "http://localhost:4000/api/clientes";
 
 interface Cliente {
   _id: string;

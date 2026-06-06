@@ -1,0 +1,68 @@
+{
+  "name": "sistema-laboratorio",
+  "version": "1.0.0",
+  "description": "Sistema de Gestión de Laboratorio Clínico",
+  "main": "main.js",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder --win --x64",
+    "build:dir": "electron-builder --win --x64 --dir"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "mongoose": "^6.9.0",
+    "morgan": "^1.10.0",
+    "socket.io": "^4.6.1"
+  },
+  "devDependencies": {
+    "electron": "^28.3.3",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.laboratorio.sistema",
+    "productName": "Sistema Laboratorio",
+    "copyright": "Copyright © 2024",
+    "asar": false,
+    "directories": {
+      "output": "dist",
+      "buildResources": "assets"
+    },
+    "files": [
+      "main.js",
+      "splash.html",
+      "frontend/**/*",
+      "backend/**/*",
+      "node_modules/**/*",
+      "!node_modules/.cache",
+      "!node_modules/electron",
+      "!node_modules/electron-builder",
+      "!node_modules/.bin/electron*"
+    ],
+    "extraResources": [
+      {
+        "from": "mongodb-bin",
+        "to": "mongodb",
+        "filter": ["**/*"]
+      }
+    ],
+    "win": {
+      "target": [
+        { "target": "nsis", "arch": ["x64"] }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Sistema Laboratorio",
+      "deleteAppDataOnUninstall": false,
+      "installerLanguages": ["es_ES"],
+      "language": "3082"
+    }
+  }
+}

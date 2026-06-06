@@ -17,7 +17,7 @@ const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
 const ClientesOverview = () => {
   const [clientes, setClientes] = React.useState<any[]>([]);
   React.useEffect(() => {
-    fetch("https://backinvent.onrender.com/api/clientes?all=true")
+    fetch("http://localhost:4000/api/clientes?all=true")
       .then((r) => r.json())
       .then((data) => setClientes(Array.isArray(data) ? data : (data.data ?? [])))
       .catch(() => {});

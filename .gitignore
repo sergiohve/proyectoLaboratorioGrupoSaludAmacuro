@@ -33,3 +33,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# installer binary (hosted on GitHub Releases)
+/public/downloads/*.exe
+/electron-app/dist/
