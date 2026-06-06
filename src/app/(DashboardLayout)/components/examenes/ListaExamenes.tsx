@@ -159,7 +159,7 @@ const ListaExamenes = () => {
         limit: String(limitNum),
         ...(search && { search }),
       });
-      const response = await fetch(`http://localhost:4000/api/examenes?${params}`);
+      const response = await fetch(`https://backinvent.onrender.com/api/examenes?${params}`);
       if (!response.ok) throw new Error("Error al cargar exámenes");
       const data = await response.json();
       const items = Array.isArray(data) ? data : (data.data ?? []);
@@ -175,7 +175,7 @@ const ListaExamenes = () => {
 
   const fetchClientes = async () => {
     try {
-      const response = await fetch("http://localhost:4000/api/clientes?all=true");
+      const response = await fetch("https://backinvent.onrender.com/api/clientes?all=true");
       if (response.ok) {
         const data = await response.json();
         setClientes(Array.isArray(data) ? data : (data.data ?? []));
@@ -239,7 +239,7 @@ const ListaExamenes = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:4000/api/examenes/${examenAEliminar}`,
+        `https://backinvent.onrender.com/api/examenes/${examenAEliminar}`,
         {
           method: "DELETE",
         }
@@ -300,7 +300,7 @@ const ListaExamenes = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:4000/api/examenes/${examenId}/estado`,
+        `https://backinvent.onrender.com/api/examenes/${examenId}/estado`,
         {
           method: "PATCH",
           headers: {
@@ -347,7 +347,7 @@ const ListaExamenes = () => {
         }, {} as Examen["resultados"]);
 
       const response = await fetch(
-        `http://localhost:4000/api/examenes/${examenSeleccionado._id}`,
+        `https://backinvent.onrender.com/api/examenes/${examenSeleccionado._id}`,
         {
           method: "PUT",
           headers: {
