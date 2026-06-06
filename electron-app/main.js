@@ -124,7 +124,7 @@ async function startBackend() {
 
   await Promise.all([
     new Promise((resolve, reject) => {
-      const srv = expressApp.listen(BACKEND_PORT, '127.0.0.1', () => {
+      const srv = expressApp.listen(BACKEND_PORT, () => {
         console.log('[Backend] HTTP listo en puerto', BACKEND_PORT);
         resolve();
       });
@@ -154,7 +154,7 @@ function startFrontend() {
   });
 
   return new Promise((resolve, reject) => {
-    httpServer = staticApp.listen(FRONTEND_PORT, '127.0.0.1', err => {
+    httpServer = staticApp.listen(FRONTEND_PORT, err => {
       if (err) reject(err);
       else { console.log('[Frontend] listo en puerto', FRONTEND_PORT); resolve(); }
     });
