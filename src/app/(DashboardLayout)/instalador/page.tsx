@@ -128,7 +128,7 @@ const InstaladorPage = () => {
 
   const handleDownload = () => {
     const link = document.createElement("a");
-    link.href = "https://github.com/sergiohve/proyectoLaboratorioGrupoSaludAmacuro/releases/download/v1.0.0/Sistema.Laboratorio.Setup.1.0.0.exe";
+    link.href = "https://github.com/sergiohve/proyectoLaboratorioGrupoSaludAmacuro/releases/download/v2.0.0/Sistema.Laboratorio.Setup.1.0.0.exe";
     link.download = "Sistema Laboratorio Setup.exe";
     link.click();
   };

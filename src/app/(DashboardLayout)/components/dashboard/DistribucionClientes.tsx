@@ -1,4 +1,5 @@
 import React from "react";
+import { API_BASE } from "@/utils/api";
 import { useTheme } from '@mui/material/styles';
 import { Grid, Stack, Typography, Avatar, Box, Card, CardContent } from '@mui/material';
 import { IconUsers, IconGenderMale, IconGenderFemale } from '@tabler/icons-react';
@@ -11,7 +12,7 @@ const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
 const DistribucionClientes = () => {
   const [clientes, setClientes] = React.useState<any[]>([]);
   React.useEffect(() => {
-    fetch("https://backinvent.onrender.com/api/clientes?all=true")
+    fetch(`${API_BASE}/api/clientes?all=true`)
       .then((r) => r.json())
       .then((data) => setClientes(Array.isArray(data) ? data : (data.data ?? [])))
       .catch(() => {});

@@ -1,8 +1,10 @@
 "use client";
 import { styled, Container, Box } from "@mui/material";
 import React, { useState, Activity } from "react";
+import dynamic from "next/dynamic";
 import Header from "@/app/(DashboardLayout)/layout/header/Header";
-import Sidebar from "@/app/(DashboardLayout)/layout/sidebar/Sidebar";
+// ssr:false → Sidebar never pre-renders server-side → no emotion SSR error
+const Sidebar = dynamic(() => import("@/app/(DashboardLayout)/layout/sidebar/Sidebar"), { ssr: false });
 import { CustomThemeProvider } from "@/context/ThemeContext";
 
 const MainWrapper = styled("div")(() => ({

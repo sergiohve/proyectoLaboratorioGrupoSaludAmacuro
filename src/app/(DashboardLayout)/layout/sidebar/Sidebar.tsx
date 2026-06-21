@@ -1,4 +1,5 @@
-import { useMediaQuery, Box, Drawer, useTheme } from "@mui/material";
+import { Box, Drawer, useTheme } from "@mui/material";
+import { useState, useEffect } from "react";
 import SidebarItems from "./SidebarItems";
 
 interface ItemType {
@@ -12,8 +13,21 @@ const MSidebar = ({
   onSidebarClose,
   isSidebarOpen,
 }: ItemType) => {
-  const lgUp = useMediaQuery((theme: any) => theme.breakpoints.up("lg"));
   const theme = useTheme();
+  // This component is loaded with ssr:false → always runs client-side only.
+  // localStorage flag set by Electron preload before any page JS runs.
+  const isElectron = localStorage.getItem('__electron_app__') === '1';
+  const [lgUp, setLgUp] = useState(() =>
+    isElectron || window.matchMedia('(min-width: 1200px)').matches
+  );
+
+  useEffect(() => {
+    if (isElectron) return; // Electron: always desktop, no resize listener needed
+    const mq = window.matchMedia('(min-width: 1200px)');
+    const handler = (e: MediaQueryListEvent) => setLgUp(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, [isElectron]);
 
   const sidebarWidth = "270px";
 

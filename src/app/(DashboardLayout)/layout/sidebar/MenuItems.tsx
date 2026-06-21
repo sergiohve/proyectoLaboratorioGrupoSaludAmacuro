@@ -11,6 +11,7 @@ import {
   IconUsers,
   IconList,
   IconDownload,
+  IconCurrencyDollar,
 } from "@tabler/icons-react";
 
 import { uniqueId } from "lodash";
@@ -57,6 +58,12 @@ const Menuitems = [
     title: "Lista de examenes",
     icon: IconClipboardList,
     href: "/lista-examenes",
+  },
+  {
+    id: uniqueId(),
+    title: "Precios de exámenes",
+    icon: IconCurrencyDollar,
+    href: "/precios-examenes",
   },
   {
     navlabel: true,

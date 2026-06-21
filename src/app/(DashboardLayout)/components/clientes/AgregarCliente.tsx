@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { API_BASE } from "@/utils/api";
 import {
   Card,
   CardContent,
@@ -110,7 +111,7 @@ const AgregarCliente = () => {
 
     try {
       const response = await fetch(
-        "https://backinvent.onrender.com/api/clientes",
+        `${API_BASE}/api/clientes`,
         {
           method: "POST",
           headers: {

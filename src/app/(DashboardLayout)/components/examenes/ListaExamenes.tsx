@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
+import { API_BASE } from "@/utils/api";
 import { useRouter } from "next/navigation";
 import {
   Typography,
@@ -159,7 +160,7 @@ const ListaExamenes = () => {
         limit: String(limitNum),
         ...(search && { search }),
       });
-      const response = await fetch(`https://backinvent.onrender.com/api/examenes?${params}`);
+      const response = await fetch(`${API_BASE}/api/examenes?${params}`);
       if (!response.ok) throw new Error("Error al cargar exámenes");
       const data = await response.json();
       const items = Array.isArray(data) ? data : (data.data ?? []);
@@ -175,7 +176,7 @@ const ListaExamenes = () => {
 
   const fetchClientes = async () => {
     try {
-      const response = await fetch("https://backinvent.onrender.com/api/clientes?all=true");
+      const response = await fetch(`${API_BASE}/api/clientes?all=true`);
       if (response.ok) {
         const data = await response.json();
         setClientes(Array.isArray(data) ? data : (data.data ?? []));
@@ -239,7 +240,7 @@ const ListaExamenes = () => {
 
     try {
       const response = await fetch(
-        `https://backinvent.onrender.com/api/examenes/${examenAEliminar}`,
+        `${API_BASE}/api/examenes/${examenAEliminar}`,
         {
           method: "DELETE",
         }
@@ -300,7 +301,7 @@ const ListaExamenes = () => {
 
     try {
       const response = await fetch(
-        `https://backinvent.onrender.com/api/examenes/${examenId}/estado`,
+        `${API_BASE}/api/examenes/${examenId}/estado`,
         {
           method: "PATCH",
           headers: {
@@ -347,7 +348,7 @@ const ListaExamenes = () => {
         }, {} as Examen["resultados"]);
 
       const response = await fetch(
-        `https://backinvent.onrender.com/api/examenes/${examenSeleccionado._id}`,
+        `${API_BASE}/api/examenes/${examenSeleccionado._id}`,
         {
           method: "PUT",
           headers: {

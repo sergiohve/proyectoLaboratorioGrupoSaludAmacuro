@@ -3,7 +3,7 @@ import { baselightTheme } from "@/utils/theme/DefaultColors";
 import { basedarkTheme } from "@/utils/theme/DefaultColors"; // Asegúrate de tener este tema oscuro
 import { ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useEffect, useState, createContext, useContext } from "react";
 import "./global.css";
 import { ClientesProvider } from "@/context/clientesContext";
@@ -62,54 +62,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
-  const pathname = usePathname();
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 
   useEffect(() => {
-    const checkAuth = () => {
-      const authStatus = localStorage.getItem("logueado");
-      const authenticated = authStatus === "true";
-      setIsAuthenticated(authenticated);
-
-      if (authenticated) {
-        if (
-          pathname === "/authentication/login" ||
-          pathname === "/"
-        ) {
-          router.push("/");
-        }
-      } else {
-        if (pathname === "/") {
-          router.push("/authentication/login");
-        }
-      }
-    };
-
-    checkAuth();
-  }, [pathname, router]);
-
-  if (isAuthenticated === null) {
-    return (
-      <html lang="es">
-        <body>
-          <ThemeProvider theme={baselightTheme}>
-            <CssBaseline />
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                height: "100vh",
-                fontSize: "18px",
-              }}
-            >
-              Verificando autenticación...
-            </div>
-          </ThemeProvider>
-        </body>
-      </html>
-    );
-  }
+    const authStatus = localStorage.getItem("logueado");
+    if (authStatus !== "true") {
+      router.push("/authentication/login");
+    }
+  }, [router]);
 
   return (
     <html lang="es">
