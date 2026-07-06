@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Configurar servidor remoto</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      background: #f5f7fa;
+      color: #1a1a2e;
+      padding: 28px 32px;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .header-icon {
+      width: 40px; height: 40px;
+      background: linear-gradient(135deg, #1565c0, #0d47a1);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    h2 {
+      font-size: 17px;
+      font-weight: 700;
+      color: #0d47a1;
+    }
+
+    .subtitle {
+      font-size: 12px;
+      color: #666;
+      margin-top: 2px;
+    }
+
+    .desc {
+      font-size: 13px;
+      color: #444;
+      line-height: 1.5;
+      margin-bottom: 20px;
+      background: #e8f0fe;
+      border-left: 3px solid #1565c0;
+      padding: 10px 14px;
+      border-radius: 0 6px 6px 0;
+    }
+
+    label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #333;
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1.5px solid #c5d3e8;
+      border-radius: 8px;
+      font-size: 13px;
+      color: #1a1a2e;
+      background: #fff;
+      outline: none;
+      transition: border-color 0.2s;
+      font-family: 'Consolas', monospace;
+    }
+
+    input[type="text"]:focus {
+      border-color: #1565c0;
+      box-shadow: 0 0 0 3px rgba(21,101,192,0.12);
+    }
+
+    .hint {
+      font-size: 11px;
+      color: #888;
+      margin-top: 5px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      margin-top: auto;
+      padding-top: 20px;
+    }
+
+    button {
+      flex: 1;
+      padding: 10px 0;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+
+    button:active { transform: scale(0.98); }
+
+    .btn-sync {
+      background: linear-gradient(135deg, #1565c0, #0d47a1);
+      color: white;
+    }
+
+    .btn-sync:hover { opacity: 0.9; }
+    .btn-sync:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .btn-skip {
+      background: #fff;
+      color: #555;
+      border: 1.5px solid #d0d7e2;
+    }
+
+    .btn-skip:hover { background: #f0f2f5; }
+
+    .error {
+      font-size: 12px;
+      color: #c62828;
+      margin-top: 6px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="header-icon">🔗</div>
+    <div>
+      <h2>Servidor remoto</h2>
+      <div class="subtitle">Ingrese la URL de la API</div>
+    </div>
+  </div>
+
+  <div class="desc">
+    Ingrese la dirección del servidor remoto donde están almacenados los datos.
+    El sistema importará pacientes, exámenes y precios a esta computadora.
+  </div>
+
+  <label for="url-input">URL del servidor (API)</label>
+  <input
+    type="text"
+    id="url-input"
+    placeholder="http://192.168.1.100:4000"
+    autocomplete="off"
+    spellcheck="false"
+  />
+  <div class="hint">Ejemplo: http://192.168.1.100:4000 &nbsp;·&nbsp; No incluya /api al final</div>
+  <div class="error" id="error-msg">Por favor ingrese una URL válida</div>
+
+  <div class="actions">
+    <button class="btn-skip" id="btn-skip">Omitir</button>
+    <button class="btn-sync" id="btn-sync">Conectar e importar</button>
+  </div>
+
+  <script>
+    const input   = document.getElementById('url-input');
+    const btnSync = document.getElementById('btn-sync');
+    const btnSkip = document.getElementById('btn-skip');
+    const errMsg  = document.getElementById('error-msg');
+
+    function isValidUrl(v) {
+      return v && (v.startsWith('http://') || v.startsWith('https://'));
+    }
+
+    btnSync.addEventListener('click', () => {
+      const url = input.value.trim();
+      if (!isValidUrl(url)) {
+        errMsg.style.display = 'block';
+        input.focus();
+        return;
+      }
+      errMsg.style.display = 'none';
+      btnSync.disabled = true;
+      btnSync.textContent = 'Conectando...';
+      window.syncAPI.submit(url);
+    });
+
+    btnSkip.addEventListener('click', () => window.syncAPI.skip());
+
+    input.addEventListener('input', () => { errMsg.style.display = 'none'; });
+    input.addEventListener('keydown', (e) => { if (e.key === 'Enter') btnSync.click(); });
+
+    input.focus();
+  </script>
+</body>
+</html>

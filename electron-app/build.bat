@@ -8,7 +8,7 @@ echo ==========================================
 set "ELECTRON_DIR=%~dp0"
 set "PACKAGE_DIR=%ELECTRON_DIR%.."
 set "BACKEND_SRC=C:\Users\Usuario\Documents\backInventario\src"
-set "FRONTEND_OUT=%PACKAGE_DIR%out"
+set "FRONTEND_OUT=%ELECTRON_DIR%..\out"
 
 REM ─── Verificaciones previas ────────────────────────────────────────────────
 
@@ -71,6 +71,22 @@ if errorlevel 1 (
   pause
   exit /b 1
 )
+
+REM ─── Paso 3b: Inyectar módulos extras ────────────────────────────────────
+echo.
+echo [3b] Inyectando modulos extras (precios, configuracion)...
+copy /y "%ELECTRON_DIR%backend-extras\models\PrecioExamen.js" "%ELECTRON_DIR%backend\models\PrecioExamen.js"
+if errorlevel 1 ( echo ERROR: No se pudo copiar PrecioExamen.js & pause & exit /b 1 )
+copy /y "%ELECTRON_DIR%backend-extras\routes\precioExamen.js" "%ELECTRON_DIR%backend\routes\precioExamen.js"
+if errorlevel 1 ( echo ERROR: No se pudo copiar precioExamen.js & pause & exit /b 1 )
+copy /y "%ELECTRON_DIR%backend-extras\models\Configuracion.js" "%ELECTRON_DIR%backend\models\Configuracion.js"
+if errorlevel 1 ( echo ERROR: No se pudo copiar Configuracion.js & pause & exit /b 1 )
+copy /y "%ELECTRON_DIR%backend-extras\routes\configuracion.js" "%ELECTRON_DIR%backend\routes\configuracion.js"
+if errorlevel 1 ( echo ERROR: No se pudo copiar configuracion.js & pause & exit /b 1 )
+
+REM Registrar ruta en app.js (via script para evitar problemas de escaping)
+powershell -NoProfile -ExecutionPolicy Bypass -File "%ELECTRON_DIR%patch-app.ps1" -BackendDir "%ELECTRON_DIR%backend"
+if errorlevel 1 ( echo ERROR: Fallo el parcheo de app.js & pause & exit /b 1 )
 
 REM ─── Paso 4: Instalar dependencias ────────────────────────────────────────
 echo.

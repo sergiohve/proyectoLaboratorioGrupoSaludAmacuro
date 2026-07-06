@@ -18,7 +18,7 @@
     "socket.io": "^4.6.1"
   },
   "devDependencies": {
-    "electron": "^28.3.3",
+    "electron": "28.3.3",
     "electron-builder": "^24.13.3"
   },
   "build": {
@@ -33,6 +33,9 @@
     "files": [
       "main.js",
       "splash.html",
+      "sync-prompt.html",
+      "preload-sync.js",
+      "preload-main.js",
       "frontend/**/*",
       "backend/**/*",
       "node_modules/**/*",
@@ -45,12 +48,19 @@
       {
         "from": "mongodb-bin",
         "to": "mongodb",
-        "filter": ["**/*"]
+        "filter": [
+          "**/*"
+        ]
       }
     ],
     "win": {
       "target": [
-        { "target": "nsis", "arch": ["x64"] }
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
       ]
     },
     "nsis": {
@@ -61,7 +71,9 @@
       "createStartMenuShortcut": true,
       "shortcutName": "Sistema Laboratorio",
       "deleteAppDataOnUninstall": false,
-      "installerLanguages": ["es_ES"],
+      "installerLanguages": [
+        "es_ES"
+      ],
       "language": "3082"
     }
   }

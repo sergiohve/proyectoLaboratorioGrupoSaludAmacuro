@@ -94,6 +94,7 @@ const ListaExamenes = () => {
   }>({});
   const [mensajeExito, setMensajeExito] = useState("");
   const [editCamposArray, setEditCamposArray] = useState<Array<{ nombre: string; resultado: string; valorReferencia: string; tipoExamen?: string }>>([]);
+  const [firmantes, setFirmantes] = useState<Array<{ nombre: string; cargo: string; firma: string; sello: string }>>([]);
 
   const pdfRef = useRef<HTMLDivElement>(null);
 
@@ -189,6 +190,10 @@ const ListaExamenes = () => {
   const searchMounted = useRef(false);
 
   useEffect(() => {
+    fetch(`${API_BASE}/api/configuracion`)
+      .then((r) => r.json())
+      .then((data) => { if (data.firmantes) setFirmantes(data.firmantes); })
+      .catch(() => {});
     fetchClientes();
     const handleExamenAdded = () => fetchExamenes(0, filasPorPagina, "", false);
     window.addEventListener("examenAdded", handleExamenAdded);
@@ -1685,6 +1690,66 @@ const ListaExamenes = () => {
                       {examenSeleccionado.observaciones}
                     </Typography>
                   </Box>
+                </Box>
+              )}
+
+              {/* Footer: Firmas y Sellos */}
+              {firmantes.some((f) => f.nombre || f.firma || f.sello) && (
+                <Box
+                  sx={{
+                    mt: 3,
+                    pt: 2,
+                    borderTop: "1px solid #000",
+                    display: "flex",
+                    justifyContent: "space-around",
+                    alignItems: "flex-end",
+                    gap: 2,
+                  }}
+                >
+                  {firmantes.map((firmante, idx) => (
+                    (firmante.nombre || firmante.firma || firmante.sello) && (
+                      <Box
+                        key={idx}
+                        sx={{
+                          flex: 1,
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          gap: 0.5,
+                          maxWidth: "45%",
+                        }}
+                      >
+                        {/* Firma izquierda, sello derecha */}
+                        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 2 }}>
+                          {firmante.firma && (
+                            <img
+                              src={firmante.firma}
+                              alt="Firma"
+                              crossOrigin="anonymous"
+                              style={{ maxHeight: 60, maxWidth: "45%", objectFit: "contain" }}
+                            />
+                          )}
+                          {firmante.sello && (
+                            <img
+                              src={firmante.sello}
+                              alt="Sello"
+                              crossOrigin="anonymous"
+                              style={{ maxHeight: 60, maxWidth: "45%", objectFit: "contain" }}
+                            />
+                          )}
+                        </Box>
+                        <Box sx={{ borderTop: "1px solid #374151", width: "80%", mt: 0.5 }} />
+                        <Typography sx={{ fontSize: "12px", fontWeight: 700, color: "#1f2937", textAlign: "center" }}>
+                          {firmante.nombre}
+                        </Typography>
+                        {firmante.cargo && (
+                          <Typography sx={{ fontSize: "11px", color: "#6b7280", textAlign: "center" }}>
+                            {firmante.cargo}
+                          </Typography>
+                        )}
+                      </Box>
+                    )
+                  ))}
                 </Box>
               )}
             </Box>

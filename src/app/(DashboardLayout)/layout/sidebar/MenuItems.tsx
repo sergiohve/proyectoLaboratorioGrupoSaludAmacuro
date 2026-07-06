@@ -1,20 +1,17 @@
 import {
   IconLayoutDashboard,
-  IconUser,
   IconReportMedical,
-  IconChartBar,
-  IconDatabase,
-  IconHeartbeat,
-  IconStethoscope,
-  IconMicroscope,
   IconClipboardList,
   IconUsers,
-  IconList,
   IconDownload,
   IconCurrencyDollar,
+  IconSettings,
 } from "@tabler/icons-react";
 
 import { uniqueId } from "lodash";
+
+const isElectron = () =>
+  typeof window !== "undefined" && window.location.port === "4000";
 
 const Menuitems = [
   {
@@ -34,13 +31,13 @@ const Menuitems = [
   {
     id: uniqueId(),
     title: "Registro pacientes",
-    icon: IconUsers, 
+    icon: IconUsers,
     href: "/clientes",
   },
   {
     id: uniqueId(),
     title: "Lista de Pacientes",
-    icon: IconClipboardList, 
+    icon: IconClipboardList,
     href: "/lista-clientes",
   },
   {
@@ -50,7 +47,7 @@ const Menuitems = [
   {
     id: uniqueId(),
     title: "Crear examén",
-    icon: IconReportMedical, 
+    icon: IconReportMedical,
     href: "/examenes",
   },
   {
@@ -65,6 +62,18 @@ const Menuitems = [
     icon: IconCurrencyDollar,
     href: "/precios-examenes",
   },
+  ...(isElectron() ? [
+    {
+      navlabel: true,
+      subheader: "Configuración",
+    },
+    {
+      id: uniqueId(),
+      title: "Firmantes y Sellos",
+      icon: IconSettings,
+      href: "/configuracion",
+    },
+  ] : []),
   {
     navlabel: true,
     subheader: "Aplicación",
